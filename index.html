@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>박병준 선생님의 통합사회 교실 🌸</title>
+  <meta name="description" content="고등학교 통합사회 7개 성취기준에 맞춤화된 인터랙티브 배움 대시보드">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- 헤더 영역 -->
+    <header>
+      <div class="header-top">
+        <div class="logo-section">
+          <h1>통합사회 배움 교실 🌸</h1>
+          <p>박병준 선생님과 함께하는 즐거운 사회 탐구 여행</p>
+        </div>
+        <div class="controls-section">
+          <!-- 학생 프로필 정보 설정 버튼 -->
+          <button id="profileBtn" class="profile-btn" onclick="openProfileModal()">
+            <span id="studentEmoji">👧</span>
+            <span id="studentNameDisplay">학생 설정</span>
+          </button>
+          <!-- 테마 토글 버튼 -->
+          <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="테마 전환">
+            ☀️
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 대시보드 학습 요약 위젯 -->
+    <section class="dashboard-overview">
+      <div class="welcome-widget">
+        <h2>반가워요, <span id="welcomeName" style="color: var(--color-pink); font-weight: 700;">친구</span>! 💕</h2>
+        <p>오늘도 배움의 즐거움을 함께 나누어 보아요. 아래의 활동 카드를 눌러 탐구를 시작해보세요!</p>
+        <div class="progress-wrapper">
+          <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <div class="progress-text">배움 달성도: <span id="progressPercent">0%</span></div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="statTotal" class="stat-value">3</div>
+          <div class="stat-label">진행 가능한 탐구</div>
+        </div>
+        <div class="stat-card">
+          <div id="statCompleted" class="stat-value" style="color: var(--color-mint);">0</div>
+          <div class="stat-label">완료한 탐구</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 필터 내비게이션 -->
+    <nav class="filter-nav" aria-label="성취기준 카테고리 필터">
+      <button class="filter-chip active" onclick="filterCategory('all', this)">🌸 전체 단원</button>
+      <button class="filter-chip" onclick="filterCategory('인권 보장과 헌법', this)">🏛️ 인권 보장과 헌법</button>
+      <button class="filter-chip" onclick="filterCategory('시장 경제와 금융', this)">📈 시장 경제와 금융</button>
+    </nav>
+
+    <!-- 성취기준 카드 그리드 -->
+    <main class="standards-grid" id="standardsGrid">
+      <!-- data.js에서 동적으로 생성됩니다. -->
+    </main>
+  </div>
+
+  <!-- 학생 정보 설정 모달 -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-content">
+      <h3>안녕! 네 정보를 알려줘 💕</h3>
+      <p>활동지 제출 및 실시간 학습 결과 저장을 위해 학생 정보를 입력해주세요.</p>
+      
+      <div class="form-group">
+        <label for="studentGradeClass">학번 (예: 10401)</label>
+        <input type="text" id="studentGradeClass" placeholder="학번 5자리를 입력해주세요 (예: 10224)">
+      </div>
+
+      <div class="form-group">
+        <label for="studentName">이름</label>
+        <input type="text" id="studentName" placeholder="이름을 입력해주세요">
+      </div>
+
+      <div class="form-group">
+        <label>나의 캐릭터 선택</label>
+        <div class="emoji-selector">
+          <span class="emoji-option selected" onclick="selectEmoji('👧', this)">👧</span>
+          <span class="emoji-option" onclick="selectEmoji('✨', this)">✨</span>
+          <span class="emoji-option" onclick="selectEmoji('🧸', this)">🧸</span>
+          <span class="emoji-option" onclick="selectEmoji('🎀', this)">🎀</span>
+          <span class="emoji-option" onclick="selectEmoji('🐱', this)">🐱</span>
+          <span class="emoji-option" onclick="selectEmoji('🌸', this)">🌸</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeProfileModal()">취소</button>
+        <button class="modal-btn primary" onclick="saveProfile()">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 데이터 및 앱 스크립트 연결 -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

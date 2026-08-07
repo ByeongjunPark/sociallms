@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>병준쌤 봇과 함께하는 시민 참여 시뮬레이션 💬</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .activity-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: fadeInUp 0.6s ease;
+    }
+    
+    .chat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 28px;
+      box-shadow: var(--shadow-primary);
+      backdrop-filter: blur(12px);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .chat-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    [data-theme="dark"] .chat-header {
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .teacher-avatar {
+      font-size: 2rem;
+      background: var(--color-purple-soft);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .teacher-status {
+      display: flex;
+      flex-direction: column;
+    }
+    .teacher-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .teacher-badge-active {
+      font-size: 0.75rem;
+      color: var(--color-mint);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: bold;
+    }
+
+    /* 대화 영역 */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .message-bubble {
+      max-width: 75%;
+      padding: 14px 20px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      position: relative;
+      animation: messageSlide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+    
+    .message-bubble.teacher {
+      background: white;
+      color: var(--text-primary);
+      align-self: flex-start;
+      border-top-left-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+    [data-theme="dark"] .message-bubble.teacher {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .message-bubble.student {
+      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
+      color: white;
+      align-self: flex-end;
+      border-top-right-radius: 4px;
+      box-shadow: 0 4px 15px rgba(184, 150, 219, 0.25);
+    }
+
+    .message-time {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      align-self: flex-end;
+    }
+    .message-bubble.teacher + .message-time {
+      align-self: flex-start;
+      margin-left: 6px;
+    }
+    .message-bubble.student + .message-time {
+      align-self: flex-end;
+      margin-right: 6px;
+    }
+
+    /* 로딩 애니메이션 */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 18px;
+      background: white;
+      border-radius: 20px;
+      width: fit-content;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      align-self: flex-start;
+    }
+    [data-theme="dark"] .typing-indicator {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--color-purple);
+      border-radius: 50%;
+      animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    /* 대답 선택 패널 */
+    .response-panel {
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.4);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    [data-theme="dark"] .response-panel {
+      background: rgba(255, 255, 255, 0.02);
+      border-top-color: rgba(255, 255, 255, 0.05);
+    }
+    .choices-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .choice-btn {
+      background: white;
+      border: 1.5px solid var(--color-purple-soft);
+      padding: 12px 20px;
+      border-radius: 16px;
+      font-family: var(--font-family-body);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+    }
+    [data-theme="dark"] .choice-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    .choice-btn:hover {
+      background: var(--color-purple-soft);
+      border-color: var(--color-purple);
+      transform: translateY(-2px);
+    }
+
+    .custom-input-bar {
+      display: flex;
+      gap: 8px;
+    }
+    .custom-input {
+      flex: 1;
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      padding: 14px;
+      font-family: var(--font-family-body);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    [data-theme="dark"] .custom-input {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+    .custom-send-btn {
+      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @keyframes messageSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1.0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="activity-page" style="height: 100vh; display: flex; flex-direction: column;">
+    <a href="../index.html" class="activity-back-link">🌸 대시보드로 돌아가기</a>
+    
+    <div class="activity-container">
+      <div style="text-align: right; margin-bottom: 10px;">
+        <span class="student-badge" id="studentBadge" style="background: var(--color-purple-soft); color: var(--color-purple);">👧 설정된 학생 없음</span>
+      </div>
+
+      <!-- 메인 챗 프레임 -->
+      <main class="chat-card">
+        <div class="chat-header">
+          <div class="teacher-avatar">👨‍🏫</div>
+          <div class="teacher-status">
+            <span class="teacher-name">병준쌤 AI 🌸</span>
+            <span class="teacher-badge-active">🟢 실시간 대화 중</span>
+          </div>
+        </div>
+
+        <!-- 메시지 윈도우 -->
+        <div class="chat-messages" id="chatMessages">
+          <!-- 대화 말풍선이 동적으로 생성됩니다. -->
+        </div>
+
+        <!-- 학생 응답 영역 -->
+        <div class="response-panel">
+          <div class="choices-container" id="choicesContainer">
+            <!-- 선택지 버튼이 동적으로 생성됩니다. -->
+          </div>
+          <div class="custom-input-bar">
+            <input type="text" id="customInput" class="custom-input" placeholder="여기에 의견을 자유롭게 적어보세요..." onkeypress="handleKeyPress(event)">
+            <button class="custom-send-btn" onclick="sendCustomMessage()">전송</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const ACTIVITY_ID = "c10102_chatbot";
+    let studentName = "친구";
+    let chatStep = 0;
+
+    // 대화 흐름 스크립트 정의
+    const DIALOGUE_FLOW = {
+      0: {
+        text: () => `안녕, ${studentName}! 🌸 오늘 배움의 주제는 '인권 보장과 시민 참여'란다.\n\n우리 헌법에 명시된 인간 존엄성을 지키기 위해 시민들은 다양한 방식으로 사회적 의사를 표현할 수 있어. 혹시 실생활에서 보거나 참여해 본 '시민 참여'의 수단이 있니?`,
+        choices: [
+          { text: "🗳️ 선거 및 투표 참여", next: 1 },
+          { text: "🕯️ 촛불집회 및 1인 시위", next: 2 },
+          { text: "✍️ 온라인 서명운동", next: 3 },
+          { text: "아직 잘 모르겠어요! 🥺", next: 4 }
+        ]
+      },
+      1: {
+        text: () => `선거와 투표를 선택했구나! 아주 훌륭한 민주 사회의 가장 핵심적인 참여 수단이지.\n\n만약 우리 동네 공원에 어린이와 청소년을 위한 안전 시설이 턱없이 부족하다고 할 때, 투표 말고 우리가 직접 할 수 있는 시민 참여 수단은 무엇이 있을까?`,
+        choices: [
+          { text: "공식 홈페이지에 '시민 청원' 넣기 ✍️", next: 5 },
+          { text: "친구들과 함께 캠페인 피켓 들기 🪧", next: 6 },
+          { text: "구의원/시의원 사무실에 민원 넣기 📞", next: 7 }
+        ]
+      },
+      2: {
+        text: () => `촛불집회와 1인 시위 같은 집회·시위의 자유를 선택했구나! 이는 헌법이 보장하는 강한 표현 수단이지.\n\n대규모 집회뿐 아니라 청소년 노동권이나 환경 보호를 알리기 위한 평화적인 1인 시위나 플래시몹도 대중의 주목을 끌 수 있어. 이런 행동이 가지는 가장 큰 효과는 무엇일까?`,
+        choices: [
+          { text: "사람들의 관심을 환기하고 여론을 형성해요 🗣️", next: 8 },
+          { text: "정부나 기업의 즉각적인 정책 변화를 이끌어내요 🏛️", next: 9 }
+        ]
+      },
+      3: {
+        text: () => `스마트폰으로 쉽게 동참할 수 있는 온라인 서명을 택했구나! 아주 현대적이고 파워풀한 방법이지.\n\n예를 들어 '청소년 아르바이트 최저임금 미지급 문제'를 고발하는 서명 운동에 10만 명이 동참한다면, 사회는 어떻게 바뀔까?`,
+        choices: [
+          { text: "많은 사람들이 노동권 문제에 경각심을 가질 거예요 🤝", next: 8 },
+          { text: "국회에서 관련 법률 심사가 촉발될 수 있어요 📜", next: 9 }
+        ]
+      },
+      4: {
+        text: () => `괜찮단다! 차근차근 배워가면 되지. 😊\n\n시민 참여는 거창한 것이 아니라, 우리가 학교 급식실 잔반 줄이기 서명 운동을 하거나, 우리 동네 불법 주차 해결을 위해 안전신문고 앱으로 신고하는 모든 행동을 의미해.\n\n그럼 혹시 학교생활 중에 '우리가 건의해서 무언가를 바꾼 경험'이 있니?`,
+        choices: [
+          { text: "건의함에 의견을 내서 규칙을 바꾼 적이 있어요! 🏫", next: 5 },
+          { text: "학급 회의를 통해 축제 테마를 결정한 적이 있어요! 🎉", next: 6 },
+          { text: "없지만, 앞으로 해보고 싶어요! ✨", next: 7 }
+        ]
+      },
+      5: {
+        text: () => `우와, 직접 의견을 제출해 제도를 바꾸려 해본(또는 바꾼) 경험이 있구나! 헌법 제26조 '청원권'의 적극적인 실천이야. 🏛️\n\n이처럼 시민 참여는 우리 주변의 작고 불편한 문제를 인권에 맞게 고쳐 나가는 힘이란다. 마지막으로 오늘 챗봇 대화를 통해 느낀 점을 한 문장으로 정리해줄래?`,
+        input: true,
+        next: 10
+      },
+      6: {
+        text: () => `협력적 캠페인이나 학급 회의 같은 공동체적 해결은 민주주의의 꽃이지! 🌸\n\n다양한 목소리가 합쳐질 때 사회는 긍정적인 방향으로 움직인단다. 마지막으로 오늘 배움을 정리하며, 본인이 실천할 수 있는 한 가지 참여 수단을 문장으로 적어 볼까?`,
+        input: true,
+        next: 10
+      },
+      7: {
+        text: () => `좋은 생각이야! 지방의원 등 대의원들을 활용한 간접적인 청원도 법률적으로 매우 효과적이란다. 😊\n\n앞으로 작은 일부터 참여해보겠다는 다짐이 기특하구나. 마지막으로 오늘 챗봇 대화의 소감을 자유롭게 한 문장 적고 마쳐볼까?`,
+        input: true,
+        next: 10
+      },
+      8: {
+        text: () => `정확해! 여론 형성이야말로 정치가 움직이게 하는 핵심 연료지. 💡\n\n대중의 공감을 얻는 순간 제도는 반드시 바뀌게 된단다. 마지막으로 오늘 챗봇 대화를 마치며, 헌법과 시민 참여에 대해 느낀 소감을 간단히 적어보자.`,
+        input: true,
+        next: 10
+      },
+      9: {
+        text: () => `맞아! 대규모 시민 참여는 실제로 법률 개정이나 정책 수정을 직접 압박하는 아주 직접적인 힘을 가져.\n\n기특한 통찰력을 지녔구나! 마지막으로 오늘 배운 소감을 한 문장 적어보고 마칠까?`,
+        input: true,
+        next: 10
+      },
+      10: {
+        text: () => `완벽해! 정말 알찬 답변이었어. ${studentName} 학생은 앞으로 훌륭한 민주 시민으로 성장할 자질이 넘치는구나. 🥰🌸\n\n오늘 학습 결과는 대시보드에 반영될 거야. 수고했어! 아래 완료 버튼을 눌러줘.`,
+        isEnd: true
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 테마 초기화
+      const savedTheme = localStorage.getItem("sociallms_theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+
+      // 학생 프로필 확인
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      if (savedProfile) {
+        const student = JSON.parse(savedProfile);
+        studentName = student.name;
+        document.getElementById("studentBadge").textContent = `${student.emoji} ${student.gradeClass ? student.gradeClass + ' ' : ''}${student.name} 학생`;
+      }
+
+      // 첫 대화 시작
+      triggerNextStep(0);
+    });
+
+    // 챗봇 답변 렌더링
+    function triggerNextStep(step) {
+      chatStep = step;
+      showTypingIndicator();
+
+      setTimeout(() => {
+        hideTypingIndicator();
+        const data = DIALOGUE_FLOW[step];
+        addMessage(data.text(), "teacher");
+
+        // 선택지 그리기
+        const choicesContainer = document.getElementById("choicesContainer");
+        choicesContainer.innerHTML = "";
+
+        if (data.choices) {
+          data.choices.forEach(ch => {
+            const btn = document.createElement("button");
+            btn.className = "choice-btn";
+            btn.textContent = ch.text;
+            btn.onclick = () => {
+              addMessage(ch.text, "student");
+              triggerNextStep(ch.next);
+            };
+            choicesContainer.appendChild(btn);
+          });
+          document.getElementById("customInput").disabled = true;
+        } else if (data.input) {
+          document.getElementById("customInput").disabled = false;
+          document.getElementById("customInput").focus();
+        } else if (data.isEnd) {
+          document.getElementById("customInput").disabled = true;
+          
+          // 최종 완료 버튼
+          const btn = document.createElement("button");
+          btn.className = "choice-btn";
+          btn.style.background = "linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%)";
+          btn.style.color = "white";
+          btn.style.borderColor = "transparent";
+          btn.textContent = "탐구 완료 및 대시보드로 가기 🌸";
+          btn.onclick = finishChat;
+          choicesContainer.appendChild(btn);
+        }
+      }, 1000);
+    }
+
+    // 채팅창 메시지 추가
+    function addMessage(text, sender) {
+      const messagesContainer = document.getElementById("chatMessages");
+      
+      const bubble = document.createElement("div");
+      bubble.className = `message-bubble ${sender}`;
+      bubble.innerText = text;
+      
+      const time = document.createElement("div");
+      time.className = "message-time";
+      time.textContent = new Date().toLocaleTimeString("ko-KR", { hour: '2-digit', minute: '2-digit' });
+
+      messagesContainer.appendChild(bubble);
+      messagesContainer.appendChild(time);
+      
+      // 자동 스크롤 하단 고정
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 타이핑 로딩 표시
+    function showTypingIndicator() {
+      const messagesContainer = document.getElementById("chatMessages");
+      const indicator = document.createElement("div");
+      indicator.className = "typing-indicator";
+      indicator.id = "typingIndicator";
+      indicator.innerHTML = `
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      `;
+      messagesContainer.appendChild(indicator);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById("typingIndicator");
+      if (indicator) indicator.remove();
+    }
+
+    // 커스텀 텍스트 전송
+    function sendCustomMessage() {
+      const input = document.getElementById("customInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, "student");
+      input.value = "";
+
+      const currentFlow = DIALOGUE_FLOW[chatStep];
+      if (currentFlow.next) {
+        // 다음 단계로
+        triggerNextStep(currentFlow.next);
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === "Enter") {
+        sendCustomMessage();
+      }
+    }
+
+    // 대화 마치기
+    function finishChat() {
+      const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+      progress[ACTIVITY_ID] = "completed";
+      localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+
+      alert("병준쌤과 함께한 대화를 통해 헌법과 시민 참여를 깊이 있게 배웠기를 바래요! 참 잘했어요 👍");
+      window.location.href = "../index.html";
+    }
+  </script>
+</body>
+</html>

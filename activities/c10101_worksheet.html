@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>현대 사회의 새로운 인권 조사 활동지 📝</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .activity-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      animation: fadeInUp 0.6s ease;
+    }
+    .card-activity {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: var(--shadow-primary);
+      backdrop-filter: blur(12px);
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .student-badge {
+      font-size: 0.95rem;
+      background: var(--color-pink-soft);
+      color: var(--color-pink);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .activity-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .activity-subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: 32px;
+    }
+    
+    /* 인권 영역 선택 버블 */
+    .rights-categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 600px) {
+      .rights-categories {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .category-card {
+      background: rgba(255, 255, 255, 0.4);
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    [data-theme="dark"] .category-card {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .category-card:hover {
+      transform: translateY(-3px);
+      background: white;
+    }
+    [data-theme="dark"] .category-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .category-card.selected {
+      background: white;
+      border-color: var(--color-pink);
+      box-shadow: 0 8px 20px -8px rgba(255, 133, 162, 0.5);
+    }
+    [data-theme="dark"] .category-card.selected {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .category-card .icon {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .category-card .name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* 활동지 문항 영역 */
+    .worksheet-form {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .question-block {
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      border-radius: 20px;
+      padding: 20px;
+    }
+    [data-theme="dark"] .question-block {
+      background: rgba(255, 255, 255, 0.01);
+      border-color: rgba(255, 255, 255, 0.03);
+    }
+    .question-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .suggest-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .keyword-tag {
+      font-size: 0.8rem;
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .keyword-tag:hover {
+      background: var(--color-pink-soft);
+      color: var(--color-pink);
+    }
+    .input-textarea {
+      width: 100%;
+      min-height: 120px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+      font-family: var(--font-family-body);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    [data-theme="dark"] .input-textarea {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+    .input-textarea:focus {
+      border-color: var(--color-pink);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(255, 133, 162, 0.15);
+    }
+
+    /* 셀프 평가 별점 버블 */
+    .self-eval-container {
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .eval-bubble {
+      flex: 1;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.03);
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    [data-theme="dark"] .eval-bubble {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .eval-bubble:hover {
+      background: rgba(255, 133, 162, 0.1);
+    }
+    .eval-bubble.selected {
+      background: var(--color-pink);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* 조작 바 */
+    .submit-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 36px;
+      gap: 16px;
+    }
+    .btn-action {
+      border: none;
+      padding: 14px 28px;
+      border-radius: 18px;
+      font-family: var(--font-family-body);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-print {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+    .btn-submit {
+      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
+      color: white;
+      box-shadow: 0 8px 20px -8px rgba(184, 150, 219, 0.6);
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -10px rgba(184, 150, 219, 0.8);
+    }
+
+    /* 프린트 전용 미디어 쿼리 (A4 인쇄/PDF 전용 정렬) */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      .activity-page {
+        padding: 0 !important;
+      }
+      .activity-back-link,
+      .rights-categories,
+      .suggest-keywords,
+      .submit-bar,
+      .theme-toggle,
+      #profileBtn {
+        display: none !important;
+      }
+      .card-activity {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+      }
+      .question-block {
+        background: transparent !important;
+        border: 1px solid #ccc !important;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+      }
+      .input-textarea {
+        border: 1px solid #999 !important;
+        background: transparent !important;
+        color: black !important;
+        min-height: 180px;
+      }
+      .self-eval-container {
+        display: flex !important;
+      }
+      .eval-bubble {
+        border: 1px solid #ccc !important;
+        background: transparent !important;
+        color: #333 !important;
+      }
+      .eval-bubble.selected {
+        background: #f0f0f0 !important;
+        font-weight: 700 !important;
+        border-color: black !important;
+      }
+      .student-badge {
+        border: 1px solid black !important;
+        background: transparent !important;
+        color: black !important;
+        font-size: 1.1rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="activity-page">
+    <a href="../index.html" class="activity-back-link">🌸 대시보드로 돌아가기</a>
+    
+    <div class="activity-container">
+      <div style="text-align: right; margin-bottom: 16px;">
+        <span class="student-badge" id="studentBadge">👧 설정된 학생 없음</span>
+      </div>
+
+      <main class="card-activity">
+        <h2 class="activity-title">현대 사회의 새로운 인권 조사 활동지 📝</h2>
+        <p class="activity-subtitle">
+          주거, 안전, 환경, 문화 등 현대 사회에서 새롭게 대두되거나 확장되는 인권 영역 중 하나를 선택하고, 실제 사례를 분석하여 보고서를 완성해 봅시다.
+        </p>
+
+        <!-- 1. 영역 선택 영역 -->
+        <h3 class="question-title" style="margin-bottom: 12px;">STEP 1. 탐구할 인권 영역을 선택해 주세요</h3>
+        <div class="rights-categories">
+          <div class="category-card selected" onclick="selectCategory('주거권', '🏠', this)">
+            <span class="icon">🏠</span>
+            <span class="name">주거권</span>
+          </div>
+          <div class="category-card" onclick="selectCategory('안전권', '🚨', this)">
+            <span class="icon">🚨</span>
+            <span class="name">안전권</span>
+          </div>
+          <div class="category-card" onclick="selectCategory('환경권', '🌿', this)">
+            <span class="icon">🌿</span>
+            <span class="name">환경권</span>
+          </div>
+          <div class="category-card" onclick="selectCategory('문화권', '🎨', this)">
+            <span class="icon">🎨</span>
+            <span class="name">문화권</span>
+          </div>
+        </div>
+
+        <!-- 2. 서술형 작성 영역 -->
+        <div class="worksheet-form">
+          <div class="question-block">
+            <h4 class="question-title">💡 1. 내가 조사한 <span id="selectedRightName" style="color: var(--color-pink);">주거권</span> 관련 침해 또는 보장 사례</h4>
+            <div class="suggest-keywords" id="keywordContainer">
+              <!-- 카테고리에 맞춰 동적 생성 -->
+            </div>
+            <textarea id="answer1" class="input-textarea" placeholder="선택한 인권 영역과 관련된 우리 주변의 뉴스, 생활 속 불편함, 정책 사례 등을 서술해 주세요."></textarea>
+          </div>
+
+          <div class="question-block">
+            <h4 class="question-title">💭 2. 이 문제를 해결하여 인권을 보장하기 위한 방안 (정부, 기업, 시민 각각의 관점)</h4>
+            <textarea id="answer2" class="input-textarea" placeholder="법률 제정, 캠페인 참여, 기업의 책임 등 인권 보장을 위한 구체적 해결 방안을 적어봅시다."></textarea>
+          </div>
+
+          <div class="question-block">
+            <h4 class="question-title">⭐ 3. 나의 배움 성찰 (스스로 평가하기)</h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">오늘 탐구 활동을 통해 현대 사회 인권 확장의 의미를 깊이 이해했나요?</p>
+            <div class="self-eval-container">
+              <div class="eval-bubble" onclick="selectEval(1, this)">아쉬워요 🥺</div>
+              <div class="eval-bubble" onclick="selectEval(2, this)">이해했어요 🙂</div>
+              <div class="eval-bubble selected" onclick="selectEval(3, this)">아주 잘했어요! 🥰</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 하단 조작 바 -->
+        <div class="submit-bar">
+          <button class="btn-action btn-print" onclick="printWorksheet()">
+            🖨️ 활동지 인쇄 / PDF 저장
+          </button>
+          <button class="btn-action btn-submit" onclick="submitWorksheet()">
+            배움 완료 및 저장하기 ✨
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const ACTIVITY_ID = "c10101_worksheet";
+    let currentRight = "주거권";
+    let evalRating = 3;
+
+    // 카테고리별 추천 키워드 맵
+    const KEYWORDS_MAP = {
+      "주거권": ["청년 임대 주택", "주거 급여", "최저 주거 기준", "노숙인 보호", "스마트 홈 안전"],
+      "안전권": ["어린이 보호 구역", "재해 예방 시스템", "범죄 예방(CPTED)", "개인정보 보호", "산업 현장 안전"],
+      "환경권": ["기후 위기 대응", "탄소 중립", "소음 및 분진 피해", "미세먼지 예방", "지속 가능한 숲"],
+      "문화권": ["문화 격차 해소", "장애인 예술 지원", "다문화 축제 지원", "디지털 소외 계층", "공공 문화시설 확보"]
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 테마 초기화
+      const savedTheme = localStorage.getItem("sociallms_theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+
+      // 학생 프로필 확인
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      const badge = document.getElementById("studentBadge");
+      if (savedProfile && badge) {
+        const student = JSON.parse(savedProfile);
+        badge.textContent = `${student.emoji} ${student.gradeClass ? student.gradeClass + ' ' : ''}${student.name} 학생`;
+      }
+
+      // 추천 키워드 로드
+      selectCategory("주거권", "🏠", document.querySelector(".category-card"));
+
+      // 이전 입력값 복원
+      restoreAnswers();
+    });
+
+    // 영역 선택
+    function selectCategory(name, icon, element) {
+      currentRight = name;
+      document.getElementById("selectedRightName").textContent = name;
+      
+      const cards = document.querySelectorAll(".category-card");
+      cards.forEach(card => card.classList.remove("selected"));
+      element.classList.add("selected");
+
+      // 키워드 재생성
+      const container = document.getElementById("keywordContainer");
+      container.innerHTML = "";
+      KEYWORDS_MAP[name].forEach(kw => {
+        const tag = document.createElement("span");
+        tag.className = "keyword-tag";
+        tag.textContent = `# ${kw}`;
+        tag.onclick = () => {
+          const textarea = document.getElementById("answer1");
+          textarea.value += (textarea.value ? " " : "") + `${kw}`;
+          textarea.focus();
+        };
+        container.appendChild(tag);
+      });
+    }
+
+    // 자기 평가 선택
+    function selectEval(val, element) {
+      evalRating = val;
+      const bubbles = document.querySelectorAll(".eval-bubble");
+      bubbles.forEach(b => b.classList.remove("selected"));
+      element.classList.add("selected");
+    }
+
+    // 결과 임시 로컬스토리지 보관 및 복원
+    function restoreAnswers() {
+      const saved = localStorage.getItem(`sociallms_data_${ACTIVITY_ID}`);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.currentRight) {
+          // 카테고리 복원
+          const cards = document.querySelectorAll(".category-card");
+          cards.forEach(card => {
+            if (card.querySelector(".name").textContent === data.currentRight) {
+              selectCategory(data.currentRight, card.querySelector(".icon").textContent, card);
+            }
+          });
+        }
+        document.getElementById("answer1").value = data.answer1 || "";
+        document.getElementById("answer2").value = data.answer2 || "";
+        if (data.evalRating) {
+          const bubbles = document.querySelectorAll(".eval-bubble");
+          selectEval(data.evalRating, bubbles[data.evalRating - 1]);
+        }
+      }
+    }
+
+    // 배움 제출
+    function submitWorksheet() {
+      const answer1 = document.getElementById("answer1").value.trim();
+      const answer2 = document.getElementById("answer2").value.trim();
+
+      if (!answer1 || !answer2) {
+        alert("모든 빈칸을 채워주세요! 여고생의 꼼꼼함을 보여주세요 🌸");
+        return;
+      }
+
+      // 로컬 데이터 저장
+      const activityData = {
+        currentRight,
+        answer1,
+        answer2,
+        evalRating,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(`sociallms_data_${ACTIVITY_ID}`, JSON.stringify(activityData));
+
+      // 완료 상태 기록
+      const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+      progress[ACTIVITY_ID] = "completed";
+      localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+
+      alert("배움 활동이 안전하게 저장되고 완료되었습니다! 참 잘했어요 🌸");
+      window.location.href = "../index.html";
+    }
+
+    // 인쇄 함수
+    function printWorksheet() {
+      // 인쇄하기 전에 임시 데이터 저장
+      const answer1 = document.getElementById("answer1").value.trim();
+      const answer2 = document.getElementById("answer2").value.trim();
+      const activityData = {
+        currentRight,
+        answer1,
+        answer2,
+        evalRating
+      };
+      localStorage.setItem(`sociallms_data_${ACTIVITY_ID}`, JSON.stringify(activityData));
+
+      window.print();
+    }
+  </script>
+</body>
+</html>
