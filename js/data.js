@@ -15,7 +15,16 @@ const CURRICULUM_DATA = [
     category: "인권 보장과 헌법",
     color: "var(--color-pink)",
     bgGradient: "linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)",
-    activities: []
+    activities: [
+      {
+        id: "c10101_worksheet",
+        title: "인권 역사와 3세대 변화 연표 🏛️",
+        description: "역사적 요구 조건과 사건을 연결하고, 인권 확장 연대기를 세대별로 재구성해보는 3단계 생각 전이 활동지",
+        type: "worksheet",
+        timeRequired: "15분",
+        url: "activities/c10101_worksheet.html"
+      }
+    ]
   },
   {
     id: "10통사2-01-02",
