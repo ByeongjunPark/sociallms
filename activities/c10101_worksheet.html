@@ -934,12 +934,13 @@
         actions.appendChild(nextBtn);
       }
 
-      modal.style.display = "flex";
+      // style.css에 정의된 오버레이 노출 애니메이션 연동을 위해 active 클래스 추가!
+      modal.classList.add("active");
     }
 
     function closeWorksheetModal() {
       const modal = document.getElementById("worksheetModal");
-      if (modal) modal.style.display = "none";
+      if (modal) modal.classList.remove("active");
     }
 
     function showLoadingModal(titleText) {
@@ -958,7 +959,7 @@
         </div>
       `;
       actions.innerHTML = "";
-      modal.style.display = "flex";
+      modal.classList.add("active");
     }
 
     // ================= 1단계 매칭 처리 로직 =================

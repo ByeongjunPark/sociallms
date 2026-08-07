@@ -973,7 +973,7 @@ async function consultAiLearningStrategy() {
       </span>
     </div>
   `;
-  modal.style.display = "flex";
+  modal.classList.add("active");
 
   try {
     const response = await fetch("/api/chat", {
@@ -1026,5 +1026,5 @@ async function consultAiLearningStrategy() {
 
 function closeDashboardAiModal() {
   const modal = document.getElementById("dashboardAiModal");
-  if (modal) modal.style.display = "none";
+  if (modal) modal.classList.remove("active");
 }

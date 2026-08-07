@@ -23,20 +23,26 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: "올바르지 않은 메시지 데이터 포맷입니다." });
     }
 
-    // Upstage Solar API Key 설정 (환경 변수 우선, 없을 시 예비용 디폴트 키 사용)
-    const apiKey = process.env.UPSTAGE_API_KEY || "up_8n84t1USbP93gILYJ4x7w7QRHkhYX";
+    // Upstage Solar API Key 설정 (환경 변수 우선)
+    const apiKey = process.env.UPSTAGE_API_KEY;
     
-    // Upstage Chat Completion API 호출
+    if (!apiKey) {
+      return res.status(500).json({
+        success: false,
+        message: "Vercel 환경 변수 'UPSTAGE_API_KEY'가 누락되었습니다. Vercel 프로젝트 설정의 Environment Variables 탭에 키를 등록하고 꼭 재배포(Redeploy)해 주세요! 🥺"
+      });
+    }
+
+    // Upstage Chat Completion API 호출 (표준 API 규격 준수)
     const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKey.trim()}`, // 혹시 모를 공백 문자 제거
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "solar-pro4",
-        messages: messages,
-        reasoning_effort: "medium" // 업스테이지 솔라 추론 성능 활성화
+        model: "solar-1-mini-chat",
+        messages: messages
       })
     });
 
