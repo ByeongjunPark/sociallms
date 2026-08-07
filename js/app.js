@@ -237,7 +237,7 @@ function navigateWizard(direction) {
   const nextStep = currentStep + direction;
 
   if (direction === 1) {
-    // 1단계 기본 인풋 유효성 검사
+    // 1단계: 기본 인풋 유효성 검사
     if (currentStep === 1) {
       const studentId = document.getElementById("signupStudentId").value.trim();
       const studentName = document.getElementById("signupStudentName").value.trim();
@@ -247,13 +247,91 @@ function navigateWizard(direction) {
         return;
       }
       if (!validateStudentId(studentId)) {
-        alert("학번은 반드시 숫자 4자리로 적어주세요. 🥺");
+        alert("학번은 반드시 숫자 4자리로 적어주세요. (예: 1402) 🥺");
         return;
       }
     }
     
-    // 마지막 7단계에서 다음을 누르면 제출 처리
-    if (currentStep === 7) {
+    // 2단계: Q1 진로, Q2 시사이슈 접점 체크 여부 검증
+    else if (currentStep === 2) {
+      const q1Selected = document.querySelectorAll("input[name='q1']:checked").length > 0;
+      const q2Selected = document.querySelectorAll("input[name='q2']:checked").length > 0;
+      
+      if (!q1Selected || !q2Selected) {
+        alert("Q1과 Q2의 답변을 최소 1개 이상 골라주셔야 다음 단계로 넘어갈 수 있어요! 🌸");
+        return;
+      }
+    }
+    
+    // 3단계: Q3 특징 선택지 검증
+    else if (currentStep === 3) {
+      const q3Selected = document.querySelectorAll("input[name='q3']:checked").length > 0;
+      if (!q3Selected) {
+        alert("나를 잘 설명하는 표현(Q3)을 최소 1개 이상 골라주세요! 💕");
+        return;
+      }
+    }
+    
+    // 4단계: Q4 모둠 역할, Q5 과제 종류 검증
+    else if (currentStep === 4) {
+      const q4Selected = document.querySelectorAll("input[name='q4']:checked").length > 0;
+      const q5Selected = document.querySelectorAll("input[name='q5']:checked").length > 0;
+      if (!q4Selected || !q5Selected) {
+        alert("Q4와 Q5의 답변을 최소 1개 이상 선택해 주세요! 💡");
+        return;
+      }
+    }
+    
+    // 5단계: AI 리터러시 Q6, Q7, Q8, Q9 검증
+    else if (currentStep === 5) {
+      for (let qNum = 6; qNum <= 9; qNum++) {
+        const selected = document.querySelectorAll(`input[name='q${qNum}']:checked`).length > 0;
+        if (!selected) {
+          alert(`Q${qNum} 질문에 대한 답변을 선택해 주세요! 🤖`);
+          return;
+        }
+      }
+    }
+    
+    // 6단계: 1단원 인권 개념 및 토론 진단평가 검증 (Q10 ~ Q17 전원 필수)
+    else if (currentStep === 6) {
+      for (let qNum = 10; qNum <= 17; qNum++) {
+        const selected = document.querySelector(`input[name='q${qNum}']:checked`);
+        if (!selected) {
+          alert(`1단원 진단평가의 Q${qNum}번 문항에 답해 주세요! 🏛️\n모든 개념 및 토론 문제에 답하셔야 합니다.`);
+          return;
+        }
+        
+        // 기타 주관식 유효성 검사 추가
+        if (selected.value === "기타") {
+          const etcText = document.getElementById(`q${qNum}_etc_text`).value.trim();
+          if (!etcText) {
+            alert(`Q${qNum}번의 기타 선택지에 의견을 서술해 주세요! ✍️`);
+            return;
+          }
+        }
+      }
+    }
+    
+    // 7단계: 3단원 경제 개념 및 토론 진단평가 검증 (Q18 ~ Q24 전원 필수)
+    else if (currentStep === 7) {
+      for (let qNum = 18; qNum <= 24; qNum++) {
+        const selected = document.querySelector(`input[name='q${qNum}']:checked`);
+        if (!selected) {
+          alert(`3단원 진단평가의 Q${qNum}번 문항에 답해 주세요! 📈\n모든 개념 및 토론 문제에 답하셔야 합니다.`);
+          return;
+        }
+        
+        if (selected.value === "기타") {
+          const etcText = document.getElementById(`q${qNum}_etc_text`).value.trim();
+          if (!etcText) {
+            alert(`Q${qNum}번의 기타 선택지에 의견을 서술해 주세요! ✍️`);
+            return;
+          }
+        }
+      }
+      
+      // 모든 단계 유효성 통과 시 회원 가입 처리 실행
       handleSignup();
       return;
     }
