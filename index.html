@@ -145,6 +145,34 @@
             <label for="loginStudentName">이름</label>
             <input type="text" id="loginStudentName" placeholder="본인 이름을 입력하세요">
           </div>
+          
+          <!-- 🔐 이모지 비밀번호 다이얼 (로그인) -->
+          <div class="form-group">
+            <span class="emoji-password-label">비밀번호 (가입 시 설정한 이모지 4글자 조합)</span>
+            <div class="emoji-picker-container" id="loginEmojiPassword">
+              <div class="emoji-picker-slot">
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 0, -1)">▲</button>
+                <span class="emoji-display-window" id="login_emoji_0">🍎</span>
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 0, 1)">▼</button>
+              </div>
+              <div class="emoji-picker-slot">
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 1, -1)">▲</button>
+                <span class="emoji-display-window" id="login_emoji_1">🍎</span>
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 1, 1)">▼</button>
+              </div>
+              <div class="emoji-picker-slot">
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 2, -1)">▲</button>
+                <span class="emoji-display-window" id="login_emoji_2">🍎</span>
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 2, 1)">▼</button>
+              </div>
+              <div class="emoji-picker-slot">
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 3, -1)">▲</button>
+                <span class="emoji-display-window" id="login_emoji_3">🍎</span>
+                <button type="button" class="emoji-dial-btn" onclick="spinEmoji('login', 3, 1)">▼</button>
+              </div>
+            </div>
+          </div>
+
           <button class="modal-btn primary" style="margin-top: 10px;" onclick="handleLogin()">로그인하기 💕</button>
           
           <!-- 💡 가입/로그인 문제 헬프 가이드 버블 -->
@@ -191,6 +219,33 @@
                 <span class="emoji-option" onclick="selectEmoji('🎀', this)">🎀</span>
                 <span class="emoji-option" onclick="selectEmoji('🐱', this)">🐱</span>
                 <span class="emoji-option" onclick="selectEmoji('🌸', this)">🌸</span>
+              </div>
+            </div>
+            
+            <!-- 🔐 이모지 비밀번호 다이얼 설정 (회원가입) -->
+            <div class="form-group" style="margin-top: 12px;">
+              <span class="emoji-password-label">비밀번호 설정 (나만 아는 귀여운 이모지 4개 조합하기!) 🧸</span>
+              <div class="emoji-picker-container" id="signupEmojiPassword">
+                <div class="emoji-picker-slot">
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 0, -1)">▲</button>
+                  <span class="emoji-display-window" id="signup_emoji_0">🍎</span>
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 0, 1)">▼</button>
+                </div>
+                <div class="emoji-picker-slot">
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 1, -1)">▲</button>
+                  <span class="emoji-display-window" id="signup_emoji_1">🍎</span>
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 1, 1)">▼</button>
+                </div>
+                <div class="emoji-picker-slot">
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 2, -1)">▲</button>
+                  <span class="emoji-display-window" id="signup_emoji_2">🍎</span>
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 2, 1)">▼</button>
+                </div>
+                <div class="emoji-picker-slot">
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 3, -1)">▲</button>
+                  <span class="emoji-display-window" id="signup_emoji_3">🍎</span>
+                  <button type="button" class="emoji-dial-btn" onclick="spinEmoji('signup', 3, 1)">▼</button>
+                </div>
               </div>
             </div>
           </div>

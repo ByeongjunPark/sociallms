@@ -1025,6 +1025,87 @@ header {
 }
 
 
+/* 이모지 비밀번호 다이얼 휠 피커 스타일 */
+.emoji-password-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.emoji-picker-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.emoji-picker-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 8px;
+  width: 64px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+[data-theme="dark"] .emoji-picker-slot {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.emoji-picker-slot:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-purple);
+  box-shadow: 0 8px 20px -8px rgba(184, 150, 219, 0.4);
+}
+
+.emoji-dial-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+[data-theme="dark"] .emoji-dial-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.emoji-dial-btn:hover {
+  background: var(--color-purple-soft);
+  color: var(--color-purple);
+  transform: scale(1.1);
+}
+
+.emoji-display-window {
+  font-size: 2rem;
+  height: 52px;
+  width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0;
+  user-select: none;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.emoji-display-window.bounce {
+  transform: scale(1.25);
+}
+
+
 /* 활동 공통 스타일 (activities) */
 .activity-page {
   max-width: 800px;

@@ -12,11 +12,24 @@ const state = {
   currentWizardStep: 1 // 회원가입 마법사 단계
 };
 
+// 🔐 이모지 비밀번호 다이얼 상수 및 상태
+const PASSWORD_EMOJIS = [
+  "🍎", "🍌", "🍒", "🍇", "🍉", "🍓", "🍍", "🥝",
+  "🐱", "🐶", "🧸", "🐰", "🦁", "🐼", "🐸", "🐷",
+  "🌸", "🎀", "🌟", "🍀", "🍦", "🍩", "🍕", "🎈"
+];
+
+const emojiPickerState = {
+  login: [0, 0, 0, 0],  // 4개 슬롯의 PASSWORD_EMOJIS 인덱스
+  signup: [0, 0, 0, 0]
+};
+
 // 페이지 로드 시 초기화
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   checkLoginState();
   initWizardTraitsEvents();
+  initEmojiPasswordDials(); // 이모지 비밀번호 다이얼 연동
 });
 
 // 테마 초기화 및 전환
@@ -102,6 +115,48 @@ function validateStudentId(id) {
   return idRegex.test(String(id));
 }
 
+// 🔐 이모지 비밀번호 다이얼 회전 동작
+function spinEmoji(type, dialIndex, direction) {
+  const indexes = emojiPickerState[type];
+  const len = PASSWORD_EMOJIS.length;
+  
+  // 새 인덱스 연산
+  let nextIdx = (indexes[dialIndex] + direction) % len;
+  if (nextIdx < 0) nextIdx = len - 1;
+  
+  indexes[dialIndex] = nextIdx;
+  
+  // UI 요소 업데이트
+  const el = document.getElementById(`${type}_emoji_${dialIndex}`);
+  if (el) {
+    el.textContent = PASSWORD_EMOJIS[nextIdx];
+    
+    // 통통 튀는 바운스 애니메이션 효과 부여
+    el.classList.add("bounce");
+    setTimeout(() => {
+      el.classList.remove("bounce");
+    }, 150);
+  }
+}
+
+// 이모지 비밀번호 다이얼 난수 초기화 (매번 다른 기본 조합 제공해 돌리는 재미 확보)
+function initEmojiPasswordDials() {
+  for (let i = 0; i < 4; i++) {
+    // 0 ~ len-1 난수 설정
+    const randLogin = Math.floor(Math.random() * PASSWORD_EMOJIS.length);
+    const randSignup = Math.floor(Math.random() * PASSWORD_EMOJIS.length);
+    
+    emojiPickerState.login[i] = randLogin;
+    emojiPickerState.signup[i] = randSignup;
+    
+    const loginEl = document.getElementById(`login_emoji_${i}`);
+    if (loginEl) loginEl.textContent = PASSWORD_EMOJIS[randLogin];
+    
+    const signupEl = document.getElementById(`signup_emoji_${i}`);
+    if (signupEl) signupEl.textContent = PASSWORD_EMOJIS[randSignup];
+  }
+}
+
 // 로그인 실행
 async function handleLogin() {
   const studentId = document.getElementById("loginStudentId").value.trim();
@@ -113,9 +168,12 @@ async function handleLogin() {
   }
 
   if (!validateStudentId(studentId)) {
-    alert("학번은 반드시 숫자 4자리로 입력해 주세요. (예: 1학년 4반 3번 -> 1403) 🥺");
+    alert("학번은 반드시 숫자 4자리로 입력해 주세요. (예: 1403) 🥺");
     return;
   }
+
+  // 🔐 이모지 비밀번호 추출
+  const password = emojiPickerState.login.map(idx => PASSWORD_EMOJIS[idx]).join("");
 
   showLoading("login", true);
 
@@ -126,7 +184,8 @@ async function handleLogin() {
       body: JSON.stringify({
         action: "login",
         studentId,
-        studentName
+        studentName,
+        password // 이모지 비밀번호 4글자 전송
       })
     });
 
@@ -155,7 +214,6 @@ function initWizardTraitsEvents() {
   const traitLabels = document.querySelectorAll(".trait-tag-label");
   traitLabels.forEach(label => {
     label.addEventListener("click", function(e) {
-      // 버블링 방지
       if (e.target.tagName === "INPUT") return;
       
       const checkbox = this.querySelector("input[type='checkbox']");
@@ -193,7 +251,6 @@ function initWizardTraitsEvents() {
           this.classList.remove("selected");
         }
       } else if (input.type === "radio") {
-        // 라디오 버튼은 그룹 내 다른 라벨 해제 필요
         const name = input.name;
         const siblings = document.querySelectorAll(`input[name='${name}']`);
         siblings.forEach(sib => {
@@ -229,6 +286,9 @@ function resetWizard() {
   selectedLabels.forEach(l => {
     if (!l.textContent.includes("👧")) l.classList.remove("selected");
   });
+
+  // 이모지 비밀번호 난수 재조합
+  initEmojiPasswordDials();
 }
 
 // 회원등록 마법사 스텝 이동
@@ -302,7 +362,6 @@ function navigateWizard(direction) {
           return;
         }
         
-        // 기타 주관식 유효성 검사 추가
         if (selected.value === "기타") {
           const etcText = document.getElementById(`q${qNum}_etc_text`).value.trim();
           if (!etcText) {
@@ -331,7 +390,6 @@ function navigateWizard(direction) {
         }
       }
       
-      // 모든 단계 유효성 통과 시 회원 가입 처리 실행
       handleSignup();
       return;
     }
@@ -345,17 +403,14 @@ function navigateWizard(direction) {
 
 // 스텝 변경에 따른 화면 업데이트
 function updateWizardUI() {
-  // 모든 단계 화면 가리기
   for (let i = 1; i <= 7; i++) {
     const el = document.getElementById(`signUpStep${i}`);
     if (el) el.classList.remove("active");
   }
 
-  // 현재 단계 노출
   const currentStepEl = document.getElementById(`signUpStep${state.currentWizardStep}`);
   if (currentStepEl) currentStepEl.classList.add("active");
 
-  // 진척도 도트 업데이트
   const dots = document.querySelectorAll("#stepProgressDots .step-dot");
   dots.forEach((dot, idx) => {
     if (idx + 1 === state.currentWizardStep) {
@@ -365,7 +420,6 @@ function updateWizardUI() {
     }
   });
 
-  // 단계별 헤더 텍스트
   const stepTitles = {
     1: "1단계: 기본 정보 입력 👧",
     2: "2단계: 진로 및 시사 관심사 🧭",
@@ -377,7 +431,6 @@ function updateWizardUI() {
   };
   document.getElementById("stepIndicatorText").textContent = stepTitles[state.currentWizardStep];
 
-  // 이전/다음 버튼 레이아웃 제어
   const btnPrev = document.getElementById("btnPrevStep");
   const btnNext = document.getElementById("btnNextStep");
 
@@ -393,11 +446,10 @@ function updateWizardUI() {
     btnNext.textContent = "다음으로 ✨";
   }
   
-  // 마법사 스크롤 최상단 고정
   document.querySelector(".auth-card").scrollTop = 0;
 }
 
-// 다중 선택형 데이터 추출 헬퍼 (기타 텍스트 포함)
+// 다중 선택형 데이터 추출 헬퍼
 function getCheckboxValues(groupName, hasEtc = false) {
   const checkboxes = document.querySelectorAll(`input[name='${groupName}']:checked`);
   const values = [];
@@ -415,7 +467,7 @@ function getCheckboxValues(groupName, hasEtc = false) {
   return values.join(", ");
 }
 
-// 단일 선택형(Radio) 데이터 추출 헬퍼 (정답 판별 포함)
+// 단일 선택형 데이터 추출 헬퍼
 function getRadioValueWithQuiz(groupName, correctAnswer = null, hasEtc = false) {
   const radio = document.querySelector(`input[name='${groupName}']:checked`);
   if (!radio) return "미선택";
@@ -438,12 +490,14 @@ async function handleSignup() {
   const studentId = document.getElementById("signupStudentId").value.trim();
   const studentName = document.getElementById("signupStudentName").value.trim();
 
-  // 최종 확인
   if (!confirm("작성하신 진단 설문과 함께 가입을 최종 제출하시겠습니까? 🌸")) {
     return;
   }
 
   showLoading("signup", true);
+
+  // 🔐 설정한 이모지 패스워드 취득
+  const password = emojiPickerState.signup.map(idx => PASSWORD_EMOJIS[idx]).join("");
 
   // 데이터 수집 프로세스
   const payload = {
@@ -451,6 +505,7 @@ async function handleSignup() {
     studentId,
     studentName,
     emoji: state.selectedEmoji,
+    password, // 이모지 비밀번호 동적 주입
     
     // [PART 1] 설문 응답
     "Q1_희망진로": getCheckboxValues("q1", true),
@@ -463,7 +518,7 @@ async function handleSignup() {
     "Q8_AI윤리자각": getCheckboxValues("q8", true),
     "Q9_AI과제어려움": getCheckboxValues("q9", true),
 
-    // [PART 2] 1단원 인권 진단평가 (정답 검증 포함)
+    // [PART 2] 1단원 인권 진단평가
     "Q10_3세대인권": getRadioValueWithQuiz("q10", "③"),
     "Q11_오늘날인권": getRadioValueWithQuiz("q11", "④"),
     "Q12_기본권설명": getRadioValueWithQuiz("q12", "③"),
@@ -495,9 +550,16 @@ async function handleSignup() {
 
     if (data.success) {
       alert(data.message);
-      // 로그인 절차로 강제 유도
+      // 로그인 대화상자에 정보 기입 후 자동으로 로그인 폼으로 스위칭
       document.getElementById("loginStudentId").value = studentId;
       document.getElementById("loginStudentName").value = studentName;
+      
+      // 로그인 피커에도 본인이 가입 시 조합한 이모지를 매치하여 바로 로그인 가능하게 인덱스 동기화해줌
+      for (let i = 0; i < 4; i++) {
+        emojiPickerState.login[i] = emojiPickerState.signup[i];
+        document.getElementById(`login_emoji_${i}`).textContent = PASSWORD_EMOJIS[emojiPickerState.login[i]];
+      }
+      
       switchAuthTab("login");
       handleLogin();
     } else {
