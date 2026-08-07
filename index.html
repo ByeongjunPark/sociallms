@@ -6,100 +6,219 @@
   <title>박병준 선생님의 통합사회 교실 🌸</title>
   <meta name="description" content="고등학교 통합사회 7개 성취기준에 맞춤화된 인터랙티브 배움 대시보드">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 로그인 & 회원가입 전용 스타일 추가 */
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 85vh;
+      animation: fadeInUp 0.6s ease;
+    }
+    
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 32px;
+      padding: 40px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: var(--shadow-hover);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .auth-logo {
+      text-align: center;
+    }
+    .auth-logo h2 {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .auth-logo p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.03);
+      padding: 6px;
+      border-radius: 18px;
+    }
+    [data-theme="dark"] .auth-tabs {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .auth-tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 12px;
+      border-radius: 14px;
+      font-family: var(--font-family-body);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .auth-tab-btn.active {
+      background: white;
+      color: var(--text-primary);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    [data-theme="dark"] .auth-tab-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .auth-form {
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .auth-form.active {
+      display: flex;
+    }
+
+    /* 대시보드 메인 감싸기 */
+    #mainDashboard {
+      display: none; /* 로그인 성공 시 block 처리 */
+    }
+    #mainDashboard.active {
+      display: block;
+      animation: fadeIn 0.6s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <div class="app-container">
-    <!-- 헤더 영역 -->
-    <header>
-      <div class="header-top">
-        <div class="logo-section">
-          <h1>통합사회 배움 교실 🌸</h1>
-          <p>박병준 선생님과 함께하는 즐거운 사회 탐구 여행</p>
-        </div>
-        <div class="controls-section">
-          <!-- 학생 프로필 정보 설정 버튼 -->
-          <button id="profileBtn" class="profile-btn" onclick="openProfileModal()">
-            <span id="studentEmoji">👧</span>
-            <span id="studentNameDisplay">학생 설정</span>
-          </button>
-          <!-- 테마 토글 버튼 -->
-          <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="테마 전환">
-            ☀️
-          </button>
-        </div>
-      </div>
-    </header>
+    
+    <!-- ☀️ 테마 토글 플로팅 버튼 (로그인 화면에서도 우측 상단 고정 노출) -->
+    <div style="position: absolute; top: 24px; right: 24px; z-index: 999;">
+      <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="테마 전환">
+        ☀️
+      </button>
+    </div>
 
-    <!-- 대시보드 학습 요약 위젯 -->
-    <section class="dashboard-overview">
-      <div class="welcome-widget">
-        <h2>반가워요, <span id="welcomeName" style="color: var(--color-pink); font-weight: 700;">친구</span>! 💕</h2>
-        <p>오늘도 배움의 즐거움을 함께 나누어 보아요. 아래의 활동 카드를 눌러 탐구를 시작해보세요!</p>
-        <div class="progress-wrapper">
-          <div class="progress-container">
-            <div id="progressBar" class="progress-bar"></div>
+    <!-- ================= [로그인 / 회원가입 화면] ================= -->
+    <section id="authSection" class="auth-container">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <h2>통합사회 배움 교실 🌸</h2>
+          <p>박병준 선생님과 함께하는 즐거운 배움 여행</p>
+        </div>
+
+        <div class="auth-tabs">
+          <button id="tabLogin" class="auth-tab-btn active" onclick="switchAuthTab('login')">로그인</button>
+          <button id="tabSignup" class="auth-tab-btn" onclick="switchAuthTab('signup')">회원등록</button>
+        </div>
+
+        <!-- 1. 로그인 폼 -->
+        <div id="loginForm" class="auth-form active">
+          <div class="form-group">
+            <label for="loginStudentId">학번 4자리</label>
+            <input type="text" id="loginStudentId" maxlength="4" inputmode="numeric" pattern="\d{4}" placeholder="예: 1401 (1반 4번이면 0104가 아닌 1404)">
           </div>
-          <div class="progress-text">배움 달성도: <span id="progressPercent">0%</span></div>
+          <div class="form-group">
+            <label for="loginStudentName">이름</label>
+            <input type="text" id="loginStudentName" placeholder="본인 이름을 입력하세요">
+          </div>
+          <button class="modal-btn primary" style="margin-top: 10px;" onclick="handleLogin()">로그인하기 💕</button>
         </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div id="statTotal" class="stat-value">3</div>
-          <div class="stat-label">진행 가능한 탐구</div>
-        </div>
-        <div class="stat-card">
-          <div id="statCompleted" class="stat-value" style="color: var(--color-mint);">0</div>
-          <div class="stat-label">완료한 탐구</div>
+
+        <!-- 2. 회원가입 폼 -->
+        <div id="signupForm" class="auth-form">
+          <div class="form-group">
+            <label for="signupStudentId">학번 4자리</label>
+            <input type="text" id="signupStudentId" maxlength="4" inputmode="numeric" pattern="\d{4}" placeholder="예: 1401 (1학년 4반 1번)">
+          </div>
+          <div class="form-group">
+            <label for="signupStudentName">이름</label>
+            <input type="text" id="signupStudentName" placeholder="본인 이름을 입력하세요">
+          </div>
+          <div class="form-group">
+            <label>나의 캐릭터 이모지</label>
+            <div class="emoji-selector" style="margin-bottom: 0;">
+              <span class="emoji-option selected" onclick="selectEmoji('👧', this)">👧</span>
+              <span class="emoji-option" onclick="selectEmoji('✨', this)">✨</span>
+              <span class="emoji-option" onclick="selectEmoji('🧸', this)">🧸</span>
+              <span class="emoji-option" onclick="selectEmoji('🎀', this)">🎀</span>
+              <span class="emoji-option" onclick="selectEmoji('🐱', this)">🐱</span>
+              <span class="emoji-option" onclick="selectEmoji('🌸', this)">🌸</span>
+            </div>
+          </div>
+          <button class="modal-btn primary" style="margin-top: 10px;" onclick="handleSignup()">가입 및 시작하기 🌸</button>
         </div>
       </div>
     </section>
 
-    <!-- 필터 내비게이션 -->
-    <nav class="filter-nav" aria-label="성취기준 카테고리 필터">
-      <button class="filter-chip active" onclick="filterCategory('all', this)">🌸 전체 단원</button>
-      <button class="filter-chip" onclick="filterCategory('인권 보장과 헌법', this)">🏛️ 인권 보장과 헌법</button>
-      <button class="filter-chip" onclick="filterCategory('시장 경제와 금융', this)">📈 시장 경제와 금융</button>
-    </nav>
-
-    <!-- 성취기준 카드 그리드 -->
-    <main class="standards-grid" id="standardsGrid">
-      <!-- data.js에서 동적으로 생성됩니다. -->
-    </main>
-  </div>
-
-  <!-- 학생 정보 설정 모달 -->
-  <div class="modal-overlay" id="profileModal">
-    <div class="modal-content">
-      <h3>안녕! 네 정보를 알려줘 💕</h3>
-      <p>활동지 제출 및 실시간 학습 결과 저장을 위해 학생 정보를 입력해주세요.</p>
-      
-      <div class="form-group">
-        <label for="studentGradeClass">학번 (예: 10401)</label>
-        <input type="text" id="studentGradeClass" placeholder="학번 5자리를 입력해주세요 (예: 10224)">
-      </div>
-
-      <div class="form-group">
-        <label for="studentName">이름</label>
-        <input type="text" id="studentName" placeholder="이름을 입력해주세요">
-      </div>
-
-      <div class="form-group">
-        <label>나의 캐릭터 선택</label>
-        <div class="emoji-selector">
-          <span class="emoji-option selected" onclick="selectEmoji('👧', this)">👧</span>
-          <span class="emoji-option" onclick="selectEmoji('✨', this)">✨</span>
-          <span class="emoji-option" onclick="selectEmoji('🧸', this)">🧸</span>
-          <span class="emoji-option" onclick="selectEmoji('🎀', this)">🎀</span>
-          <span class="emoji-option" onclick="selectEmoji('🐱', this)">🐱</span>
-          <span class="emoji-option" onclick="selectEmoji('🌸', this)">🌸</span>
+    <!-- ================= [메인 대시보드 화면] ================= -->
+    <div id="mainDashboard">
+      <!-- 헤더 영역 -->
+      <header>
+        <div class="header-top">
+          <div class="logo-section">
+            <h1>통합사회 배움 교실 🌸</h1>
+            <p>박병준 선생님과 함께하는 즐거운 사회 탐구 여행</p>
+          </div>
+          <div class="controls-section" style="margin-right: 50px;"> <!-- 테마 버튼 겹침 방지 -->
+            <!-- 학생 로그인 표시 및 로그아웃 버튼 -->
+            <button class="profile-btn" onclick="handleLogout()">
+              <span id="studentEmoji">👧</span>
+              <span id="studentNameDisplay">로그아웃</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div class="modal-actions">
-        <button class="modal-btn secondary" onclick="closeProfileModal()">취소</button>
-        <button class="modal-btn primary" onclick="saveProfile()">저장하기</button>
-      </div>
+      <!-- 대시보드 학습 요약 위젯 -->
+      <section class="dashboard-overview">
+        <div class="welcome-widget">
+          <h2>반가워요, <span id="welcomeName" style="color: var(--color-pink); font-weight: 700;">친구</span>! 💕</h2>
+          <p>오늘도 배움의 즐거움을 함께 나누어 보아요. 아래의 활동 카드를 눌러 탐구를 시작해보세요!</p>
+          <div class="progress-wrapper">
+            <div class="progress-container">
+              <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div class="progress-text">배움 달성도: <span id="progressPercent">0%</span></div>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div id="statTotal" class="stat-value">0</div>
+            <div class="stat-label">진행 가능한 탐구</div>
+          </div>
+          <div class="stat-card">
+            <div id="statCompleted" class="stat-value" style="color: var(--color-mint);">0</div>
+            <div class="stat-label">완료한 탐구</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 필터 내비게이션 -->
+      <nav class="filter-nav" aria-label="성취기준 카테고리 필터">
+        <button class="filter-chip active" onclick="filterCategory('all', this)">🌸 전체 단원</button>
+        <button class="filter-chip" onclick="filterCategory('인권 보장과 헌법', this)">🏛️ 인권 보장과 헌법</button>
+        <button class="filter-chip" onclick="filterCategory('시장 경제와 금융', this)">📈 시장 경제와 금융</button>
+      </nav>
+
+      <!-- 성취기준 카드 그리드 -->
+      <main class="standards-grid" id="standardsGrid">
+        <!-- data.js에서 동적으로 생성됩니다. -->
+      </main>
     </div>
+
   </div>
 
   <!-- 데이터 및 앱 스크립트 연결 -->
