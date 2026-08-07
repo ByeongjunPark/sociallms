@@ -479,29 +479,80 @@
     }
 
     // 시뮬레이션 끝마치기
-    function finishSimulation() {
+    async function finishSimulation() {
       const reflectText = document.getElementById("reflectionAnswer").value.trim();
       if (!reflectText) {
         alert("오늘의 배움 성찰 한 줄을 꼭 작성해 주세요! 🌸");
         return;
       }
 
-      // 결과 로컬스토리지 보관
-      const simulationResult = {
-        finalAsset: totalAsset,
-        returnRate: ((totalAsset - startAsset) / startAsset * 100).toFixed(1),
-        reflectText,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem(`sociallms_data_${ACTIVITY_ID}`, JSON.stringify(simulationResult));
+      // 로컬 프로필 확인
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      const studentId = localStorage.getItem("sociallms_student_id");
+      
+      if (!savedProfile || !studentId) {
+        alert("로그인 세션이 만료되었습니다. 메인화면에서 다시 로그인해주세요! 🥺");
+        window.location.href = "../index.html";
+        return;
+      }
 
-      // 상태를 completed로 갱신
-      const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
-      progress[ACTIVITY_ID] = "completed";
-      localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+      const student = JSON.parse(savedProfile);
+      
+      const finishBtn = document.getElementById("finishBtn");
+      finishBtn.disabled = true;
+      finishBtn.textContent = "제출 중... ⏳";
 
-      alert(`최종 수익률 ${simulationResult.returnRate}%로 탐구를 완료하였습니다! 대단해요 🌸`);
-      window.location.href = "../index.html";
+      const finalReturn = ((totalAsset - startAsset) / startAsset * 100).toFixed(1);
+
+      try {
+        // 백엔드 API로 구글 시트 동시 기록 제출
+        const response = await fetch("/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "submit",
+            studentId: studentId,
+            studentName: student.name,
+            activityId: ACTIVITY_ID,
+            activityTitle: "1000만원 포트폴리오 자산관리 시뮬레이터 💰",
+            score: finalReturn, // 수익률을 점수로 전달
+            result: JSON.stringify({
+              answer1: `최종 자산: ${(totalAsset / 10000).toFixed(0)}만원 (수익률: ${finalReturn}%)`,
+              answer2: reflectText
+            })
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          // 결과 로컬스토리지 보관
+          const simulationResult = {
+            finalAsset: totalAsset,
+            returnRate: finalReturn,
+            reflectText,
+            timestamp: new Date().toISOString()
+          };
+          localStorage.setItem(`sociallms_data_${ACTIVITY_ID}`, JSON.stringify(simulationResult));
+
+          // 상태를 completed로 갱신
+          const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+          progress[ACTIVITY_ID] = "completed";
+          localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+
+          alert(`최종 수익률 ${finalReturn}%로 시뮬레이션 기록이 구글 시트에 안전하게 제출되었습니다! 대단해요 🌸`);
+          window.location.href = "../index.html";
+        } else {
+          alert(`제출 실패: ${data.message}`);
+          finishBtn.disabled = false;
+          finishBtn.textContent = "성찰 제출 및 배움 완료 ✨";
+        }
+      } catch (error) {
+        console.error("Simulation Submission Error:", error);
+        alert("서버 연결 실패: 활동지는 로컬 컴퓨터에 임시 보관됩니다. 인터넷 연결을 확인해 주세요!");
+        finishBtn.disabled = false;
+        finishBtn.textContent = "성찰 제출 및 배움 완료 ✨";
+      }
     }
   </script>
 </body>

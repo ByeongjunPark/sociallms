@@ -250,7 +250,26 @@ async function loadProgressFromServer() {
 
     const data = await response.json();
     if (data.success && data.progress) {
-      state.progress = data.progress;
+      const serverProgress = data.progress;
+      const mappedProgress = {};
+      
+      // 구글 시트의 탭 이름(활동 제목)을 프론트엔드의 활동 ID로 변환하여 동기화
+      CURRICULUM_DATA.forEach(standard => {
+        standard.activities.forEach(act => {
+          // 탭 이름 자르기 처리를 고려하여, 탭 이름이 활동 제목을 포함하거나 같은지 확인
+          const matchedTabName = Object.keys(serverProgress).find(tabName => {
+            const cleanTab = tabName.replace(/\s+/g, '');
+            const cleanTitle = act.title.replace(/\s+/g, '');
+            return cleanTitle.includes(cleanTab) || cleanTab.includes(cleanTitle);
+          });
+          
+          if (matchedTabName && serverProgress[matchedTabName] === "completed") {
+            mappedProgress[act.id] = "completed";
+          }
+        });
+      });
+
+      state.progress = mappedProgress;
       localStorage.setItem("sociallms_progress", JSON.stringify(state.progress));
     }
   } catch (error) {
