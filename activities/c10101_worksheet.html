@@ -404,10 +404,12 @@
           <div class="step-header">
             <span class="step-number">1</span>
             <h2 class="step-title">사회적 요구 조건과 사건 매칭하기</h2>
+            <button type="button" class="gen-btn" onclick="resetStep1()" style="margin-left: auto; background: rgba(0,0,0,0.04); font-size: 0.75rem;">🔄 매칭 초기화</button>
           </div>
           <p class="step-desc">
             과거 사람들은 어떤 상황 때문에 힘들어했고, 무엇을 요구했을까요? <br>
-            <strong>왼쪽의 사회적 조건 카드</strong>를 누르고, <strong>오른쪽의 알맞은 역사적 사건 박스</strong>를 순서대로 클릭하여 선을 이어 주세요! 🔗
+            <strong>왼쪽의 사회적 조건 카드</strong>를 누르고, <strong>오른쪽의 알맞은 역사적 사건 박스</strong>를 순서대로 클릭하여 선을 이어 주세요! 🔗<br>
+            <span style="font-size: 0.8rem; color: var(--color-pink); font-weight: bold;">💡 실수로 잘못 연결했나요? 이미 연결된 카드를 한 번 더 누르면 연결이 샥 취소됩니다!</span>
           </p>
 
           <div class="matching-grid">
@@ -460,6 +462,7 @@
           <div class="step-header">
             <span class="step-number">2</span>
             <h2 class="step-title">인권 문서 시대순 배열 및 세대 분류하기</h2>
+            <button type="button" class="gen-btn" onclick="resetStep2()" style="margin-left: auto; background: rgba(0,0,0,0.04); font-size: 0.75rem;">🔄 정렬/세대 초기화</button>
           </div>
           <p class="step-desc">
             이제 아래 카드들의 순서를 연대순에 맞춰 정렬하고, 각 권리가 어떤 세대의 성격을 지니는지 분류해 봅시다. <br>
@@ -586,10 +589,37 @@
 
     // ================= 1단계 매칭 처리 로직 =================
     function selectMatchCard(element) {
-      if (element.classList.contains("paired")) return;
-
       const type = element.getAttribute("data-type");
       const id = element.getAttribute("data-id");
+
+      // 🚨 이미 연결된 카드를 누르면 개별 연결 취소 처리!
+      if (element.classList.contains("paired")) {
+        let condId = "";
+        let eventId = "";
+
+        if (type === "cond") {
+          condId = id;
+          eventId = userMatches[condId];
+        } else {
+          eventId = id;
+          // userMatches에서 해당 eventId를 가지는 condId 찾기
+          for (let cKey in userMatches) {
+            if (userMatches[cKey] === eventId) {
+              condId = cKey;
+              break;
+            }
+          }
+        }
+
+        if (condId && eventId) {
+          delete userMatches[condId];
+          rebuildMatchBadges();
+          
+          // 피드백 박스가 열려 있었다면 닫기
+          document.getElementById("step1Feedback").style.display = "none";
+        }
+        return;
+      }
 
       if (type === "cond") {
         const siblings = document.querySelectorAll("#conditionsCol .match-card");
@@ -606,23 +636,74 @@
       // 두 카드가 모두 선택되었을 때 매칭 체결
       if (selectedCond && selectedEvent) {
         userMatches[selectedCond] = selectedEvent;
-
-        // 시각적 피드백
-        const condCard = document.querySelector(`[data-id="${selectedCond}"]`);
-        const eventCard = document.querySelector(`[data-id="${selectedEvent}"]`);
-
-        // 배지 달아주기
-        const matchNum = Object.keys(userMatches).length;
-        condCard.innerHTML += `<span class="match-badge">연결 ${matchNum}</span>`;
-        eventCard.innerHTML += `<span class="match-badge">연결 ${matchNum}</span>`;
-
-        condCard.classList.remove("selected");
-        eventCard.classList.remove("selected");
-        condCard.classList.add("paired");
-        eventCard.classList.add("paired");
-
         selectedCond = null;
         selectedEvent = null;
+
+        rebuildMatchBadges();
+      }
+    }
+
+    // 연결 배지 및 상태 일관성 재구축 도우미
+    function rebuildMatchBadges() {
+      // 모든 카드의 매칭 흔적 및 클래스 초기화
+      const cards = document.querySelectorAll(".match-card");
+      cards.forEach(c => {
+        c.classList.remove("paired");
+        c.classList.remove("selected");
+        const oldBadge = c.querySelector(".match-badge");
+        if (oldBadge) oldBadge.remove();
+      });
+
+      // userMatches 현황을 토대로 배지 번호를 1부터 예쁘게 재생성
+      let index = 1;
+      for (let condId in userMatches) {
+        const eventId = userMatches[condId];
+        const condCard = document.querySelector(`#conditionsCol [data-id="${condId}"]`);
+        const eventCard = document.querySelector(`#eventsCol [data-id="${eventId}"]`);
+
+        if (condCard && eventCard) {
+          condCard.classList.add("paired");
+          eventCard.classList.add("paired");
+
+          const condBadge = document.createElement("span");
+          condBadge.className = "match-badge";
+          condBadge.textContent = `연결 ${index}`;
+          condCard.appendChild(condBadge);
+
+          const eventBadge = document.createElement("span");
+          eventBadge.className = "match-badge";
+          eventBadge.textContent = `연결 ${index}`;
+          eventCard.appendChild(eventBadge);
+
+          index++;
+        }
+      }
+    }
+
+    // 1단계 완전 리셋
+    function resetStep1() {
+      if (confirm("1단계 조건 연결 내역을 모두 초기화하고 처음부터 다시 하시겠습니까? 🔄")) {
+        userMatches = {};
+        selectedCond = null;
+        selectedEvent = null;
+        rebuildMatchBadges();
+        document.getElementById("step1Feedback").style.display = "none";
+      }
+    }
+
+    // 2단계 완전 리셋
+    function resetStep2() {
+      if (confirm("2단계의 카드 정렬 순서와 세대 분류 설정을 모두 초기화하시겠습니까? 🔄")) {
+        sortCards = [
+          { id: "e2", title: "영국 권리장전", year: 1689, gen: 0, correctGen: 1 },
+          { id: "e5", title: "세계 인권 선언", year: 1948, gen: 0, correctGen: 3 },
+          { id: "e1", title: "영국 대헌장", year: 1215, gen: 0, correctGen: 1 },
+          { id: "e7", title: "국제 인권 규약", year: 1966, gen: 0, correctGen: 3 },
+          { id: "e3", title: "미국 독립선언 / 프랑스 인권선언", year: 1776, gen: 0, correctGen: 1 },
+          { id: "e4", title: "독일 바이마르 헌법", year: 1919, gen: 0, correctGen: 2 }
+        ];
+        renderSortCards();
+        document.getElementById("step2Feedback").style.display = "none";
       }
     }
 
