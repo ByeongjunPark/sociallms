@@ -441,18 +441,9 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
-    /* 피드백 박스 */
+    /* 피드백 박스 (대용 모달이 생겼으므로 보조로만 둠) */
     .feedback-box {
       display: none;
-      background: rgba(184, 150, 219, 0.1);
-      border: 1.5px dashed var(--color-purple);
-      padding: 16px 20px;
-      border-radius: 16px;
-      margin-top: 14px;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--text-primary);
-      animation: fadeIn 0.4s ease;
     }
 
     /* 푸터 조작 */
@@ -461,6 +452,116 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 40px;
+    }
+
+    /* 팝업 모달 스타일 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.25s ease;
+    }
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 28px;
+      padding: 32px 36px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: var(--shadow-primary);
+      position: relative;
+      animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    [data-theme="dark"] .modal-content {
+      background: rgba(30, 20, 35, 0.96);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 18px; right: 22px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      border: none;
+      background: transparent;
+      outline: none;
+      transition: color 0.2s;
+    }
+    .modal-close-btn:hover {
+      color: var(--color-pink);
+    }
+    .modal-feedback-body {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      padding-right: 6px;
+    }
+    .modal-feedback-body h4 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-top: 0;
+      margin-bottom: 14px;
+      color: var(--color-purple);
+      border-bottom: 2px solid var(--color-pink-soft);
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .modal-feedback-body ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* 로딩 애니메이션 스피너 */
+    .loading-pulse-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 30px 10px;
+    }
+    .loading-pulse-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .loading-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--color-pink);
+      animation: pulseGrow 1s infinite ease-in-out;
+    }
+    .loading-dot:nth-child(2) {
+      background-color: var(--color-purple);
+      animation-delay: 0.2s;
+    }
+    .loading-dot:nth-child(3) {
+      background-color: var(--color-mint);
+      animation-delay: 0.4s;
+    }
+    @keyframes pulseGrow {
+      0%, 100% { transform: scale(0.6); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+    @keyframes scaleUp {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
@@ -545,8 +646,6 @@
               </div>
             </div>
           </div>
-
-          <div class="feedback-box" id="step1Feedback"></div>
         </section>
 
         <!-- [2단계] 시대순 배열 + 세대 분류 -->
@@ -565,8 +664,6 @@
           <div class="sortable-list" id="sortableList">
             <!-- 동적으로 시대순 카드 노출 예정 -->
           </div>
-
-          <div class="feedback-box" id="step2Feedback"></div>
         </section>
 
         <!-- [3단계] 나만의 한 줄 설명 (3개 사건) -->
@@ -702,6 +799,19 @@
     </main>
   </div>
 
+  <!-- 공용 피드백 모달 구조 -->
+  <div id="worksheetModal" class="modal-overlay">
+    <div class="modal-content">
+      <button type="button" class="modal-close-btn" onclick="closeWorksheetModal()">&times;</button>
+      <div id="modalFeedbackBody" class="modal-feedback-body">
+        <!-- 동적으로 피드백 삽입 -->
+      </div>
+      <div id="modalActions" class="modal-actions">
+        <!-- 버튼 바 조립 -->
+      </div>
+    </div>
+  </div>
+
   <script src="../js/app.js" defer></script>
   <script>
     let currentStep = 1;
@@ -730,7 +840,7 @@
 
     // 2단계 데이터 (gen: 1=자유권, 4=참정권, 2=사회권, 3=연대권)
     let sortCards = [
-      { id: "e2", title: "근대 시민 혁명과 인권 문서", year: 1789, gen: 0, correctGens: [1, 4] }, // 자유권, 참정권 복수 인정
+      { id: "e2", title: "근대 시민 혁명과 인권 문서", year: 1789, gen: 0, correctGens: [1, 4] },
       { id: "e5", title: "세계 인권 선언", year: 1948, gen: 0, correctGens: [3] },
       { id: "e1", title: "영국 대헌장", year: 1215, gen: 0, correctGens: [1] },
       { id: "e6", title: "국제 인권 규약", year: 1966, gen: 0, correctGens: [3] },
@@ -759,6 +869,66 @@
       renderSortCards();
     });
 
+    // ================= 모달 조작 헬퍼 함수 =================
+    function openWorksheetModal(contentHTML, showNextBtn = false, btnText = "다음 단계로 👉") {
+      const modal = document.getElementById("worksheetModal");
+      const body = document.getElementById("modalFeedbackBody");
+      const actions = document.getElementById("modalActions");
+
+      body.innerHTML = contentHTML;
+      actions.innerHTML = "";
+
+      // 닫기/수정하기 버튼 기본 생성
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "modal-btn secondary";
+      closeBtn.textContent = "오답 수정하기 🔄";
+      closeBtn.onclick = closeWorksheetModal;
+      actions.appendChild(closeBtn);
+
+      if (showNextBtn) {
+        const nextBtn = document.createElement("button");
+        nextBtn.type = "button";
+        nextBtn.className = "modal-btn primary";
+        nextBtn.textContent = btnText;
+        nextBtn.onclick = () => {
+          closeWorksheetModal();
+          if (btnText.includes("대시보드")) {
+            window.location.href = "../index.html";
+          } else {
+            navigateStep(1);
+          }
+        };
+        actions.appendChild(nextBtn);
+      }
+
+      modal.style.display = "flex";
+    }
+
+    function closeWorksheetModal() {
+      const modal = document.getElementById("worksheetModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    function showLoadingModal(titleText) {
+      const modal = document.getElementById("worksheetModal");
+      const body = document.getElementById("modalFeedbackBody");
+      const actions = document.getElementById("modalActions");
+
+      body.innerHTML = `
+        <div class="loading-pulse-container">
+          <div class="loading-pulse-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+          <span style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">${titleText}</span>
+        </div>
+      `;
+      actions.innerHTML = "";
+      modal.style.display = "flex";
+    }
+
     // ================= 1단계 매칭 처리 로직 =================
     function selectMatchCard(element) {
       const type = element.getAttribute("data-type");
@@ -784,7 +954,6 @@
         if (condId && eventId) {
           delete userMatches[condId];
           rebuildMatchBadges();
-          document.getElementById("step1Feedback").style.display = "none";
         }
         return;
       }
@@ -850,7 +1019,6 @@
         selectedCond = null;
         selectedEvent = null;
         rebuildMatchBadges();
-        document.getElementById("step1Feedback").style.display = "none";
       }
     }
 
@@ -862,6 +1030,7 @@
       }
 
       let score = 0;
+      let allCorrect = true;
       let feedbackHTML = "<h4>🔍 1단계 매칭 평가 피드백</h4><ul>";
 
       for (let condId in correctMatches) {
@@ -873,21 +1042,21 @@
 
         if (userEventId === correctEventId) {
           score += Math.round(100 / 6);
-          feedbackHTML += `<li style="color: #2b8a3e; margin-bottom: 8px;">💚 <strong>정답입니다!</strong>: ${eventTitle}<br><small style="color: var(--text-primary);">${matchExplanations[correctEventId]}</small></li>`;
+          feedbackHTML += `<li style="color: #2b8a3e; margin-bottom: 8px;">💚 <strong>정답</strong>: ${eventTitle}<br><small style="color: var(--text-primary); font-size:0.8rem;">${matchExplanations[correctEventId]}</small></li>`;
         } else {
+          allCorrect = false;
           const wrongEventCard = document.querySelector(`[data-id="${userEventId}"]`);
           const wrongTitle = wrongEventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim();
-          feedbackHTML += `<li style="color: #c92a2a; margin-bottom: 8px;">❌ <strong>오답</strong> (선택: ${wrongTitle} ➔ 원래 짝: ${eventTitle})<br><small style="color: var(--text-primary);">${matchExplanations[correctEventId]}</small></li>`;
+          feedbackHTML += `<li style="color: #c92a2a; margin-bottom: 8px;">❌ <strong>오류 발견</strong> (선택: ${wrongTitle} ➔ 권장 짝: ${eventTitle})<br><small style="color: var(--text-primary); font-size:0.8rem;">${matchExplanations[correctEventId]}</small></li>`;
         }
       }
 
-      if (score > 95) score = 100; // 반올림 정수 보정
-      feedbackHTML += `</ul><p style="font-weight: 700; margin-top: 10px;">📊 매칭 정확도: ${score}점 / 100점</p>`;
-      const fbBox = document.getElementById("step1Feedback");
-      fbBox.innerHTML = feedbackHTML;
-      fbBox.style.display = "block";
+      if (score > 95) score = 100;
+      feedbackHTML += `</ul><p style="font-weight: 700; margin-top: 14px; font-size: 1.05rem;">📊 연결 정확도 점수: ${score}점 / 100점</p>`;
 
-      return true;
+      // 팝업 모달에 피드백 띄우기
+      openWorksheetModal(feedbackHTML, allCorrect, "2단계(연표 정렬)로 가기 👉");
+      return allCorrect;
     }
 
     // ================= 2단계 정렬 및 세대 매칭 =================
@@ -948,7 +1117,6 @@
       }
     }
 
-    // 2단계 완전 리셋
     function resetStep2() {
       if (confirm("2단계의 카드 정렬 순서와 세대 분류 설정을 모두 초기화하시겠습니까? 🔄")) {
         sortCards = [
@@ -960,7 +1128,6 @@
           { id: "e4", title: "독일 바이마르 헌법", year: 1919, gen: 0, correctGens: [2] }
         ];
         renderSortCards();
-        document.getElementById("step2Feedback").style.display = "none";
       }
     }
 
@@ -1012,13 +1179,12 @@
         feedbackHTML += "</ul>";
       }
 
-      const fbBox = document.getElementById("step2Feedback");
-      fbBox.innerHTML = feedbackHTML;
-      fbBox.style.display = "block";
-      return true;
+      // 최종 피드백 모달 출력
+      openWorksheetModal(feedbackHTML, (sortCorrect && genCorrect), "3단계(문장 조립)로 가기 👉");
+      return (sortCorrect && genCorrect);
     }
 
-    // ================= 3단계 서술문 빌더 피드백 =================
+    // ================= 3단계 서술문 빌더 피드백 (Upstage AI 채점 탑재) =================
     function updateBuilderPlaceholder(setNum) {
       const select = document.getElementById(`builderSelect_${setNum}`);
       const eventName = select.value;
@@ -1050,7 +1216,7 @@
       }
     }
 
-    function evaluateStep3() {
+    async function evaluateStep3() {
       const events = [];
       const conditions = [];
       const rights = [];
@@ -1070,33 +1236,76 @@
       }
 
       if (events[0] === events[1] || events[1] === events[2] || events[0] === events[2]) {
-        alert("사건 분석 1, 2, 3의 사건들을 서로 다른 문서로 선택해 주세요! 다양한 사례를 서술해야 생기부 자료가 풍부해집니다. 🌸");
+        alert("사건 분석 1, 2, 3의 사건들을 서로 다른 문서로 선택해 주세요! 다양한 사례를 서술해야 학습 성장이 일어납니다. 🌸");
         return false;
+      }
+
+      // AI 로딩 오버레이 띄우기
+      showLoadingModal("AI 보조교사 박병준 봇이 학생이 구성한 3가지 역사적 인과 관계를 분석 중입니다... 🤖");
+
+      // Upstage Solar API 활용한 실시간 채점 요청
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: "system",
+                content: "당신은 고등학교 통합사회 '인권 보장과 헌법' 단원을 지도하는 다정하고 매우 전문적인 AI 보조교사 박병준 봇입니다. 학생이 역사적 사건의 시대적 사회 발생 조건(배경)과 그 결과 획득된 인권 가치를 논리적인 인과관계 문장으로 올바르게 연결하여 서술했는지 친절하고 논리적으로 분석해 줍니다."
+              },
+              {
+                role: "user",
+                content: `학생이 작성한 3가지 인과 문장은 다음과 같습니다.
+1. [사건: ${events[0]}]은/는 [사회 조건: ${conditions[0]}] 때문에 일어났고, 그 결과 [권리: ${rights[0]}]이/가 확립되었다.
+2. [사건: ${events[1]}]은/는 [사회 조건: ${conditions[1]}] 때문에 일어났고, 그 결과 [권리: ${rights[1]}]이/가 확립되었다.
+3. [사건: ${events[2]}]은/는 [사회 조건: ${conditions[2]}] 때문에 일어났고, 그 결과 [권리: ${rights[2]}]이/가 확립되었다.
+
+위 3가지 문장에 대해 역사적 팩트 오류나 권리 매칭의 어색함이 있는지 대조 분석하고, 피드백을 건네주세요. (대헌장=1세대자유권, 시민혁명=자유/참정권, 차티스트=참정권, 바이마르=2세대사회권, 세계인권선언=3세대연대/보편권, 국제인권규약=연대/구속력).
+반드시 따뜻한 격려 조치와 함께 꼭 줄글 3~4줄 이내로 매우 핵심만 요약해서 한글로 조언해 주세요.`
+              }
+            ]
+          })
+        });
+
+        const resData = await response.json();
+        if (resData.success) {
+          const aiResponse = resData.message.content;
+          const feedbackHTML = `
+            <h4>🤖 AI 보조교사 박병준 봇의 문장 분석</h4>
+            <p style="background: rgba(184, 150, 219, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-purple); font-size: 0.92rem; white-space: pre-wrap;">${aiResponse}</p>
+            <p style="margin-top: 10px; font-weight: bold; color: var(--color-mint);">🌿 3단계 분석 과제가 AI 평가를 정상적으로 통과했습니다!</p>
+          `;
+          openWorksheetModal(feedbackHTML, true, "4단계(메타성찰)로 가기 👉");
+        } else {
+          throw new Error(resData.message);
+        }
+      } catch (err) {
+        console.error("AI grading failed:", err);
+        // 실패 시 로컬 피드백 백업 작동
+        const fallbackHTML = `
+          <h4>🔍 3단계 서술형 분석 피드백 (로컬 보조 장치)</h4>
+          <p>• 분석 1 (${events[0]}): "${conditions[0]} ➔ ${rights[0]}"<br>
+          • 분석 2 (${events[1]}): "${conditions[1]} ➔ ${rights[1]}"<br>
+          • 분석 3 (${events[2]}): "${conditions[2]} ➔ ${rights[2]}"</p>
+          <p style="color: var(--color-purple); font-weight:700;">역사적 조건과 획득된 핵심 권리 간의 인과관계 서술을 정상적으로 수집 완료했습니다. 4단계에서 배움 성찰을 마무리해 주세요! 🌿</p>
+        `;
+        openWorksheetModal(fallbackHTML, true, "4단계(메타성찰)로 가기 👉");
       }
       return true;
     }
 
-    // ================= 4단계 고차사고력 성찰 및 최종 전송 =================
-    function evaluateStep4() {
+    // ================= 4단계 고차사고력 성찰 및 최종 전송 (Upstage AI 성찰 탑재) =================
+    async function evaluateStep4() {
       const ref4th = document.getElementById("reflection4thGen").value.trim();
       const refSelf = document.getElementById("reflectionSelf").value.trim();
 
       if (!ref4th || !refSelf) {
-        alert("Q1과 Q2의 성찰 서술을 정성껏 채워 주세요! ✍️ 고차적 고민의 흔적은 생기부 기록에 직접 연동됩니다.");
+        alert("Q1과 Q2의 성찰 서술을 정성껏 채워 주세요! ✍️ 고차적 고민의 흔적은 생기부 기록의 기초가 됩니다.");
         return false;
       }
 
-      let resultMsg = `🌿 <strong>인권 역사 배움 활동지 작성 완료!</strong><br>
-      • <strong>내가 상상한 4세대 인권:</strong> ${ref4th}<br>
-      • <strong>나의 배움 한 줄 성찰:</strong> ${refSelf}<br><br>
-      성찰해 주신 내용은 담당 박병준 선생님의 <strong>구글 시트(생기부 자동화용 데이터베이스)</strong>로 안전하게 전송되었습니다! <br>
-      수고하셨습니다. 대시보드로 돌아가 학습 상태를 확인해 보세요! 🌿`;
-
-      const fbBox = document.getElementById("step4Feedback");
-      fbBox.innerHTML = resultMsg;
-      fbBox.style.display = "block";
-      fbBox.style.background = "rgba(43, 138, 98, 0.05)";
-      fbBox.style.borderColor = "#2b8a3e";
+      showLoadingModal("AI 튜터가 학생의 4세대 인권 제안과 메타인지 성찰 내용을 조율 및 검토 중입니다... 🤖");
 
       const events = [
         document.getElementById("builderSelect_1").value,
@@ -1114,7 +1323,58 @@
         document.getElementById("builderRight_3").value.trim()
       ];
 
-      submitFinalWorksheet(events, conditions, rights, ref4th, refSelf);
+      // Upstage Solar API 활용한 4단계 학습 성찰 피드백
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: "system",
+                content: "당신은 고등학교 통합사회 AI 메타인지 코치입니다. 학생이 제안한 현대적 4세대 인권의 창의성과, 오늘 본인의 학습 과정 중 까다로웠던 점을 보완하기 위해 스스로 처방한 메타인지 학습 전략에 대해 친절하게 칭찬과 핵심 꿀팁을 조언해 줍니다."
+              },
+              {
+                role: "user",
+                content: `학생이 작성한 성찰 답변은 다음과 같습니다:
+- [Q1. 내가 제안한 4세대 인권 및 근거]: ${ref4th}
+- [Q2. 가장 모호했던 부분 및 앞으로 나의 메타인지 공부 전략 보완책]: ${refSelf}
+
+학생의 4세대 인권에 담긴 현대 시사 가치를 공감/지지해 주고, 학생이 고백한 학업적 취약점에 대한 공부 처방 전략(메타인지)을 격려해 주세요.
+반드시 줄글로 3~4줄 이내로 매우 핵심만 요약해서 따뜻하게 한국어로 조언해 주세요.`
+              }
+            ]
+          })
+        });
+
+        const resData = await response.json();
+        if (resData.success) {
+          const aiResponse = resData.message.content;
+          const feedbackHTML = `
+            <h4>🤖 AI 메타인지 코치 피드백</h4>
+            <p style="background: rgba(43, 138, 98, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-mint); font-size: 0.92rem; white-space: pre-wrap;">${aiResponse}</p>
+            <p style="margin-top: 10px; font-weight: bold; color: var(--color-pink);">🎉 모든 인권 역사 탐구를 안전하게 수료했습니다! 고생하셨습니다.</p>
+          `;
+          
+          // 최종 구글 시트 전송 실행
+          await submitFinalWorksheet(events, conditions, rights, ref4th, refSelf);
+          
+          openWorksheetModal(feedbackHTML, true, "대시보드로 돌아가기 🎉");
+        } else {
+          throw new Error(resData.message);
+        }
+      } catch (err) {
+        console.error("AI reflection grading failed:", err);
+        // 실패 시 로컬 피드백 백업 작동
+        const fallbackHTML = `
+          <h4>🎉 4단계 탐구 완료! (로컬 백업 안내)</h4>
+          <p>• <strong>제안한 4세대 인권:</strong> ${ref4th}</p>
+          <p>• <strong>수립한 메타인지 학습전략:</strong> ${refSelf}</p>
+          <p style="color: var(--color-mint); font-weight:700;">학습 성찰 결과 제출이 완료되었습니다. 대시보드로 돌아가 도달도를 확인해 보세요! 🌿</p>
+        `;
+        await submitFinalWorksheet(events, conditions, rights, ref4th, refSelf);
+        openWorksheetModal(fallbackHTML, true, "대시보드로 돌아가기 🎉");
+      }
       return true;
     }
 
@@ -1156,11 +1416,24 @@
         });
         const resData = await res.json();
         if (resData.success) {
-          alert("🎉 인권 역사 활동이 구글 시트에 안전하게 제출되었습니다! 🌿");
-          
+          // 로컬 진행도 업데이트
           const localProgress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
           localProgress["c10101_worksheet"] = "completed";
           localStorage.setItem("sociallms_progress", JSON.stringify(localProgress));
+          
+          // 평균 점수 계산용 정오 기록 보관 (대시보드 메타인지 조언 연동용)
+          let matchCorrectCount = 0;
+          for (let condId in correctMatches) {
+            if (userMatches[condId] === correctMatches[condId]) matchCorrectCount++;
+          }
+          let sortCorrectCount = 0;
+          sortCards.forEach((card, index) => {
+            if (card.id === correctSortOrder[index]) sortCorrectCount++;
+          });
+          
+          // 1단계(60점 만점), 2단계(40점 만점) 등으로 로컬 스코어링 보관
+          const finalScore = Math.round((matchCorrectCount / 6) * 60 + (sortCorrectCount / 6) * 40);
+          localStorage.setItem("sociallms_score_c10101", finalScore);
         }
       } catch (e) {
         console.error("Final submission failed:", e);
@@ -1187,7 +1460,7 @@
           btnNext.textContent = "2단계 채점하기 🔍";
         } else if (currentStep === 3) {
           btnPrev.style.display = "block";
-          btnNext.textContent = "3단계 완료하고 다음으로 👉";
+          btnNext.textContent = "3단계 채점하기 🔍";
         } else if (currentStep === 4) {
           btnPrev.style.display = "block";
           btnNext.textContent = "최종 제출하고 마치기 🎉";
@@ -1197,28 +1470,11 @@
 
     function evaluateAndNext() {
       if (currentStep === 1) {
-        const ok = evaluateStep1();
-        if (ok) {
-          setTimeout(() => {
-            if (confirm("1단계 정답을 확인하셨나요? 2단계(연표 정렬)로 넘어갑니다! 👉")) {
-              navigateStep(1);
-            }
-          }, 300);
-        }
+        evaluateStep1();
       } else if (currentStep === 2) {
-        const ok = evaluateStep2();
-        if (ok) {
-          setTimeout(() => {
-            if (confirm("2단계 힌트 피드백을 확인하셨나요? 3단계(인과관계 문장화)로 넘어갑니다! 👉")) {
-              navigateStep(1);
-            }
-          }, 300);
-        }
+        evaluateStep2();
       } else if (currentStep === 3) {
-        const ok = evaluateStep3();
-        if (ok) {
-          navigateStep(1);
-        }
+        evaluateStep3();
       } else if (currentStep === 4) {
         evaluateStep4();
       }

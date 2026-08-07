@@ -588,18 +588,28 @@ function handleLogout() {
 
 // 로딩 표시기 개편
 function showLoading(type, isLoading) {
+  const overlay = document.getElementById("authLoadingOverlay");
+  const loadingText = document.getElementById("authLoadingText");
+
+  if (overlay) {
+    if (isLoading) {
+      if (type === "signup") {
+        if (loadingText) loadingText.textContent = "나의 소중한 진로/배움 진단 데이터를 등록하고 있습니다... 🌸";
+      } else {
+        if (loadingText) loadingText.textContent = "구글 시트 데이터베이스에서 나의 배움 진척도를 가져오고 있습니다... 🔐";
+      }
+      overlay.style.display = "flex";
+    } else {
+      overlay.style.display = "none";
+    }
+  }
+
   const btn = type === "signup" 
     ? document.getElementById("btnNextStep")
     : document.querySelector("#loginForm button");
     
   if (btn) {
-    if (isLoading) {
-      btn.disabled = true;
-      btn.textContent = "가입 및 진단 전송 중... ⏳";
-    } else {
-      btn.disabled = false;
-      btn.textContent = type === "signup" ? "가입 및 진단 제출하기 🌸" : "로그인하기 💕";
-    }
+    btn.disabled = isLoading;
   }
 }
 
@@ -909,4 +919,102 @@ function onActivityClick(actId, actType, event) {
     state.progress[actId] = "in_progress";
     localStorage.setItem("sociallms_progress", JSON.stringify(state.progress));
   }
+}
+
+// 💡 나의 학습방법 AI에게 조언받기 구현
+async function consultAiLearningStrategy() {
+  const modal = document.getElementById("dashboardAiModal");
+  const body = document.getElementById("dashboardAiModalBody");
+
+  if (!modal || !body) return;
+
+  // 1. 과제 점수 취합
+  const c10101Score = localStorage.getItem("sociallms_score_c10101");
+  let scoreText = "아직 완료한 과제가 없습니다. 가입 설문 결과를 기초로 예측 조언합니다.";
+  let averageScore = 0;
+
+  if (c10101Score !== null) {
+    averageScore = parseInt(c10101Score);
+    scoreText = `현재 완료한 인권 과제 점수: ${averageScore}점 / 100점`;
+  }
+
+  // 2. 학생 기초 정보 파싱
+  const savedProfile = localStorage.getItem("sociallms_profile");
+  let profileData = {};
+  if (savedProfile) {
+    profileData = JSON.parse(savedProfile);
+  }
+
+  const name = profileData.name || "친구";
+  const career = profileData["Q1_희망진로"] || profileData["Q1_희망진로선택"] || "미정";
+  const traits = profileData["Q3_나의특징"] || profileData["Q3_특징"] || "분석적인, 창의적인";
+  const task = profileData["Q5_자신있는과제"] || profileData["Q5_과제유형"] || "보고서 작성";
+
+  // 로딩 UI 설정
+  body.innerHTML = `
+    <div class="loading-pulse-container">
+      <div class="loading-pulse-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+      <span style="font-weight: 700; color: var(--text-primary); font-size: 0.92rem; text-align:center;">
+        AI 학습 코치가 학생의 학업 진단 데이터와 과제 성취도를 토대로 맞춤형 처방을 작성 중입니다... 💡
+      </span>
+    </div>
+  `;
+  modal.style.display = "flex";
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "system",
+            content: "당신은 고등학교 통합사회 과목의 학습 방법론 및 메타인지 과학에 기반한 다정하고 지혜로운 AI 메타인지 코치 봇입니다. 학생의 프로필과 수행 과제 성취도를 바탕으로, 학생의 인지적 강점과 개선점, 그리고 효과적인 메타인지 공부법 전략을 3~4줄로 명확하게 처방해 줍니다. 한국어로 다정하게 조언해 주세요."
+          },
+          {
+            role: "user",
+            content: `학생이 수강 중인 정보 및 성취도는 다음과 같습니다.
+- 학생 이름: ${name}
+- 관심 진로: ${career}
+- 학생이 진단한 자신의 인지적 특징: ${traits}
+- 자신 있는 과제 스타일: ${task}
+- 현재까지 제출된 수행 과제 평균 점수: ${scoreText}
+
+위 정보를 인지 과학 기법에 기반해 분석하여, 이 학생만을 위한 [인지적 강점], [취약할 수 있는 개선점], [맞춤형 메타인지 학습 전략 조언]을 다정한 어조로 작성해 주세요.
+절대 길게 작성하지 말고, 딱 3~4줄 내외의 압축적이고 간결한 줄글로 친근하게 한글로 대답해 주세요.`
+          }
+        ]
+      })
+    });
+
+    const resData = await response.json();
+    if (resData.success) {
+      const aiResponse = resData.message.content;
+      body.innerHTML = `
+        <h4>💡 AI 메타인지 코치의 학습법 조언</h4>
+        <p style="background: rgba(184, 150, 219, 0.08); padding: 18px; border-radius: 20px; border-left: 4px solid var(--color-purple); font-size: 0.92rem; white-space: pre-wrap; margin-bottom: 12px; line-height: 1.65;">${aiResponse}</p>
+        <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: right;">📊 분석 기반: 관심 진로(${career}) | 성향(${traits}) | 평균 성적(${averageScore}점)</div>
+      `;
+    } else {
+      throw new Error(resData.message);
+    }
+  } catch (err) {
+    console.error("Dashboard AI coach failed:", err);
+    body.innerHTML = `
+      <h4>💡 AI 메타인지 코치의 학습법 조언 (로컬 백업)</h4>
+      <p style="background: rgba(184, 150, 219, 0.08); padding: 18px; border-radius: 20px; border-left: 4px solid var(--color-purple); font-size: 0.92rem; line-height: 1.6;">
+        ${name} 학생은 진로 성향으로 '${career}' 분야에 흥미를 느끼며, '${traits}' 성향을 스스로의 인지적 강점으로 삼고 있습니다. <br>
+        앞으로 통합사회 과제를 해결할 때, 나의 강점인 '${task}' 방식을 살리되 사회적 개념들의 구조적 선후 관계를 메타인지 분류표로 확인하며 학습하면 더욱 좋습니다. 파이팅! 🌿
+      </p>
+    `;
+  }
+}
+
+function closeDashboardAiModal() {
+  const modal = document.getElementById("dashboardAiModal");
+  if (modal) modal.style.display = "none";
 }
