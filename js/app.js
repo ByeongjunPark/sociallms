@@ -609,16 +609,52 @@ function updateProfileUI() {
   const welcomeName = document.getElementById("welcomeName");
   const studentEmoji = document.getElementById("studentEmoji");
   
+  const myCareerTag = document.getElementById("myCareerTag");
+  const myTraitsCloud = document.getElementById("myTraitsCloud");
+  const myTaskTag = document.getElementById("myTaskTag");
+  
+  const savedProfile = localStorage.getItem("sociallms_profile");
+  let studentData = {};
+  if (savedProfile) {
+    studentData = JSON.parse(savedProfile);
+  }
+
   if (state.student.name) {
     const gradeClass = state.student.gradeClass || state.student.studentId.substring(0, 2);
     const formattedName = `${gradeClass}반 ${state.student.name}`;
     nameDisplay.textContent = formattedName;
     welcomeName.textContent = state.student.name;
+    
+    // 📊 대시보드 상단 나의 Baseline 프로필 데이터 매핑
+    if (myCareerTag) {
+      myCareerTag.textContent = studentData["Q1_희망진로"] || studentData["Q1_희망진로선택"] || "경영/경제 (미정)";
+    }
+    
+    if (myTraitsCloud) {
+      myTraitsCloud.innerHTML = "";
+      const traitsStr = studentData["Q3_나의특징"] || studentData["Q3_특징"] || "분석적인, 창의적인";
+      const traitsArr = traitsStr.split(",").map(t => t.trim());
+      traitsArr.forEach(trait => {
+        if (trait) {
+          const badge = document.createElement("span");
+          badge.style.cssText = "background: rgba(184, 150, 219, 0.15); color: var(--color-purple); padding: 3px 8px; border-radius: 8px; font-weight: 700; font-size: 0.72rem;";
+          badge.textContent = trait;
+          myTraitsCloud.appendChild(badge);
+        }
+      });
+    }
+    
+    if (myTaskTag) {
+      myTaskTag.textContent = studentData["Q5_자신있는과제"] || studentData["Q5_과제유형"] || "보고서 작성";
+    }
   } else {
     nameDisplay.textContent = "로그아웃";
     welcomeName.textContent = "친구";
   }
-  studentEmoji.textContent = state.student.emoji;
+  
+  const emojiEl = document.getElementById("welcomeEmoji");
+  if (emojiEl) emojiEl.textContent = state.student.emoji || "👧";
+  if (studentEmoji) studentEmoji.textContent = state.student.emoji || "👧";
 }
 
 // 구글 시트로부터 학습 진척도 가져오기
@@ -694,6 +730,50 @@ function updateDashboardStats() {
   const percent = totalAct > 0 ? Math.round((completedAct / totalAct) * 100) : 0;
   if (progressBar) progressBar.style.width = `${percent}%`;
   if (progressPercent) progressPercent.textContent = `${percent}%`;
+
+  // 🏛️ 성취기준별 탐구 달성 리포트 렌더링
+  const progressListEl = document.getElementById("studentStandardsProgress");
+  if (progressListEl) {
+    progressListEl.innerHTML = "";
+    CURRICULUM_DATA.forEach(standard => {
+      let hasAct = false;
+      let allCompleted = true;
+      let isStarted = false;
+      
+      standard.activities.forEach(act => {
+        if (act.type !== "coming_soon") {
+          hasAct = true;
+          const status = state.progress[act.id] || "not_started";
+          if (status !== "completed") {
+            allCompleted = false;
+          }
+          if (status === "completed" || status === "in_progress") {
+            isStarted = true;
+          }
+        }
+      });
+      
+      let statusBadge = "";
+      if (!hasAct) {
+        statusBadge = `<span style="background: rgba(0,0,0,0.03); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; font-weight:700;">🔒 준비중</span>`;
+      } else if (allCompleted) {
+        statusBadge = `<span style="background: rgba(43, 138, 98, 0.12); color: #2b8a3e; padding: 2px 8px; border-radius: 8px; font-weight:700;">💚 완료됨</span>`;
+      } else if (isStarted) {
+        statusBadge = `<span style="background: rgba(247, 103, 7, 0.12); color: #d9480f; padding: 2px 8px; border-radius: 8px; font-weight:700;">📝 진행중</span>`;
+      } else {
+        statusBadge = `<span style="background: rgba(0,0,0,0.04); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; font-weight:700;">⏳ 미시작</span>`;
+      }
+      
+      progressListEl.innerHTML += `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255,255,255,0.4); border-radius: 10px; border: 1px solid rgba(0,0,0,0.02);">
+          <span style="font-weight: 700; color: var(--text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 190px;" title="${standard.code} ${standard.title}">
+            ${standard.code} ${standard.title}
+          </span>
+          ${statusBadge}
+        </div>
+      `;
+    });
+  }
 }
 
 // 성취기준 카드 렌더링
