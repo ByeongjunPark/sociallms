@@ -454,18 +454,24 @@
       margin-top: 40px;
     }
 
-    /* 팝업 모달 스타일 */
+    /* 팝업 모달 스타일 (.active 스위칭 연동형) */
     .modal-overlay {
-      display: none;
       position: fixed;
       top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.35);
+      width: 100vw; height: 100vh;
+      background: rgba(45, 38, 59, 0.45);
       backdrop-filter: blur(8px);
-      z-index: 10000;
+      display: flex;
       align-items: center;
       justify-content: center;
-      animation: fadeIn 0.25s ease;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s ease;
+      z-index: 10000;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
     }
     .modal-content {
       background: var(--bg-card);
@@ -1453,6 +1459,15 @@
           const localProgress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
           localProgress["c10101_worksheet"] = "completed";
           localStorage.setItem("sociallms_progress", JSON.stringify(localProgress));
+
+          // 💡 학생의 구체적 학습 수행 텍스트 데이터를 로컬스토리지에 보관 (대시보드 AI 조언 결합용)
+          localStorage.setItem("sociallms_worksheet_result_c10101", JSON.stringify({
+            events: events,
+            conditions: conditions,
+            rights: rights,
+            ref4th: ref4th,
+            refSelf: refSelf
+          }));
           
           // 평균 점수 계산용 정오 기록 보관 (대시보드 메타인지 조언 연동용)
           let matchCorrectCount = 0;

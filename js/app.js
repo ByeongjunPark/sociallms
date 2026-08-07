@@ -960,6 +960,27 @@ async function consultAiLearningStrategy() {
   const traits = profileData["Q3_나의특징"] || profileData["Q3_특징"] || "분석적인, 창의적인";
   const task = profileData["Q5_자신있는과제"] || profileData["Q5_과제유형"] || "보고서 작성";
 
+  // 💡 [신규] 학생이 실제 수행하고 서술한 텍스트 답변 데이터 로드 및 프롬프트 결합
+  const worksheetResult = localStorage.getItem("sociallms_worksheet_result_c10101");
+  let studyDetailPrompt = "";
+
+  if (worksheetResult) {
+    try {
+      const detail = JSON.parse(worksheetResult);
+      studyDetailPrompt = `
+[실제 과제 수행 결과 데이터]
+- 3개 사건 인과 분석 내용:
+  1) 사건: ${detail.events[0]} (조건: ${detail.conditions[0]} / 결과 권리: ${detail.rights[0]})
+  2) 사건: ${detail.events[1]} (조건: ${detail.conditions[1]} / 결과 권리: ${detail.rights[1]})
+  3) 사건: ${detail.events[2]} (조건: ${detail.conditions[2]} / 결과 권리: ${detail.rights[2]})
+- 학생이 독창적으로 상상한 4세대 인권: "${detail.ref4th}"
+- 학생의 메타인지 성찰 및 학습처방 전략: "${detail.refSelf}"
+`;
+    } catch (e) {
+      console.error("Failed to parse worksheet result cache:", e);
+    }
+  }
+
   // 로딩 UI 설정
   body.innerHTML = `
     <div class="loading-pulse-container">
@@ -969,7 +990,7 @@ async function consultAiLearningStrategy() {
         <div class="loading-dot"></div>
       </div>
       <span style="font-weight: 700; color: var(--text-primary); font-size: 0.92rem; text-align:center;">
-        AI 학습 코치가 학생의 학업 진단 데이터와 과제 성취도를 토대로 맞춤형 처방을 작성 중입니다... 💡
+        AI 학습 코치가 학생의 실제 과제 서술 내용과 학업 진도를 분석 중입니다... 💡
       </span>
     </div>
   `;
@@ -993,8 +1014,9 @@ async function consultAiLearningStrategy() {
 - 학생이 진단한 자신의 인지적 특징: ${traits}
 - 자신 있는 과제 스타일: ${task}
 - 현재까지 제출된 수행 과제 평균 점수: ${scoreText}
+${studyDetailPrompt}
 
-위 정보를 인지 과학 기법에 기반해 분석하여, 이 학생만을 위한 [인지적 강점], [취약할 수 있는 개선점], [맞춤형 메타인지 학습 전략 조언]을 다정한 어조로 작성해 주세요.
+위 정보(특히 학생이 실제 수행 데이터 내에서 서술한 인과 문장 수준, 4세대 인권 창의성, 메타인지 성찰 개선책 내용)를 인지 과학 기법에 기반해 다각도로 분석하여, 이 학생만을 위한 [인지적 강점], [취약할 수 있는 개선점], [앞으로의 맞춤형 메타인지 학습 전략 조언]을 작성해 주세요.
 절대 길게 작성하지 말고, 딱 3~4줄 내외의 압축적이고 간결한 줄글로 친근하게 한글로 대답해 주세요.`
           }
         ]
