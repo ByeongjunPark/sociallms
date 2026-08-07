@@ -1,15 +1,11 @@
 /**
- * 박병준 선생님의 통합사회 교실 - 구글 앱스 스크립트(GAS) 자동화 데이터베이스 코드 (Self-Healing 버전)
+ * 박병준 선생님의 통합사회 교실 - 구글 앱스 스크립트(GAS) 자동화 데이터베이스 코드 (Dynamic Column / Multi-Tab 버전)
  * 
- * [설치 방법]
- * 1. 구글 시트(1Pl9VWzxAIDzWZBt0XicoPacOzJvmpPH-xTeWeVL2qhc)에 접속합니다.
- * 2. 상단 메뉴에서 [확장 프로그램] -> [Apps Script]를 클릭합니다.
- * 3. 기존 코드를 모두 지우고 이 스크립트 전체를 붙여넣습니다.
- * 4. 상단 우측 [배포] -> [새 배포]를 클릭하고 [웹 앱]으로 설정하여 배포합니다.
- * 
- * ★ 중요: 이제 시트에 탭을 수동으로 미리 만들 필요가 전혀 없습니다!
- * 첫 번째 학생이 등록되거나 활동을 제출하면, 프로그램이 시트에 알아서 탭을 생성하고 
- * 헤더 열(Columns)도 완벽하게 자동으로 써 줍니다! 🌸
+ * [특징]
+ * - 매 과제마다 전송하는 데이터의 형식(질문 개수, 항목명 등)이 100% 다르더라도
+ *   그에 맞춰 구글 시트의 해당 과제 탭에 "동적 컬럼(Dynamic Columns)"이 자동으로 생성됩니다.
+ * - 예를 들어 과제 A에서 {"사례": "값", "대책": "값"} 을 보내면 컬럼이 [학번, 이름, 성찰, 사례, 대책, 시간]으로 생성되고,
+ *   과제 B에서 {"수익률": "값", "느낀점": "값"} 을 보내면 그 탭은 [학번, 이름, 성찰, 수익률, 느낀점, 시간]으로 자동 개설됩니다.
  */
 
 // 보안 토큰 (Vercel 환경 변수 'GAS_SECURITY_TOKEN' 과 일치해야 함)
@@ -31,11 +27,9 @@ function doPost(e) {
     if (action === "signup") {
       let userSheet = sheet.getSheetByName("Users");
       
-      // Users 탭이 없으면 알아서 자동 생성 및 헤더 개설 (Self-Healing)
       if (!userSheet) {
         userSheet = sheet.insertSheet("Users");
         userSheet.appendRow(["학번 (StudentID)", "이름 (StudentName)", "캐릭터 (Emoji)", "가입시간 (CreatedAt)"]);
-        // 첫 행 헤더 스타일링 (회색 배경에 볼드체)
         userSheet.getRange("A1:D1").setFontWeight("bold").setBackground("#f1f3f5");
       }
 
@@ -43,7 +37,6 @@ function doPost(e) {
       const studentName = data.studentName;
       const emoji = data.emoji || "👧";
 
-      // 학번 중복 검사
       const rows = userSheet.getDataRange().getValues();
       for (let i = 1; i < rows.length; i++) {
         if (String(rows[i][0]) === studentId) {
@@ -51,7 +44,6 @@ function doPost(e) {
         }
       }
 
-      // 등록 실행
       userSheet.appendRow([studentId, studentName, emoji, new Date().toISOString()]);
       return createJsonResponse({ success: true, message: "가입 완료! 대시보드로 이동합니다 💕" });
     }
@@ -82,64 +74,84 @@ function doPost(e) {
       return createJsonResponse({ success: false, message: "학번 또는 이름이 일치하지 않습니다. 다시 확인해 주세요. 🥺" });
     }
     
-    // ================= 3. 활동 제출 (활동별 동적 탭 개설 및 개별 답변 분리 입력) =================
+    // ================= 3. 활동 제출 (과제별 맞춤형 동적 컬럼 개설 및 기록) =================
     else if (action === "submit") {
-      // 탭 이름을 활동 제목(Title)으로 지정하여 자동으로 분리 저장!
       const rawTitle = data.activityTitle || "일반활동";
-      // 구글시트 탭 이름 제한(31자)을 방지하기 위해 정돈
       const sheetName = rawTitle.length > 28 ? rawTitle.substring(0, 25) + "..." : rawTitle;
 
       let actSheet = sheet.getSheetByName(sheetName);
       
-      // 해당 활동 탭이 없으면 자동으로 탭 개설! (Self-Healing)
+      // 학생이 제출한 세부 데이터 객체 파싱 (가변 형식 데이터)
+      let parsedResult = {};
+      try {
+        parsedResult = JSON.parse(data.result);
+      } catch (e) {
+        parsedResult = { "답변내용": data.result };
+      }
+      
+      const resultKeys = Object.keys(parsedResult); // 예: ["answer1", "answer2"] 또는 ["최종자산", "reflectText"] 등
+
+      // 탭이 아예 없으면 새로 만들고 헤더도 동적으로 자동 생성!
       if (!actSheet) {
         actSheet = sheet.insertSheet(sheetName);
         
-        // 헤더 세팅
-        // 답변이 배열/객체 형태인 경우 각 답변 컬럼을 따로 분리해 줍니다.
-        const header = ["학번 (StudentID)", "이름 (StudentName)", "자기성찰 점수", "답변 1", "답변 2", "제출시간 (Timestamp)"];
+        // 동적 헤더 구성: [기본 정보] + [과제별 고유 질문 필드] + [제출 시간]
+        const header = ["학번 (StudentID)", "이름 (StudentName)", "평가/수익률 (Score)"];
+        resultKeys.forEach(key => {
+          header.push(key); // 학생들이 입력한 JSON 키값을 그대로 엑셀 열 이름으로 매핑!
+        });
+        header.push("제출시간 (Timestamp)");
+        
         actSheet.appendRow(header);
-        actSheet.getRange("A1:F1").setFontWeight("bold").setBackground("#e8f4fd");
+        actSheet.getRange(1, 1, 1, header.length).setFontWeight("bold").setBackground("#e8f4fd");
       }
 
       const studentId = String(data.studentId);
       const studentName = data.studentName;
       const score = data.score || "-";
-      
-      // result 데이터 파싱 (JSON 포맷의 답변 쪼개기)
-      let ans1 = "";
-      let ans2 = "";
-      
-      try {
-        const parsedResult = JSON.parse(data.result);
-        ans1 = parsedResult.answer1 || parsedResult.reflectText || data.result;
-        ans2 = parsedResult.answer2 || "";
-      } catch (e) {
-        ans1 = data.result;
-      }
 
-      // 동일 학생의 중복 제출이 있을 경우 덮어쓰거나 새 줄 추가
+      // 현재 시트의 1행 헤더 컬럼 목록 조회
+      const headers = actSheet.getRange(1, 1, 1, actSheet.getLastColumn()).getValues()[0];
+      const newRowData = [];
+
+      // 시트의 헤더 순서에 맞추어 전송된 데이터 값을 정렬해 꽂아넣음
+      headers.forEach(h => {
+        const headerName = String(h).trim();
+        if (headerName.startsWith("학번")) {
+          newRowData.push(studentId);
+        } else if (headerName.startsWith("이름")) {
+          newRowData.push(studentName);
+        } else if (headerName.startsWith("평가/수익률")) {
+          newRowData.push(score);
+        } else if (headerName.startsWith("제출시간")) {
+          newRowData.push(new Date().toISOString());
+        } else {
+          // 헤더 이름과 일치하는 JSON 키값을 찾아 값 주입 (없으면 빈 칸)
+          const matchedVal = parsedResult[headerName];
+          newRowData.push(matchedVal !== undefined ? matchedVal : "");
+        }
+      });
+
+      // 동일 학생의 중복 제출 검사 (오버라이팅)
       const rows = actSheet.getDataRange().getValues();
       let rowIdx = -1;
       for (let i = 1; i < rows.length; i++) {
         if (String(rows[i][0]) === studentId) {
-          rowIdx = i + 1; // 1-based index로 변환
+          rowIdx = i + 1;
           break;
         }
       }
 
-      const newRowData = [studentId, studentName, score, ans1, ans2, new Date().toISOString()];
-
       if (rowIdx !== -1) {
-        // 이미 낸 적이 있다면 기존 행 갱신 (오버라이트)
-        const range = actSheet.getRange(rowIdx, 1, 1, 6);
+        // 기존 행에 덮어쓰기
+        const range = actSheet.getRange(rowIdx, 1, 1, newRowData.length);
         range.setValues([newRowData]);
       } else {
-        // 처음 내는 거라면 맨 밑에 추가
+        // 새 행 추가
         actSheet.appendRow(newRowData);
       }
 
-      return createJsonResponse({ success: true, message: "배움 기록이 시트에 제출 완료되었습니다! ⭐" });
+      return createJsonResponse({ success: true, message: "활동 제출이 동적 탭에 안전하게 기록되었습니다! ⭐" });
     }
     
     // ================= 4. 전체 학습 진행도 조회 =================
@@ -148,7 +160,6 @@ function doPost(e) {
       const allSheets = sheet.getSheets();
       const progress = {};
 
-      // Users 탭을 제외한 각 활동 탭을 돌며 이 학생이 낸 기록이 있는지 전수조사
       allSheets.forEach(s => {
         const name = s.getName();
         if (name === "Users") return;
@@ -156,8 +167,6 @@ function doPost(e) {
         const rows = s.getDataRange().getValues();
         for (let i = 1; i < rows.length; i++) {
           if (String(rows[i][0]) === studentId) {
-            // 활동 ID 매핑을 위해, 탭 이름을 기반으로 완료 상태 전달
-            // 프론트엔드에서 탭 이름과 활동의 매핑 처리가 가능하도록 함
             progress[name] = "completed";
           }
         }
@@ -166,10 +175,10 @@ function doPost(e) {
       return createJsonResponse({ success: true, progress: progress });
     }
 
-    return createJsonResponse({ success: false, message: "잘못된 작업 요청입니다." });
+    return createJsonResponse({ success: false, message: "잘못된 요청입니다." });
 
   } catch (error) {
-    return createJsonResponse({ success: false, message: "스크립트 실행 에러: " + error.toString() });
+    return createJsonResponse({ success: false, message: "스크립트 에러: " + error.toString() });
   }
 }
 
