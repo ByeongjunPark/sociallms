@@ -54,8 +54,27 @@ export default async function handler(req, res) {
       })
     });
 
-    const data = await response.json();
-    return res.status(200).json(data);
+    const responseText = await response.text();
+    try {
+      const data = JSON.parse(responseText);
+      return res.status(200).json(data);
+    } catch (err) {
+      console.error("GAS Submit Response parsing failed:", responseText.substring(0, 300));
+      
+      let detail = "구글 연결 실패: ";
+      if (responseText.includes("Sign in") || responseText.includes("login") || responseText.includes("Accounts")) {
+        detail += "구글 웹 앱 배포 권한이 '모든 사용자(Anyone)'로 되어 있지 않거나, 테스트용 /dev 주소를 사용했습니다. 배포 설정을 'Anyone'으로 바꾸어 정식 /exec 주소를 적용했는지 재확인해 주세요! 🥺";
+      } else if (responseText.includes("경고") || responseText.includes("Error") || responseText.includes("Exception")) {
+        detail += "구글 앱스 스크립트 실행 중 내부 코드 에러가 났습니다. 구글 시트 -> 확장프로그램 -> Apps Script의 실행 프로그램 로그를 확인해 보세요.";
+      } else {
+        detail += "구글 서버가 비정상적인 데이터(HTML)를 보냈습니다. 입력된 GAS URL에 오타가 있는지 확인해 주세요. (응답 일부: " + responseText.substring(0, 100) + ")";
+      }
+      
+      return res.status(502).json({ 
+        success: false, 
+        message: detail 
+      });
+    }
 
   } catch (error) {
     console.error("Submit API Error:", error);
