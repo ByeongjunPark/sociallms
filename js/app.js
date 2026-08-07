@@ -632,8 +632,16 @@ function updateProfileUI() {
   }
 
   if (state.student.name) {
-    const gradeClass = state.student.gradeClass || state.student.studentId.substring(0, 2);
-    const formattedName = `${gradeClass}반 ${state.student.name}`;
+    const studentId = state.student.studentId;
+    let formattedName = "";
+    if (studentId && studentId.length === 4) {
+      const grade = studentId.charAt(0);
+      const classNum = parseInt(studentId.charAt(1));
+      const sNum = parseInt(studentId.substring(2));
+      formattedName = `${grade}학년 ${classNum}반 ${sNum}번 ${state.student.name}`;
+    } else {
+      formattedName = `${state.student.name} 학생`;
+    }
     if (nameDisplay) nameDisplay.textContent = formattedName;
     if (welcomeName) welcomeName.textContent = state.student.name;
     

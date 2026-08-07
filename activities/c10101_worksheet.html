@@ -812,8 +812,8 @@
     </div>
   </div>
 
-  <script src="../js/data.js" defer></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/data.js?v=3" defer></script>
+  <script src="../js/app.js?v=3" defer></script>
   <script>
     let currentStep = 1;
 
@@ -1039,15 +1039,15 @@
         const correctEventId = correctMatches[condId];
         
         const eventCard = document.querySelector(`[data-id="${correctEventId}"]`);
-        const eventTitle = eventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim();
+        const eventTitle = eventCard ? eventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim() : "미정";
 
         if (userEventId === correctEventId) {
           score += Math.round(100 / 6);
           feedbackHTML += `<li style="color: #2b8a3e; margin-bottom: 8px;">💚 <strong>정답</strong>: ${eventTitle}<br><small style="color: var(--text-primary); font-size:0.8rem;">${matchExplanations[correctEventId]}</small></li>`;
         } else {
           allCorrect = false;
-          const wrongEventCard = document.querySelector(`[data-id="${userEventId}"]`);
-          const wrongTitle = wrongEventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim();
+          const wrongEventCard = userEventId ? document.querySelector(`[data-id="${userEventId}"]`) : null;
+          const wrongTitle = wrongEventCard ? wrongEventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim() : "미지정";
           feedbackHTML += `<li style="color: #c92a2a; margin-bottom: 8px;">❌ <strong>오류 발견</strong> (선택: ${wrongTitle} ➔ 권장 짝: ${eventTitle})<br><small style="color: var(--text-primary); font-size:0.8rem;">${matchExplanations[correctEventId]}</small></li>`;
         }
       }
