@@ -867,8 +867,39 @@
         document.getElementById("studentNameDisplay").textContent = student.name;
         document.getElementById("welcomeEmoji").textContent = student.emoji;
       }
+      shuffleMatchingCards(); // 1단계 카드 랜덤 셔플링 실행 🧩
       renderSortCards();
     });
+
+    // 🧩 1단계 매칭 카드 셔플 헬퍼 함수
+    function shuffleMatchingCards() {
+      const condsCol = document.getElementById("conditionsCol");
+      const eventsCol = document.getElementById("eventsCol");
+
+      if (!condsCol || !eventsCol) return;
+
+      // 1. 조건 카드 셔플
+      const condCards = Array.from(condsCol.querySelectorAll(".match-card"));
+      const condTitle = condsCol.querySelector(".matching-column-title");
+      for (let i = condCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [condCards[i], condCards[j]] = [condCards[j], condCards[i]];
+      }
+      condsCol.innerHTML = "";
+      if (condTitle) condsCol.appendChild(condTitle);
+      condCards.forEach(card => condsCol.appendChild(card));
+
+      // 2. 역사적 사건 카드 셔플
+      const eventCards = Array.from(eventsCol.querySelectorAll(".match-card"));
+      const eventTitle = eventsCol.querySelector(".matching-column-title");
+      for (let i = eventCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [eventCards[i], eventCards[j]] = [eventCards[j], eventCards[i]];
+      }
+      eventsCol.innerHTML = "";
+      if (eventTitle) eventsCol.appendChild(eventTitle);
+      eventCards.forEach(card => eventsCol.appendChild(card));
+    }
 
     // ================= 모달 조작 헬퍼 함수 =================
     function openWorksheetModal(contentHTML, showNextBtn = false, btnText = "다음 단계로 👉") {
