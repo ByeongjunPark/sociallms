@@ -390,6 +390,54 @@
       border-color: var(--color-pink);
     }
 
+    /* 힌트 시스템 디자인 */
+    .hint-container {
+      margin-top: 10px;
+      border-top: 1px dashed rgba(0,0,0,0.04);
+      padding-top: 8px;
+    }
+    [data-theme="dark"] .hint-container {
+      border-top-color: rgba(255,255,255,0.04);
+    }
+    .hint-trigger-btn {
+      background: rgba(255, 176, 124, 0.12);
+      border: 1px dashed var(--color-peach);
+      color: #e8590c;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .hint-trigger-btn:hover {
+      background: rgba(255, 176, 124, 0.25);
+      transform: translateY(-1px);
+    }
+    .hint-bubble {
+      display: none;
+      background: #fff4e6;
+      border: 1.5px solid #ffd8a8;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #d9480f;
+      margin-top: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+    [data-theme="dark"] .hint-bubble {
+      background: rgba(217, 72, 15, 0.08);
+      border-color: rgba(217, 72, 15, 0.2);
+      color: #ff922b;
+    }
+    .hint-bubble.active {
+      display: block;
+    }
+
     /* 4단계 고차사고력 성찰 블록 */
     .reflection-form {
       display: flex;
@@ -699,12 +747,16 @@
                 </select>
                 <span>은/는</span>
                 <br>
-                <input type="text" class="builder-input" id="builderCondition_1" placeholder="어떤 사회적 조건">
+                <input type="text" class="builder-input" id="builderCondition_1" placeholder="당시 사회가 요구했던 구체적 배경">
                 <span>(이)라는 조건 때문에 일어났고,</span>
                 <br>
                 <span>그 결과</span>
-                <input type="text" class="builder-input" id="builderRight_1" placeholder="새로 획득된 핵심 권리">
+                <input type="text" class="builder-input" id="builderRight_1" placeholder="그 결과 획득된 핵심 권리명">
                 <span>이/가 새롭게 확립되었다.</span>
+              </div>
+              <div class="hint-container">
+                <button type="button" class="hint-trigger-btn" id="hintBtn3_1" onclick="toggleHint3(1)">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)</button>
+                <div class="hint-bubble" id="hintBubble3_1">사건을 먼저 위에서 선택해 주세요.</div>
               </div>
             </div>
 
@@ -724,12 +776,16 @@
                 </select>
                 <span>은/는</span>
                 <br>
-                <input type="text" class="builder-input" id="builderCondition_2" placeholder="어떤 사회적 조건">
+                <input type="text" class="builder-input" id="builderCondition_2" placeholder="당시 사회가 요구했던 구체적 배경">
                 <span>(이)라는 조건 때문에 일어났고,</span>
                 <br>
                 <span>그 결과</span>
-                <input type="text" class="builder-input" id="builderRight_2" placeholder="새로 획득된 핵심 권리">
+                <input type="text" class="builder-input" id="builderRight_2" placeholder="그 결과 획득된 핵심 권리명">
                 <span>이/가 새롭게 확립되었다.</span>
+              </div>
+              <div class="hint-container">
+                <button type="button" class="hint-trigger-btn" id="hintBtn3_2" onclick="toggleHint3(2)">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)</button>
+                <div class="hint-bubble" id="hintBubble3_2">사건을 먼저 위에서 선택해 주세요.</div>
               </div>
             </div>
 
@@ -749,12 +805,16 @@
                 </select>
                 <span>은/는</span>
                 <br>
-                <input type="text" class="builder-input" id="builderCondition_3" placeholder="어떤 사회적 조건">
+                <input type="text" class="builder-input" id="builderCondition_3" placeholder="당시 사회가 요구했던 구체적 배경">
                 <span>(이)라는 조건 때문에 일어났고,</span>
                 <br>
                 <span>그 결과</span>
-                <input type="text" class="builder-input" id="builderRight_3" placeholder="새로 획득된 핵심 권리">
+                <input type="text" class="builder-input" id="builderRight_3" placeholder="그 결과 획득된 핵심 권리명">
                 <span>이/가 새롭게 확립되었다.</span>
+              </div>
+              <div class="hint-container">
+                <button type="button" class="hint-trigger-btn" id="hintBtn3_3" onclick="toggleHint3(3)">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)</button>
+                <div class="hint-bubble" id="hintBubble3_3">사건을 먼저 위에서 선택해 주세요.</div>
               </div>
             </div>
           </div>
@@ -780,7 +840,14 @@
               <label class="reflection-title" for="reflection4thGen">
                 🧠 <strong>Q1. 만약 4세대 인권이 있다면 그것은 무엇이어야 한다고 생각하세요? 근거와 함께 적어봅시다.</strong>
               </label>
-              <textarea class="reflection-textarea" id="reflection4thGen" placeholder="예: '인터넷 세상에서 원하지 않는 개인 기록을 지울 디지털 잊힐 권리'가 필요하다고 봅니다. 오늘날 온라인 신상 털기나 박제는 개인의 사생활을 파멸시키고 정신적 삶을 영구적으로 제한하기 때문입니다."></textarea>
+              <textarea class="reflection-textarea" id="reflection4thGen" placeholder="내가 제안하고 싶은 현대적 4세대 인권의 가치와 그 타당한 근거를 서술해 주세요."></textarea>
+              <div class="hint-container">
+                <button type="button" class="hint-trigger-btn" id="hintBtn4_q1" onclick="toggleHint4('q1')">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -10점 감점)</button>
+                <div class="hint-bubble" id="hintBubble4_q1">
+                  <strong>[4세대 인권 제안 예시]</strong><br>
+                  • "인터넷 세상에서 원하지 않는 개인 기록을 지울 디지털 잊힐 권리가 필요하다고 생각합니다. 오늘날 온라인 상의 신상 털기나 정보 박제는 사생활을 심각하게 훼손하기 때문입니다."
+                </div>
+              </div>
             </div>
 
             <!-- 질문 2: 메타인지 학습 전략 성찰 질문 -->
@@ -788,7 +855,14 @@
               <label class="reflection-title" for="reflectionSelf">
                  🌱 <strong>Q2. 오늘 학습을 진행하면서 스스로 가장 까다롭거나 판단하기 까다로웠던 인권 개념/사건(예: 세대 구분, 역사적 선후 인과 등)은 무엇이었나요? 다음번에 이와 유사한 탐구 과제를 해결할 때 나만의 메타인지 학습 전략(배경지식 선행 점검, 오답 원인 분석 방식 등)을 어떻게 개선해나갈 것인지 구체적으로 서술해 봅시다.</strong>
               </label>
-              <textarea class="reflection-textarea" id="reflectionSelf" placeholder="예: 영국 대헌장과 근대 시민 혁명 문서의 연대기 순서를 인과적으로 분류해 내는 것이 까다로웠습니다. 다음 과제에서는 인과적 배경(사건이 터지게 된 사회적 모순)과 각 문서의 핵심 주권을 비교 분류표로 미리 정리해 두고 탐구하는 학습 전략을 활용할 것입니다."></textarea>
+              <textarea class="reflection-textarea" id="reflectionSelf" placeholder="학습 도중 까다롭고 모호했던 영역과, 차후 이를 극복하기 위한 나만의 구체적 공부 전략을 성찰하여 서술하세요."></textarea>
+              <div class="hint-container">
+                <button type="button" class="hint-trigger-btn" id="hintBtn4_q2" onclick="toggleHint4('q2')">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -10점 감점)</button>
+                <div class="hint-bubble" id="hintBubble4_q2">
+                  <strong>[메타인지 학습 성찰 예시]</strong><br>
+                  • "영국 대헌장과 시민혁명 문서들의 선후 선언 인과관계를 매칭하고 구분해 내는 것이 모호했습니다. 다음 학습 시에는 사건의 발생 배경과 결과 문서의 주권을 미리 테이블로 정리해 두고 탐구하는 학습 보완책을 쓸 것입니다."
+                </div>
+              </div>
             </div>
           </div>
 
@@ -826,6 +900,10 @@
     let selectedCond = null;
     let selectedEvent = null;
     let userMatches = {}; 
+
+    // 힌트 사용 여부 상태
+    let hintsUsedStep3 = { 1: false, 2: false, 3: false };
+    let hintsUsedStep4 = { q1: false, q2: false };
     
     const correctMatches = {
       "c1": "e1",
@@ -864,6 +942,34 @@
       "e4": "독일 바이마르 헌법(1919년)은 20세기 초 산업혁명 이후 빈곤 문제를 복지 국가 관점에서 치유하려 나선 '2세대 사회권'의 출발점입니다.",
       "e5": "세계인권선언(1948년)은 참혹한 대량 학살 전쟁을 통감한 뒤, 국가들이 연대해 지킬 최소 기본 도리를 약속한 '3세대 연대권'의 태동입니다.",
       "e6": "국제인권규약(1966년)은 선언에 머문 규정들을 국가 간 조약 체결로 실효적 구속력을 부여한 20세기 중반의 국제 연대적 사건입니다."
+    };
+
+    // 3단계용 실제 예시 데이터베이스
+    const step3HintDatabase = {
+      "영국 대헌장": {
+        cond: "왕이 승인 없이 세금을 매기고 신하들을 재판 없이 구금하던 전제적 모순",
+        right: "국왕 법률에 의한 국왕 권력 제한 및 신민의 신체 보장(자유권)"
+      },
+      "근대 시민 혁명과 인권 문서": {
+        cond: "절대 왕정의 신분제 억압과 무제한적 시민 통제 및 식민 지배",
+        right: "자유민으로서의 천부인권, 신체의 자유, 사유 재산 및 저항권"
+      },
+      "영국 차티스트 운동": {
+        cond: "시민혁명 이후 노동자들이 배제되었던 독점적 참정권 상황",
+        right: "일정한 세금을 내지 않는 노동자 등의 민중 보통선거권(참정권)"
+      },
+      "독일 바이마르 헌법": {
+        cond: "산업 혁명 및 자본주의 심화로 대다수 노동자가 겪은 극심한 빈곤",
+        right: "국가의 복지적 개입을 청구할 수 있는 인간다운 살 권리(사회권)"
+      },
+      "세계 인권 선언": {
+        cond: "제2차 세계 대전 시기 자행된 참혹한 홀로코스트 및 대량 학살의 참상",
+        right: "인종/성별 국경을 넘어 모든 인류가 보편적으로 지켜야 할 권리 연대"
+      },
+      "국제 인권 규약": {
+        cond: "세계인권선언의 법적 선언적 한계를 극복하고 실효 구속력을 지우려는 목적",
+        right: "조약 가입국 정부에 법적 구속력을 부여하는 실질적 국제 인권 보장"
+      }
     };
 
     window.addEventListener("load", () => {
@@ -966,6 +1072,44 @@
       `;
       actions.innerHTML = "";
       modal.classList.add("active");
+    }
+
+    // ================= 힌트 열람 제어 함수 =================
+    function toggleHint3(index) {
+      const select = document.getElementById(`builderSelect_${index}`);
+      const val = select.value;
+      const bubble = document.getElementById(`hintBubble3_${index}`);
+      const btn = document.getElementById(`hintBtn3_${index}`);
+
+      if (!val) {
+        alert("사건 분석을 위해 위의 사건을 먼저 선택하고 힌트를 눌러 주세요! 🌸");
+        return;
+      }
+
+      const hintData = step3HintDatabase[val];
+      if (hintData) {
+        bubble.innerHTML = `
+          <strong>[${val} 힌트]</strong><br>
+          • <strong>당시 사회 조건 힌트:</strong> "${hintData.cond}"<br>
+          • <strong>확립된 권리 힌트:</strong> "${hintData.right}"
+        `;
+        bubble.classList.add("active");
+        btn.textContent = "💡 힌트 열람 완료 (-5점 감점 반영)";
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+        hintsUsedStep3[index] = true;
+      }
+    }
+
+    function toggleHint4(qName) {
+      const bubble = document.getElementById(`hintBubble4_${qName}`);
+      const btn = document.getElementById(`hintBtn4_${qName}`);
+
+      bubble.classList.add("active");
+      btn.textContent = "💡 힌트 열람 완료 (-10점 감점 반영)";
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+      hintsUsedStep4[qName] = true;
     }
 
     // ================= 1단계 매칭 처리 로직 =================
@@ -1156,6 +1300,7 @@
       }
     }
 
+    // 초기화
     function resetStep2() {
       if (confirm("2단계의 카드 정렬 순서와 세대 분류 설정을 모두 초기화하시겠습니까? 🔄")) {
         sortCards = [
@@ -1226,33 +1371,18 @@
     // ================= 3단계 서술문 빌더 피드백 (Upstage AI 채점 탑재) =================
     function updateBuilderPlaceholder(setNum) {
       const select = document.getElementById(`builderSelect_${setNum}`);
-      const eventName = select.value;
+      const val = select.value;
       
-      const condInput = document.getElementById(`builderCondition_${setNum}`);
-      const rightInput = document.getElementById(`builderRight_${setNum}`);
+      const bubble = document.getElementById(`hintBubble3_${setNum}`);
+      const btn = document.getElementById(`hintBtn3_${setNum}`);
 
-      if (eventName === "영국 대헌장") {
-        condInput.placeholder = "예: 왕의 부당한 세금 부과와 임의 재판";
-        rightInput.placeholder = "예: 신하들의 신체 자유 및 기본 재산권";
-      } else if (eventName === "독일 바이마르 헌법") {
-        condInput.placeholder = "예: 산업화 이후 심각한 노동자 빈곤 실태";
-        rightInput.placeholder = "예: 국가가 보장하는 살 권리(사회권)";
-      } else if (eventName === "세계 인권 선언") {
-        condInput.placeholder = "예: 세계 대전의 비참한 대학살 참상";
-        rightInput.placeholder = "예: 인류 평화의 추구와 보편적 연대권";
-      } else if (eventName === "근대 시민 혁명과 인권 문서") {
-        condInput.placeholder = "예: 절대 군주의 권력 남용과 세금 징수 억압";
-        rightInput.placeholder = "예: 시민의 주권 확보 및 신체의 자유";
-      } else if (eventName === "영국 차티스트 운동") {
-        condInput.placeholder = "예: 시민혁명 이후에도 배제된 노동자 선거권";
-        rightInput.placeholder = "예: 노동자 등 민중의 국회 참여권(참정권)";
-      } else if (eventName === "국제 인권 규약") {
-        condInput.placeholder = "예: 선언에만 머문 인권 보장의 한계 극복";
-        rightInput.placeholder = "예: 법적 구속력을 지닌 인권 규약 및 국제 협력";
-      } else {
-        condInput.placeholder = "구체적인 당시 요구 상황";
-        rightInput.placeholder = "새롭게 획득된 핵심 권리";
-      }
+      // 힌트 텍스트 및 버튼 초기화
+      bubble.classList.remove("active");
+      bubble.textContent = val ? "💡 힌트 보기를 누르면 힌트 예시가 열립니다." : "사건을 먼저 위에서 선택해 주세요.";
+      btn.textContent = "💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)";
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      hintsUsedStep3[setNum] = false;
     }
 
     async function evaluateStep3() {
@@ -1425,13 +1555,41 @@
 
       const profile = JSON.parse(savedProfile);
 
+      // 감점 총합 계산
+      let penalty = 0;
+      const step3HintsList = [];
+      for (let i = 1; i <= 3; i++) {
+        if (hintsUsedStep3[i]) {
+          penalty += 5;
+          step3HintsList.push(events[i-1] || `사건${i}`);
+        }
+      }
+      const step4HintsList = [];
+      if (hintsUsedStep4.q1) { penalty += 10; step4HintsList.push("Q1_4세대인권"); }
+      if (hintsUsedStep4.q2) { penalty += 10; step4HintsList.push("Q2_학습성찰"); }
+
+      // 1단계 정오 점수 계산
+      let matchCorrectCount = 0;
+      for (let condId in correctMatches) {
+        if (userMatches[condId] === correctMatches[condId]) matchCorrectCount++;
+      }
+      // 2단계 정렬 점수 계산
+      let sortCorrectCount = 0;
+      sortCards.forEach((card, index) => {
+        if (card.id === correctSortOrder[index]) sortCorrectCount++;
+      });
+
+      // 최종 스코어 산출 (정답 기반 점수에 힌트 감점 차감 적용)
+      const baseScore = Math.round((matchCorrectCount / 6) * 60 + (sortCorrectCount / 6) * 40);
+      const finalScore = Math.max(0, baseScore - penalty);
+
       const payload = {
         action: "submit",
         studentId: studentId,
         studentName: profile.name,
         activityId: "c10101_worksheet",
         activityTitle: "인권 역사와 3세대 변화 연표 🏛️",
-        score: "제출완료",
+        score: `${finalScore}점 (감점 -${penalty}점)`,
         result: JSON.stringify({
           "분석사건1": events[0],
           "분석조건1": conditions[0],
@@ -1443,7 +1601,10 @@
           "분석조건3": conditions[2],
           "분석권리3": rights[2],
           "Q1_4세대인권상상": ref4th,
-          "Q2_학습과정성찰": refSelf
+          "Q2_학습과정성찰": refSelf,
+          "힌트사용_3단계": step3HintsList.join(", ") || "없음",
+          "힌트사용_4단계": step4HintsList.join(", ") || "없음",
+          "힌트감점총액": penalty
         })
       };
 
@@ -1469,18 +1630,6 @@
             refSelf: refSelf
           }));
           
-          // 평균 점수 계산용 정오 기록 보관 (대시보드 메타인지 조언 연동용)
-          let matchCorrectCount = 0;
-          for (let condId in correctMatches) {
-            if (userMatches[condId] === correctMatches[condId]) matchCorrectCount++;
-          }
-          let sortCorrectCount = 0;
-          sortCards.forEach((card, index) => {
-            if (card.id === correctSortOrder[index]) sortCorrectCount++;
-          });
-          
-          // 1단계(60점 만점), 2단계(40점 만점) 등으로 로컬 스코어링 보관
-          const finalScore = Math.round((matchCorrectCount / 6) * 60 + (sortCorrectCount / 6) * 40);
           localStorage.setItem("sociallms_score_c10101", finalScore);
         }
       } catch (e) {
