@@ -59,14 +59,16 @@ function checkLoginState() {
   const savedProfile = localStorage.getItem("sociallms_profile");
   const savedStudentId = localStorage.getItem("sociallms_student_id");
 
+  const authSec = document.getElementById("authSection");
+  const dashboard = document.getElementById("mainDashboard");
+
   if (savedProfile && savedStudentId) {
     state.student = JSON.parse(savedProfile);
     state.student.studentId = savedStudentId;
     
-    // 화면 전환
-    document.getElementById("authSection").style.display = "none";
-    const dashboard = document.getElementById("mainDashboard");
-    dashboard.classList.add("active");
+    // 화면 전환 (엘리먼트가 존재할 때만 안전하게 실행)
+    if (authSec) authSec.style.display = "none";
+    if (dashboard) dashboard.classList.add("active");
 
     updateProfileUI();
     
@@ -74,8 +76,8 @@ function checkLoginState() {
     loadProgressFromServer();
   } else {
     // 로그인창 노출
-    document.getElementById("authSection").style.display = "flex";
-    document.getElementById("mainDashboard").classList.remove("active");
+    if (authSec) authSec.style.display = "flex";
+    if (dashboard) dashboard.classList.remove("active");
   }
 }
 
@@ -632,8 +634,8 @@ function updateProfileUI() {
   if (state.student.name) {
     const gradeClass = state.student.gradeClass || state.student.studentId.substring(0, 2);
     const formattedName = `${gradeClass}반 ${state.student.name}`;
-    nameDisplay.textContent = formattedName;
-    welcomeName.textContent = state.student.name;
+    if (nameDisplay) nameDisplay.textContent = formattedName;
+    if (welcomeName) welcomeName.textContent = state.student.name;
     
     // 📊 대시보드 상단 나의 Baseline 프로필 데이터 매핑
     if (myCareerTag) {
@@ -658,8 +660,8 @@ function updateProfileUI() {
       myTaskTag.textContent = studentData["Q5_자신있는과제"] || studentData["Q5_과제유형"] || "보고서 작성";
     }
   } else {
-    nameDisplay.textContent = "로그아웃";
-    welcomeName.textContent = "친구";
+    if (nameDisplay) nameDisplay.textContent = "로그아웃";
+    if (welcomeName) welcomeName.textContent = "친구";
   }
   
   const emojiEl = document.getElementById("welcomeEmoji");
