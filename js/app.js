@@ -210,20 +210,24 @@ async function handleLogin() {
 
 // 회원등록 마법사 제어 및 입력 이벤트 바인딩
 function initWizardTraitsEvents() {
-  // Q3 특징 그리드 태그 선택 제어
-  const traitLabels = document.querySelectorAll(".trait-tag-label");
-  traitLabels.forEach(label => {
+  // Q3 특징 그리드 태그 선택 제어 (change 이벤트로 안전하게 연동)
+  const traitCheckboxes = document.querySelectorAll(".trait-tag-label input[type='checkbox']");
+  traitCheckboxes.forEach(cb => {
+    cb.addEventListener("change", function() {
+      const label = this.closest(".trait-tag-label");
+      if (this.checked) {
+        label.classList.add("selected");
+      } else {
+        label.classList.remove("selected");
+      }
+    });
+    
+    // 강제 클릭 트리거용 라벨 터치 보완 (display: none인 인풋 터치 대응)
+    const label = cb.closest(".trait-tag-label");
     label.addEventListener("click", function(e) {
       if (e.target.tagName === "INPUT") return;
-      
-      const checkbox = this.querySelector("input[type='checkbox']");
-      checkbox.checked = !checkbox.checked;
-      
-      if (checkbox.checked) {
-        this.classList.add("selected");
-      } else {
-        this.classList.remove("selected");
-      }
+      cb.click(); // 인풋에 직접 클릭을 강제 발송하여 change 이벤트 유발
+      e.preventDefault();
     });
   });
 
