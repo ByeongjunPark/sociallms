@@ -8,13 +8,15 @@ const state = {
   },
   progress: {}, // { activityId: 'completed' | 'in_progress' }
   currentFilter: "all",
-  selectedEmoji: "👧"
+  selectedEmoji: "👧",
+  currentWizardStep: 1 // 회원가입 마법사 단계
 };
 
 // 페이지 로드 시 초기화
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   checkLoginState();
+  initWizardTraitsEvents();
 });
 
 // 테마 초기화 및 전환
@@ -81,13 +83,15 @@ function switchAuthTab(tab) {
     tabSignup.classList.add("active");
     loginForm.classList.remove("active");
     signupForm.classList.add("active");
+    // 회원가입 마법사 상태 1단계로 리셋
+    resetWizard();
   }
 }
 
 // 에모지 셀렉터
 function selectEmoji(emoji, element) {
   state.selectedEmoji = emoji;
-  const options = document.querySelectorAll(".emoji-option");
+  const options = document.querySelectorAll("#signupForm .emoji-option");
   options.forEach(opt => opt.classList.remove("selected"));
   element.classList.add("selected");
 }
@@ -113,7 +117,7 @@ async function handleLogin() {
     return;
   }
 
-  showLoading(true);
+  showLoading("login", true);
 
   try {
     const response = await fetch("/api/auth", {
@@ -127,7 +131,7 @@ async function handleLogin() {
     });
 
     const data = await response.json();
-    showLoading(false);
+    showLoading("login", false);
 
     if (data.success) {
       localStorage.setItem("sociallms_student_id", studentId);
@@ -139,58 +143,292 @@ async function handleLogin() {
       alert(data.message || "로그인에 실패했습니다.");
     }
   } catch (error) {
-    showLoading(false);
+    showLoading("login", false);
     console.error("Login Error:", error);
     alert("서버 연결 실패: 로그인을 진행할 수 없습니다.");
   }
 }
 
-// 회원 등록 실행
+// 회원등록 마법사 제어 및 입력 이벤트 바인딩
+function initWizardTraitsEvents() {
+  // Q3 특징 그리드 태그 선택 제어
+  const traitLabels = document.querySelectorAll(".trait-tag-label");
+  traitLabels.forEach(label => {
+    label.addEventListener("click", function(e) {
+      // 버블링 방지
+      if (e.target.tagName === "INPUT") return;
+      
+      const checkbox = this.querySelector("input[type='checkbox']");
+      checkbox.checked = !checkbox.checked;
+      
+      if (checkbox.checked) {
+        this.classList.add("selected");
+      } else {
+        this.classList.remove("selected");
+      }
+    });
+  });
+
+  // 기타 주관식 체크 시 포커스 동기화
+  ["q1", "q2", "q4", "q5", "q6", "q16", "q17", "q23", "q24"].forEach(q => {
+    const etcCheck = document.getElementById(`${q}_etc_check`);
+    const etcText = document.getElementById(`${q}_etc_text`);
+    if (etcCheck && etcText) {
+      etcText.addEventListener("focus", () => {
+        etcCheck.checked = true;
+        etcCheck.closest(".option-check-label")?.classList.add("selected");
+      });
+    }
+  });
+
+  // 일반 체크박스 라벨에 포커스/클래스 연동
+  const checkLabels = document.querySelectorAll(".option-check-label");
+  checkLabels.forEach(label => {
+    label.addEventListener("change", function() {
+      const input = this.querySelector("input");
+      if (input.type === "checkbox") {
+        if (input.checked) {
+          this.classList.add("selected");
+        } else {
+          this.classList.remove("selected");
+        }
+      } else if (input.type === "radio") {
+        // 라디오 버튼은 그룹 내 다른 라벨 해제 필요
+        const name = input.name;
+        const siblings = document.querySelectorAll(`input[name='${name}']`);
+        siblings.forEach(sib => {
+          sib.closest(".option-check-label")?.classList.remove("selected");
+        });
+        if (input.checked) {
+          this.classList.add("selected");
+        }
+      }
+    });
+  });
+}
+
+// 마법사 단계 초기화
+function resetWizard() {
+  state.currentWizardStep = 1;
+  updateWizardUI();
+  
+  // 폼 비우기
+  document.getElementById("signupStudentId").value = "";
+  document.getElementById("signupStudentName").value = "";
+  
+  const checkboxes = document.querySelectorAll("#signupForm input[type='checkbox']");
+  checkboxes.forEach(c => c.checked = false);
+  const radios = document.querySelectorAll("#signupForm input[type='radio']");
+  radios.forEach(r => r.checked = false);
+  const textInputs = document.querySelectorAll("#signupForm input[type='text']");
+  textInputs.forEach(t => {
+    if (t.id !== "signupStudentId" && t.id !== "signupStudentName") t.value = "";
+  });
+
+  const selectedLabels = document.querySelectorAll("#signupForm .selected");
+  selectedLabels.forEach(l => {
+    if (!l.textContent.includes("👧")) l.classList.remove("selected");
+  });
+}
+
+// 회원등록 마법사 스텝 이동
+function navigateWizard(direction) {
+  const currentStep = state.currentWizardStep;
+  const nextStep = currentStep + direction;
+
+  if (direction === 1) {
+    // 1단계 기본 인풋 유효성 검사
+    if (currentStep === 1) {
+      const studentId = document.getElementById("signupStudentId").value.trim();
+      const studentName = document.getElementById("signupStudentName").value.trim();
+      
+      if (!studentId || !studentName) {
+        alert("학번과 이름을 모두 적어주세요! 💕");
+        return;
+      }
+      if (!validateStudentId(studentId)) {
+        alert("학번은 반드시 숫자 4자리로 적어주세요. 🥺");
+        return;
+      }
+    }
+    
+    // 마지막 7단계에서 다음을 누르면 제출 처리
+    if (currentStep === 7) {
+      handleSignup();
+      return;
+    }
+  }
+
+  if (nextStep >= 1 && nextStep <= 7) {
+    state.currentWizardStep = nextStep;
+    updateWizardUI();
+  }
+}
+
+// 스텝 변경에 따른 화면 업데이트
+function updateWizardUI() {
+  // 모든 단계 화면 가리기
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById(`signUpStep${i}`);
+    if (el) el.classList.remove("active");
+  }
+
+  // 현재 단계 노출
+  const currentStepEl = document.getElementById(`signUpStep${state.currentWizardStep}`);
+  if (currentStepEl) currentStepEl.classList.add("active");
+
+  // 진척도 도트 업데이트
+  const dots = document.querySelectorAll("#stepProgressDots .step-dot");
+  dots.forEach((dot, idx) => {
+    if (idx + 1 === state.currentWizardStep) {
+      dot.classList.add("active");
+    } else {
+      dot.classList.remove("active");
+    }
+  });
+
+  // 단계별 헤더 텍스트
+  const stepTitles = {
+    1: "1단계: 기본 정보 입력 👧",
+    2: "2단계: 진로 및 시사 관심사 🧭",
+    3: "3단계: 나의 성향 특징 선택 🏷️",
+    4: "4단계: 모둠 역할 및 과제 스타일 💡",
+    5: "5단계: AI 활용 습관 진단 🤖",
+    6: "6단계: [PART 2] 1단원 인권 진단평가 🏛️",
+    7: "7단계: [PART 3] 3단원 경제 진단평가 📈"
+  };
+  document.getElementById("stepIndicatorText").textContent = stepTitles[state.currentWizardStep];
+
+  // 이전/다음 버튼 레이아웃 제어
+  const btnPrev = document.getElementById("btnPrevStep");
+  const btnNext = document.getElementById("btnNextStep");
+
+  if (state.currentWizardStep === 1) {
+    btnPrev.style.display = "none";
+  } else {
+    btnPrev.style.display = "block";
+  }
+
+  if (state.currentWizardStep === 7) {
+    btnNext.textContent = "가입 및 진단 제출하기 🌸";
+  } else {
+    btnNext.textContent = "다음으로 ✨";
+  }
+  
+  // 마법사 스크롤 최상단 고정
+  document.querySelector(".auth-card").scrollTop = 0;
+}
+
+// 다중 선택형 데이터 추출 헬퍼 (기타 텍스트 포함)
+function getCheckboxValues(groupName, hasEtc = false) {
+  const checkboxes = document.querySelectorAll(`input[name='${groupName}']:checked`);
+  const values = [];
+  
+  checkboxes.forEach(c => {
+    if (c.value === "기타") {
+      if (hasEtc) {
+        const etcText = document.getElementById(`${groupName}_etc_text`).value.trim();
+        if (etcText) values.push(`기타(${etcText})`);
+      }
+    } else {
+      values.push(c.value);
+    }
+  });
+  return values.join(", ");
+}
+
+// 단일 선택형(Radio) 데이터 추출 헬퍼 (정답 판별 포함)
+function getRadioValueWithQuiz(groupName, correctAnswer = null, hasEtc = false) {
+  const radio = document.querySelector(`input[name='${groupName}']:checked`);
+  if (!radio) return "미선택";
+  
+  let val = radio.value;
+  if (val === "기타" && hasEtc) {
+    const etcText = document.getElementById(`${groupName}_etc_text`).value.trim();
+    return `기타(${etcText})`;
+  }
+
+  if (correctAnswer) {
+    const isCorrect = val === correctAnswer;
+    return `${val} (${isCorrect ? '정답 ⭕' : '오답 ❌'})`;
+  }
+  return val;
+}
+
+// 회원 등록 및 진단평가 제출
 async function handleSignup() {
   const studentId = document.getElementById("signupStudentId").value.trim();
   const studentName = document.getElementById("signupStudentName").value.trim();
 
-  if (!studentId || !studentName) {
-    alert("학번과 이름을 모두 입력해 주세요! 💕");
+  // 최종 확인
+  if (!confirm("작성하신 진단 설문과 함께 가입을 최종 제출하시겠습니까? 🌸")) {
     return;
   }
 
-  if (!validateStudentId(studentId)) {
-    alert("학번은 반드시 숫자 4자리로 입력해 주세요. (예: 1학년 4반 3번 -> 1403) 🥺");
-    return;
-  }
+  showLoading("signup", true);
 
-  showLoading(true);
+  // 데이터 수집 프로세스
+  const payload = {
+    action: "signup",
+    studentId,
+    studentName,
+    emoji: state.selectedEmoji,
+    
+    // [PART 1] 설문 응답
+    "Q1_희망진로": getCheckboxValues("q1", true),
+    "Q2_뉴스접하는곳": getCheckboxValues("q2", true),
+    "Q3_나의특징": getCheckboxValues("q3"),
+    "Q4_모둠역할선호": getCheckboxValues("q4", true),
+    "Q5_자신있는과제": getCheckboxValues("q5", true),
+    "Q6_AI경험": getCheckboxValues("q6", true),
+    "Q7_AI습관": getCheckboxValues("q7"),
+    "Q8_AI윤리자각": getCheckboxValues("q8", true),
+    "Q9_AI과제어려움": getCheckboxValues("q9", true),
+
+    // [PART 2] 1단원 인권 진단평가 (정답 검증 포함)
+    "Q10_3세대인권": getRadioValueWithQuiz("q10", "③"),
+    "Q11_오늘날인권": getRadioValueWithQuiz("q11", "④"),
+    "Q12_기본권설명": getRadioValueWithQuiz("q12", "③"),
+    "Q13_시민불복종": getRadioValueWithQuiz("q13", "③"),
+    "Q14_사회적소수자": getRadioValueWithQuiz("q14", "④"),
+    "Q15_청소년노동법": getRadioValueWithQuiz("q15", "①"),
+    "Q16_인권보편논쟁": getRadioValueWithQuiz("q16", null, true),
+    "Q17_자유vs안전": getRadioValueWithQuiz("q17", null, true),
+
+    // [PART 3] 3단원 경제 진단평가
+    "Q18_가격원리": getRadioValueWithQuiz("q18", "③"),
+    "Q19_합리적선택": getRadioValueWithQuiz("q19", "①"),
+    "Q20_지속가능책임": getRadioValueWithQuiz("q20", "②"),
+    "Q21_예적금vs주식": getRadioValueWithQuiz("q21", "③"),
+    "Q22_국제무역원인": getRadioValueWithQuiz("q22", "②"),
+    "Q23_시장자율vs개입": getRadioValueWithQuiz("q23", null, true),
+    "Q24_자산관리원칙": getRadioValueWithQuiz("q24", null, true)
+  };
 
   try {
     const response = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "signup",
-        studentId,
-        studentName,
-        emoji: state.selectedEmoji
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
-    showLoading(false);
+    showLoading("signup", false);
 
     if (data.success) {
       alert(data.message);
-      // 가입 성공 시 자동으로 로그인 폼에 입력 후 로그인 진행
+      // 로그인 절차로 강제 유도
       document.getElementById("loginStudentId").value = studentId;
       document.getElementById("loginStudentName").value = studentName;
       switchAuthTab("login");
       handleLogin();
     } else {
-      alert(data.message || "회원 가입에 실패했습니다.");
+      alert(data.message || "가입 제출에 실패했습니다.");
     }
   } catch (error) {
-    showLoading(false);
-    console.error("Signup Error:", error);
-    alert("서버 연결 실패: 가입을 진행할 수 없습니다.");
+    showLoading("signup", false);
+    console.error("Signup Wizard Submit Error:", error);
+    alert("서버 연결 실패: 진단 평가를 제출할 수 없습니다.");
   }
 }
 
@@ -204,16 +442,19 @@ function handleLogout() {
   }
 }
 
-// 로딩 표시기
-function showLoading(isLoading) {
-  const btn = document.querySelector(".auth-form.active button");
+// 로딩 표시기 개편
+function showLoading(type, isLoading) {
+  const btn = type === "signup" 
+    ? document.getElementById("btnNextStep")
+    : document.querySelector("#loginForm button");
+    
   if (btn) {
     if (isLoading) {
       btn.disabled = true;
-      btn.textContent = "연결 중... ⏳";
+      btn.textContent = "가입 및 진단 전송 중... ⏳";
     } else {
       btn.disabled = false;
-      btn.textContent = btn.id === "signupForm" ? "가입 및 시작하기 🌸" : "로그인하기 💕";
+      btn.textContent = type === "signup" ? "가입 및 진단 제출하기 🌸" : "로그인하기 💕";
     }
   }
 }
@@ -253,10 +494,8 @@ async function loadProgressFromServer() {
       const serverProgress = data.progress;
       const mappedProgress = {};
       
-      // 구글 시트의 탭 이름(활동 제목)을 프론트엔드의 활동 ID로 변환하여 동기화
       CURRICULUM_DATA.forEach(standard => {
         standard.activities.forEach(act => {
-          // 탭 이름 자르기 처리를 고려하여, 탭 이름이 활동 제목을 포함하거나 같은지 확인
           const matchedTabName = Object.keys(serverProgress).find(tabName => {
             const cleanTab = tabName.replace(/\s+/g, '');
             const cleanTitle = act.title.replace(/\s+/g, '');
@@ -274,14 +513,12 @@ async function loadProgressFromServer() {
     }
   } catch (error) {
     console.error("Failed to load progress from server, using local cache:", error);
-    // 실패 시 로컬 캐시 이용
     const savedProgress = localStorage.getItem("sociallms_progress");
     if (savedProgress) {
       state.progress = JSON.parse(savedProgress);
     }
   }
 
-  // 화면 다시 렌더링 및 통계 업데이트
   renderStandards();
   updateDashboardStats();
 }

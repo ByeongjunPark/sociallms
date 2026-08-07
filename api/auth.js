@@ -40,17 +40,16 @@ export default async function handler(req, res) {
       });
     }
 
-    // 구글 앱스 스크립트 웹 앱으로 브릿지 전송
+    // 구글 앱스 스크립트 웹 앱으로 브릿지 전송 (가입 시 설문/진단 정보 통째로 전달)
     const response = await fetch(gasUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: securityToken,
-        action,
-        studentId,
-        studentName,
-        emoji
-      })
+      body: JSON.stringify(
+        Object.assign(
+          { token: securityToken },
+          req.body
+        )
+      )
     });
 
     const data = await response.json();
