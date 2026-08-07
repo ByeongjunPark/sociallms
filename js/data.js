@@ -1,9 +1,9 @@
 /**
- * 박병준 선생님의 통합사회 교실 - 성취기준 및 활동 데이터베이스
+ * 박병준 선생님의 통합사회 교실 - 성취기준 및 활동 데이터베이스 (초기 뼈대 버전)
  * 
  * [가이드]
- * 새로운 활동을 추가하려면 아래 CURRICULUM_DATA 배열에 맞게 객체를 추가하거나 수정하세요.
- * - type 종류: 'worksheet' (활동지), 'chatbot' (챗봇), 'simulation' (시뮬레이션), 'coming_soon' (준비중)
+ * 사용자가 명령하여 하나씩 하위 활동을 생성할 예정입니다.
+ * 활동은 각 성취기준 객체의 `activities` 배열 내에 추가됩니다.
  */
 
 const CURRICULUM_DATA = [
@@ -15,16 +15,7 @@ const CURRICULUM_DATA = [
     category: "인권 보장과 헌법",
     color: "var(--color-pink)",
     bgGradient: "linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)",
-    activities: [
-      {
-        id: "c10101_worksheet",
-        title: "현대 사회의 새로운 인권 조사 활동지 📝",
-        type: "worksheet",
-        url: "activities/c10101_worksheet.html",
-        description: "주거, 안전, 환경, 문화권 등 새롭게 정의되고 있는 인권 영역의 구체적 사례를 조사하고 기록합니다.",
-        timeRequired: "15분"
-      }
-    ]
+    activities: []
   },
   {
     id: "10통사2-01-02",
@@ -34,16 +25,7 @@ const CURRICULUM_DATA = [
     category: "인권 보장과 헌법",
     color: "var(--color-purple)",
     bgGradient: "linear-gradient(135deg, #f8f0fc 0%, #ebd4fc 100%)",
-    activities: [
-      {
-        id: "c10102_ready",
-        title: "시민 참여와 헌법 탐구 활동 💬",
-        type: "coming_soon",
-        url: "#",
-        description: "추후 시민 참여 탐구용 챗봇 활동이 필요할 때 구현 및 연동될 예정입니다.",
-        timeRequired: "대기중"
-      }
-    ]
+    activities: []
   },
   {
     id: "10통사2-01-03",
@@ -53,16 +35,7 @@ const CURRICULUM_DATA = [
     category: "인권 보장과 헌법",
     color: "var(--color-blue)",
     bgGradient: "linear-gradient(135deg, #eef7ff 0%, #d0ebff 100%)",
-    activities: [
-      {
-        id: "c10103_ready",
-        title: "세계 인권 지수(Human Rights Index) 분석 📊",
-        type: "coming_soon",
-        url: "#",
-        description: "다양한 국가의 인권 지수 데이터 시각화 자료를 보고 분석 활동을 진행할 예정입니다.",
-        timeRequired: "대기중"
-      }
-    ]
+    activities: []
   },
   {
     id: "10통사2-03-01",
@@ -72,16 +45,7 @@ const CURRICULUM_DATA = [
     category: "시장 경제와 금융",
     color: "var(--color-peach)",
     bgGradient: "linear-gradient(135deg, #fff9db 0%, #fff3bf 100%)",
-    activities: [
-      {
-        id: "c10301_ready",
-        title: "보이지 않는 손 vs 정부의 규제 토론방 💬",
-        type: "coming_soon",
-        url: "#",
-        description: "자본주의 역사 속 대공황, 신자유주의 등 위기 순간에서 시장과 정부의 역할을 토론합니다.",
-        timeRequired: "대기중"
-      }
-    ]
+    activities: []
   },
   {
     id: "10통사2-03-02",
@@ -91,16 +55,7 @@ const CURRICULUM_DATA = [
     category: "시장 경제와 금융",
     color: "var(--color-mint)",
     bgGradient: "linear-gradient(135deg, #e6fcf5 0%, #c3fae8 100%)",
-    activities: [
-      {
-        id: "c10302_ready",
-        title: "착한 소비 & 지속가능 발전 가상 마켓 🛒",
-        type: "coming_soon",
-        url: "#",
-        description: "기회비용과 외부효과를 고려하여 가상의 마켓에서 합리적이고 지속가능한 소비를 직접 체험합니다.",
-        timeRequired: "대기중"
-      }
-    ]
+    activities: []
   },
   {
     id: "10통사2-03-03",
@@ -110,16 +65,7 @@ const CURRICULUM_DATA = [
     category: "시장 경제와 금융",
     color: "var(--color-coral)",
     bgGradient: "linear-gradient(135deg, #fff0f6 0%, #ffdeeb 100%)",
-    activities: [
-      {
-        id: "c10303_simulation",
-        title: "1000만원 포트폴리오 자산관리 시뮬레이터 💰",
-        type: "simulation",
-        url: "activities/c10303_simulation.html",
-        description: "예금, 주식, 펀드를 포트폴리오로 구성하고 금리 인상, 경기 불황 등의 가상 이벤트를 겪으며 자산 가치 변화를 체험합니다.",
-        timeRequired: "12분"
-      }
-    ]
+    activities: []
   },
   {
     id: "10통사2-03-04",
@@ -129,15 +75,6 @@ const CURRICULUM_DATA = [
     category: "시장 경제와 금융",
     color: "var(--color-sage)",
     bgGradient: "linear-gradient(135deg, #f4fce8 0%, #e2f9b8 100%)",
-    activities: [
-      {
-        id: "c10304_ready",
-        title: "글로벌 무역 및 국제 분업 협상 게임 🤝",
-        type: "coming_soon",
-        url: "#",
-        description: "서로 다른 자원을 가진 국가가 되어 비교 우위를 가진 재화를 교역하는 무역 시뮬레이션입니다.",
-        timeRequired: "대기중"
-      }
-    ]
+    activities: []
   }
 ];

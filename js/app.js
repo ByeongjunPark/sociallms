@@ -175,18 +175,23 @@ function renderStandards() {
     card.className = "standard-card";
     card.style.setProperty("--accent-color", item.color);
     
-    // 카드를 클릭했을 때 아코디언처럼 아래로 열리는 기능
-    card.addEventListener("click", (e) => {
-      // 활동 아이템 자체의 클릭은 무시
-      if (e.target.closest(".activity-item") || e.target.closest("button")) {
-        return;
-      }
-      toggleCardExpand(card);
-    });
+    const hasActivities = item.activities && item.activities.length > 0;
+
+    if (hasActivities) {
+      // 활동이 있을 때만 클릭 시 확장 가능하게 함
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".activity-item") || e.target.closest("button")) {
+          return;
+        }
+        toggleCardExpand(card);
+      });
+    } else {
+      card.style.cursor = "default"; // 활동이 없으면 클릭 커서 제외
+    }
 
     // 활동 목록 마크업 생성
     let activitiesHTML = "";
-    if (item.activities && item.activities.length > 0) {
+    if (hasActivities) {
       activitiesHTML = `
         <div class="activities-section">
           <div class="activities-title">
@@ -232,6 +237,15 @@ function renderStandards() {
           </div>
         </div>
       `;
+    } else {
+      // 활동이 전혀 없을 때 띄워줄 귀여운 가이드 배지
+      activitiesHTML = `
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(0,0,0,0.05); text-align: right;">
+          <span style="font-size: 0.8rem; background: var(--bg-card); border: 1px solid var(--border-glass); padding: 4px 10px; border-radius: 8px; color: var(--text-secondary); font-weight: 600;">
+            🌸 곧 재미있는 활동이 추가될 예정입니다!
+          </span>
+        </div>
+      `;
     }
 
     card.innerHTML = `
@@ -240,13 +254,14 @@ function renderStandards() {
         <span class="card-category" style="--badge-color: ${item.color}">${item.category}</span>
       </div>
       <h3>${item.title}</h3>
-      <p class="description">${item.description}</p>
+      <p class="description" style="-webkit-line-clamp: unset;">${item.description}</p>
       ${activitiesHTML}
     `;
 
     grid.appendChild(card);
   });
 }
+
 
 // 활동 유형 한글 변환
 function getKoreanActivityType(type) {
