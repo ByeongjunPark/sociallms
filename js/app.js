@@ -1717,7 +1717,6 @@ function logout() {
     // 로그인 탭 초기화
     switchAuthTab("login");
   }
-  }
 }
 
 // 🤖 Upstage Solar API 기반 학생 의견 및 요청사항 안전 요약 구동
