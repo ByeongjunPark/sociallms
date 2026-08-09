@@ -245,6 +245,57 @@ function doPost(e) {
       return createJsonResponse({ success: true, progress: userProgress });
     }
     
+    // ================= 5. 전체 학생 목록 및 과제 성적 융합 조회 =================
+    else if (action === "getAllStudents") {
+      const userSheet = sheet.getSheetByName("Users");
+      if (!userSheet) {
+        return createJsonResponse({ success: true, students: [] });
+      }
+
+      const userRows = userSheet.getDataRange().getValues();
+      const userHeaders = userRows[0].map(h => String(h).trim());
+
+      // 과제 제출 시트들 정보 수집 (학번별 점수 매핑용)
+      const allSheets = sheet.getSheets();
+      const scoreMap = {}; // { studentId: { activityName: score } }
+
+      allSheets.forEach(s => {
+        const sName = s.getName();
+        if (sName === "Users") return;
+
+        const rows = s.getDataRange().getValues();
+        if (rows.length <= 1) return;
+        const headers = rows[0].map(h => String(h).trim());
+        const idIdx = headers.findIndex(h => h.startsWith("학번"));
+        const scoreIdx = headers.findIndex(h => h.startsWith("평가/수익률"));
+
+        if (idIdx !== -1 && scoreIdx !== -1) {
+          for (let i = 1; i < rows.length; i++) {
+            const sId = String(rows[i][idIdx]);
+            const sScore = rows[i][scoreIdx];
+            if (!scoreMap[sId]) scoreMap[sId] = {};
+            scoreMap[sId][sName] = sScore;
+          }
+        }
+      });
+
+      const studentsList = [];
+      for (let i = 1; i < userRows.length; i++) {
+        const studentInfo = {};
+        userHeaders.forEach((h, idx) => {
+          if (!h.startsWith("비밀번호")) {
+            studentInfo[h] = userRows[i][idx];
+          }
+        });
+
+        const sId = String(userRows[i][0]);
+        studentInfo["activities"] = scoreMap[sId] || {};
+        studentsList.push(studentInfo);
+      }
+
+      return createJsonResponse({ success: true, students: studentsList });
+    }
+    
     return createJsonResponse({ success: false, message: "정의되지 않은 동작입니다." });
     
   } catch (error) {

@@ -58,9 +58,20 @@ function toggleTheme() {
 function checkLoginState() {
   const savedProfile = localStorage.getItem("sociallms_profile");
   const savedStudentId = localStorage.getItem("sociallms_student_id");
+  const savedRole = localStorage.getItem("sociallms_role");
 
   const authSec = document.getElementById("authSection");
   const dashboard = document.getElementById("mainDashboard");
+  const tDashboard = document.getElementById("teacherDashboard");
+
+  // 👑 교사용 세션 복구 및 대시보드 리다이렉트
+  if (savedRole === "teacher") {
+    if (authSec) authSec.style.display = "none";
+    if (dashboard) dashboard.style.display = "none";
+    if (tDashboard) tDashboard.style.display = "block";
+    loadTeacherData();
+    return;
+  }
 
   if (savedProfile && savedStudentId) {
     state.student = JSON.parse(savedProfile);
@@ -69,6 +80,7 @@ function checkLoginState() {
     // 화면 전환 (엘리먼트가 존재할 때만 안전하게 실행)
     if (authSec) authSec.style.display = "none";
     if (dashboard) dashboard.classList.add("active");
+    if (tDashboard) tDashboard.style.display = "none";
 
     updateProfileUI();
     
@@ -78,28 +90,40 @@ function checkLoginState() {
     // 로그인창 노출
     if (authSec) authSec.style.display = "flex";
     if (dashboard) dashboard.classList.remove("active");
+    if (tDashboard) tDashboard.style.display = "none";
   }
 }
 
-// 탭 스위치 (로그인 / 회원등록)
+// 탭 스위치 (로그인 / 회원등록 / 교사용)
 function switchAuthTab(tab) {
   const tabLogin = document.getElementById("tabLogin");
   const tabSignup = document.getElementById("tabSignup");
+  const tabTeacher = document.getElementById("tabTeacher");
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
+  const teacherLoginForm = document.getElementById("teacherLoginForm");
+
+  if (!tabLogin || !tabSignup || !loginForm || !signupForm) return;
+
+  // 모든 탭 초기화
+  tabLogin.classList.remove("active");
+  tabSignup.classList.remove("active");
+  if (tabTeacher) tabTeacher.classList.remove("active");
+  loginForm.classList.remove("active");
+  signupForm.classList.remove("active");
+  if (teacherLoginForm) teacherLoginForm.classList.remove("active");
 
   if (tab === "login") {
     tabLogin.classList.add("active");
-    tabSignup.classList.remove("active");
     loginForm.classList.add("active");
-    signupForm.classList.remove("active");
-  } else {
-    tabLogin.classList.remove("active");
+  } else if (tab === "signup") {
     tabSignup.classList.add("active");
-    loginForm.classList.remove("active");
     signupForm.classList.add("active");
     // 회원가입 마법사 상태 1단계로 리셋
     resetWizard();
+  } else if (tab === "teacher") {
+    if (tabTeacher) tabTeacher.classList.add("active");
+    if (teacherLoginForm) teacherLoginForm.classList.add("active");
   }
 }
 
@@ -1066,4 +1090,532 @@ ${studyDetailPrompt}
 function closeDashboardAiModal() {
   const modal = document.getElementById("dashboardAiModal");
   if (modal) modal.classList.remove("active");
+}
+
+// =========================================================================
+// 👑 [교사용 LMS 대시보드 전용 자바스크립트 엔진]
+// =========================================================================
+
+// 교사용 전역 차트 맵 & 데이터 캐시
+let teacherCharts = { career: null, traits: null, diagnostic: null };
+state.allStudents = [];
+state.filteredStudents = [];
+state.currentTeacherTab = "list";
+
+// 교사 비밀번호 로그인
+async function handleTeacherLogin() {
+  const passwordInput = document.getElementById("teacherPassword");
+  if (!passwordInput) return;
+  const pw = passwordInput.value.trim();
+
+  if (!pw) {
+    alert("교사 인증 비밀번호를 입력해 주세요! 🔑");
+    return;
+  }
+
+  if (pw !== "qkrqudwns1!") {
+    alert("올바르지 않은 교사 비밀번호입니다. 🔒");
+    return;
+  }
+
+  // 교사 모드 활성화 및 세션 세팅
+  localStorage.setItem("sociallms_role", "teacher");
+  
+  const authSec = document.getElementById("authSection");
+  const dashboard = document.getElementById("mainDashboard");
+  const tDashboard = document.getElementById("teacherDashboard");
+
+  if (authSec) authSec.style.display = "none";
+  if (dashboard) dashboard.style.display = "none";
+  if (tDashboard) tDashboard.style.display = "block";
+
+  passwordInput.value = ""; // 비밀번호 필드 클리어
+  await loadTeacherData();
+}
+
+// 교사용 원격 통합 데이터 로드
+async function loadTeacherData() {
+  const tDashboard = document.getElementById("teacherDashboard");
+  if (!tDashboard || tDashboard.style.display === "none") return;
+
+  // 테이블 및 로딩 표시
+  const tableBody = document.getElementById("teacherStudentTableBody");
+  if (tableBody) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 40px; font-weight: 700; color: var(--color-purple);">
+          구글 시트 데이터베이스로부터 전체 학생 성취 및 설문 결과 융합 데이터를 동기화 중입니다... 🔄
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+    const response = await fetch("/api/teacher", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: "qkrqudwns1!" })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      // 학번 숫자 기준 순차 정렬
+      state.allStudents = data.students.sort((a, b) => parseInt(a["학번 (StudentID)"]) - parseInt(b["학번 (StudentID)"]));
+      
+      // 초기에는 학년 전체 필터 적용
+      filterTeacherClass();
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (err) {
+    console.error("Failed to load teacher stats:", err);
+    if (tableBody) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 40px; color: #c92a2a; font-weight: 700;">
+            ❌ 구글 동기화 실패: ${err.message}<br>
+            <small style="color: var(--text-secondary); font-weight: 500;">구글 앱스 스크립트 웹앱이 제대로 배포되어 있는지 확인해 주세요!</small>
+          </td>
+        </tr>
+      `;
+    }
+  }
+}
+
+// 학급별 학생 필터링
+function filterTeacherClass() {
+  const select = document.getElementById("teacherClassSelect");
+  if (!select) return;
+  const val = select.value;
+
+  if (val === "all") {
+    state.filteredStudents = [...state.allStudents];
+  } else {
+    // 학번 앞 2자리(예: 1101 -> 1학년 1반 -> '11')
+    state.filteredStudents = state.allStudents.filter(s => {
+      const sId = String(s["학번 (StudentID)"]);
+      return sId.substring(0, 2) === val;
+    });
+  }
+
+  // 카운트 업데이트
+  const countEl = document.getElementById("tStudentCount");
+  if (countEl) countEl.textContent = state.filteredStudents.length;
+
+  renderTeacherStudentsTable();
+  
+  // 만약 통계 탭이 열려있다면 차트도 실시간 갱신
+  if (state.currentTeacherTab === "stats") {
+    renderTeacherCharts();
+  }
+}
+
+// 학생 리스트 테이블 그리기
+function renderTeacherStudentsTable() {
+  const tableBody = document.getElementById("teacherStudentTableBody");
+  if (!tableBody) return;
+
+  if (state.filteredStudents.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 40px; font-weight: 700; color: var(--text-secondary);">
+          선택된 학급에 가입된 학생이 아직 없습니다. 🥺
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tableBody.innerHTML = state.filteredStudents.map(s => {
+    const sId = String(s["학번 (StudentID)"]);
+    const sName = s["이름 (StudentName)"] || "이름미정";
+    const sEmoji = s["캐릭터 (Emoji)"] || "👧";
+    
+    // 학번 파싱 (학년/반/번호 분리)
+    let gradeText = "-";
+    if (sId.length === 4) {
+      const gr = sId.substring(0, 1);
+      const cl = parseInt(sId.substring(1, 2));
+      const num = parseInt(sId.substring(2, 4));
+      gradeText = `${gr}학년 ${cl}반 ${num}번`;
+    }
+
+    // 진로 희망
+    const career = s["Q1_희망진로"] || "미정";
+
+    // 1단원 성취도 점수 매칭
+    const actScore = s.activities && s.activities["인권 역사와 3세대 변화 연표 🏛️"];
+    let scoreBadge = `<span style="background: rgba(201, 42, 42, 0.08); color: #c92a2a; padding: 4px 10px; border-radius: 8px; font-weight: 700;">미제출 ❌</span>`;
+    
+    if (actScore !== undefined) {
+      scoreBadge = `<span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700;">제출 (${actScore})</span>`;
+    }
+
+    return `
+      <tr style="border-bottom: 1px solid rgba(0,0,0,0.04); transition: background 0.2s;">
+        <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText} <span style="font-size:0.75rem; color:var(--text-secondary);">(${sId})</span></td>
+        <td style="padding: 14px 8px; font-weight: 600;">${sName}</td>
+        <td style="padding: 14px 8px; font-size: 1.15rem;">${sEmoji}</td>
+        <td style="padding: 14px 8px; color: var(--text-secondary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width: 180px;" title="${career}">${career}</td>
+        <td style="padding: 14px 8px;">${scoreBadge}</td>
+        <td style="padding: 14px 8px; text-align: center;">
+          <button type="button" class="gen-btn" style="padding: 4px 10px; font-size:0.75rem; border-color: var(--color-purple); color: var(--color-purple);" onclick="showStudentDetailModal('${sId}')">상세조회 🔍</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// 학생 상세 진단 모달 열기
+function showStudentDetailModal(studentId) {
+  const student = state.allStudents.find(s => String(s["학번 (StudentID)"]) === String(studentId));
+  if (!student) return;
+
+  const modal = document.getElementById("teacherDetailModal");
+  const body = document.getElementById("teacherDetailModalBody");
+  if (!modal || !body) return;
+
+  const sId = String(student["학번 (StudentID)"]);
+  const sName = student["이름 (StudentName)"];
+  const sEmoji = student["캐릭터 (Emoji)"] || "👧";
+
+  // 가입 응답 항목 리스트 추출
+  let infoHTML = `
+    <h4 style="color: var(--color-purple); font-size: 1.15rem; font-weight: 800; border-bottom: 2px solid var(--color-pink-soft); padding-bottom: 10px; margin-top:0;">
+      🧸 [${sId}] ${sName} 학생 가입 진단 상세서
+    </h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; background: rgba(0,0,0,0.02); padding: 14px; border-radius: 16px; margin-bottom: 18px;">
+      <div>• <strong>이름:</strong> ${sEmoji} ${sName}</div>
+      <div>• <strong>희망 직업군:</strong> ${student["Q1_희망진로"] || "미정"}</div>
+      <div>• <strong>나의 성향 특징:</strong> ${student["Q3_나의특징"] || "미정"}</div>
+      <div>• <strong>모둠 역할 선호:</strong> ${student["Q4_모둠역할선호"] || "기획/참여"}</div>
+      <div>• <strong>자신 있는 과제:</strong> ${student["Q5_자신있는과제"] || "미정"}</div>
+      <div style="grid-column: span 2;">• <strong>AI 도구 불편점:</strong> ${student["Q9_AI과제불편함"] || "없음"}</div>
+    </div>
+    
+    <h5 style="font-weight: 700; margin: 12px 0 8px 0; color: var(--color-pink);">📑 단원별 기초 진단평가 제출 정보</h5>
+    <ul style="padding-left: 20px; font-size: 0.85rem; display:flex; flex-direction:column; gap: 8px;">
+      <li>🏛️ <strong>Q10 (기본권 매칭):</strong> ${student["Q10_기본권매칭"] || "미제출"}</li>
+      <li>🏛️ <strong>Q11 (기본권 제한):</strong> ${student["Q11_기본권제한목적"] || "미제출"}</li>
+      <li>🏛️ <strong>Q12 (청소년 근로):</strong> ${student["Q12_청소년근로권"] || "미제출"}</li>
+      <li>🏛️ <strong>Q13 (구제 기관):</strong> ${student["Q13_인권구제기관"] || "미제출"}</li>
+      <li style="color:var(--text-secondary);">💬 <strong>Q14 (인권보편토론):</strong> ${student["Q14_인권보편성토론"] || "미제출"}</li>
+      <li style="color:var(--text-secondary);">💬 <strong>Q15 (자유vs안전토론):</strong> ${student["Q15_자유vs안전토론"] || "미제출"}</li>
+      
+      <li>📈 <strong>Q16 (합리적 선택):</strong> ${student["Q16_합리적선택"] || "미제출"}</li>
+      <li>📈 <strong>Q17 (시장 가격 결정):</strong> ${student["Q17_시장가격결정"] || "미제출"}</li>
+      <li>📈 <strong>Q18 (예적금vs주식):</strong> ${student["Q18_예적금vs주식"] || "미제출"}</li>
+      <li>📈 <strong>Q19 (환율 변동):</strong> ${student["Q19_환율상승영향"] || "미제출"}</li>
+      <li style="color:var(--text-secondary);">💬 <strong>Q20 (시장자율토론):</strong> ${student["Q20_자율vs개입규제토론"] || "미제출"}</li>
+      <li style="color:var(--text-secondary);">💬 <strong>Q21 (자산가치토론):</strong> ${student["Q21_자산관리우선가치토론"] || "미제출"}</li>
+    </ul>
+  `;
+
+  body.innerHTML = infoHTML;
+  modal.classList.add("active");
+}
+
+function closeTeacherDetailModal() {
+  const modal = document.getElementById("teacherDetailModal");
+  if (modal) modal.classList.remove("active");
+}
+
+// 교사용 대시보드 탭 스위치
+function switchTeacherTab(tab) {
+  state.currentTeacherTab = tab;
+
+  // 탭 헤더 활성화
+  const chips = document.querySelectorAll(".teacher-tabs .filter-chip");
+  chips.forEach(c => c.classList.remove("active"));
+  document.getElementById(`tTabBtn_${tab}`).classList.add("active");
+
+  // 콘텐츠 전환
+  const sections = document.querySelectorAll(".teacher-tab-section");
+  sections.forEach(s => s.style.display = "none");
+  
+  if (tab === "list") {
+    document.getElementById("tSection_list").style.display = "block";
+  } else if (tab === "group") {
+    document.getElementById("tSection_group").style.display = "block";
+  } else if (tab === "stats") {
+    document.getElementById("tSection_stats").style.display = "block";
+    renderTeacherCharts(); // 통계 탭 열릴 때 차트 즉시 드로잉 📊
+  }
+}
+
+// Chart.js를 이용한 데이터 통계 드로잉
+function renderTeacherCharts() {
+  const students = state.filteredStudents;
+  if (students.length === 0) return;
+
+  // 1. 기존 차트 인스턴스 소멸 (오버랩 방지)
+  if (teacherCharts.career) teacherCharts.career.destroy();
+  if (teacherCharts.traits) teacherCharts.traits.destroy();
+  if (teacherCharts.diagnostic) teacherCharts.diagnostic.destroy();
+
+  // -------------------------------------------------------------
+  // [차트 1: 진로/직업군 통계]
+  // -------------------------------------------------------------
+  const careerCounts = {};
+  students.forEach(s => {
+    const list = s["Q1_희망진로"] ? s["Q1_희망진로"].split(",") : [];
+    list.forEach(item => {
+      const key = item.trim();
+      if (key) careerCounts[key] = (careerCounts[key] || 0) + 1;
+    });
+  });
+
+  const careerLabels = Object.keys(careerCounts);
+  const careerData = Object.values(careerCounts);
+
+  const ctxCareer = document.getElementById("chartCareer");
+  if (ctxCareer) {
+    teacherCharts.career = new Chart(ctxCareer, {
+      type: "bar",
+      data: {
+        labels: careerLabels,
+        datasets: [{
+          label: "학생 수",
+          data: careerData,
+          backgroundColor: "rgba(255, 133, 162, 0.65)",
+          borderColor: "var(--color-pink)",
+          borderWidth: 1.5,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        indexAxis: "y", // 가로 바 차트
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { stepSize: 1 } } }
+      }
+    });
+  }
+
+  // -------------------------------------------------------------
+  // [차트 2: 인지 성향 분포 통계]
+  // -------------------------------------------------------------
+  const traitCounts = {};
+  students.forEach(s => {
+    const list = s["Q3_나의특징"] ? s["Q3_나의특징"].split(",") : [];
+    list.forEach(item => {
+      const key = item.trim();
+      if (key) traitCounts[key] = (traitCounts[key] || 0) + 1;
+    });
+  });
+
+  const traitLabels = Object.keys(traitCounts);
+  const traitData = Object.values(traitCounts);
+
+  const ctxTraits = document.getElementById("chartTraits");
+  if (ctxTraits) {
+    teacherCharts.traits = new Chart(ctxTraits, {
+      type: "doughnut",
+      data: {
+        labels: traitLabels,
+        datasets: [{
+          data: traitData,
+          backgroundColor: [
+            "rgba(184, 150, 219, 0.7)",
+            "rgba(255, 133, 162, 0.7)",
+            "rgba(102, 217, 232, 0.7)",
+            "rgba(255, 192, 120, 0.7)",
+            "rgba(142, 209, 252, 0.7)",
+            "rgba(179, 157, 219, 0.7)"
+          ],
+          borderColor: "var(--bg-card)",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "right" } }
+      }
+    });
+  }
+
+  // -------------------------------------------------------------
+  // [차트 3: 진단평가 오답률 리포트 (Q10, Q11, Q12, Q13, Q16, Q17, Q18, Q19)]
+  // -------------------------------------------------------------
+  const questions = [
+    { label: "Q10 (기본권 매칭)", key: "Q10_기본권매칭" },
+    { label: "Q11 (기본권 제한)", key: "Q11_기본권제한목적" },
+    { label: "Q12 (청소년 근로)", key: "Q12_청소년근로권" },
+    { label: "Q13 (인권 구제)", key: "Q13_인권구제기관" },
+    { label: "Q16 (합리적 선택)", key: "Q16_합리적선택" },
+    { label: "Q17 (가격 결정)", key: "Q17_시장가격결정" },
+    { label: "Q18 (예금vs주식)", key: "Q18_예적금vs주식" },
+    { label: "Q19 (환율 변동)", key: "Q19_환율상승영향" }
+  ];
+
+  const diagLabels = [];
+  const wrongRates = [];
+
+  questions.forEach(q => {
+    diagLabels.push(q.label);
+    let totalAnswered = 0;
+    let wrongCount = 0;
+
+    students.forEach(s => {
+      const val = s[q.key];
+      if (val) {
+        totalAnswered++;
+        if (val.includes("오답 ❌")) wrongCount++;
+      }
+    });
+
+    const rate = totalAnswered > 0 ? Math.round((wrongCount / totalAnswered) * 100) : 0;
+    wrongRates.push(rate);
+  });
+
+  const ctxDiagnostic = document.getElementById("chartDiagnostic");
+  if (ctxDiagnostic) {
+    teacherCharts.diagnostic = new Chart(ctxDiagnostic, {
+      type: "bar",
+      data: {
+        labels: diagLabels,
+        datasets: [{
+          label: "오답률 (%)",
+          data: wrongRates,
+          backgroundColor: "rgba(102, 217, 232, 0.65)",
+          borderColor: "var(--color-mint)",
+          borderWidth: 1.5,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } }
+      }
+    });
+  }
+}
+
+// 🤖 Upstage Solar API 기반 학급 최적 모둠 편성 구동
+async function runAiGrouping() {
+  const students = state.filteredStudents;
+  if (students.length === 0) {
+    alert("현재 선택된 학급에 모둠을 나눌 학생 데이터가 없습니다! 학급 필터를 먼저 확인해 주세요. 🥺");
+    return;
+  }
+
+  const select = document.getElementById("teacherClassSelect");
+  const classText = select ? select.options[select.selectedIndex].text : "학급";
+
+  const resultsBox = document.getElementById("aiGroupingResults");
+  if (resultsBox) {
+    resultsBox.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 60px; font-weight: 700; color: var(--color-purple);">
+        <div class="loading-pulse-container">
+          <div class="loading-pulse-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+          <span>Upstage AI가 ${classText} 학생들의 인지 성향 및 모둠 역할 데이터를 종합 분석하여 최적의 4인 1개조 시너지 모둠을 구성 중입니다... 💡</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // 1. 프롬프트 조립용 학생 데이터 정제
+  const studentsProfileList = students.map((s, idx) => {
+    return `${idx + 1}. 이름: ${s["이름 (StudentName)"]} | 진로: ${s["Q1_희망진로"] || "미정"} | 선호역할: ${s["Q4_모둠역할선호"] || "기획/참여"} | 성향: ${s["Q3_나의특징"] || "분석적인"} | 특기과제: ${s["Q5_자신있는과제"] || "자료조사"}`;
+  }).join("\n");
+
+  const prompt = `
+[학급 정보]
+- 학급명: ${classText}
+- 학생 수: ${students.length}명
+
+[학생 명단 및 개별 성향/희망 진로 데이터]
+${studentsProfileList}
+
+[편성 목표]
+위 학생들을 4인 1개조(인원이 4배수가 아닐 경우, 마지막 한두 조는 3인조 포함)로 골고루 나누어 최상의 협업 효율을 내는 모둠들을 편성해 주세요. 
+각 모둠은 성향이나 자신 있는 과제 스타일이 조화롭게 결합되어야 합니다 (예: 기획자 성향, 발표자 성향, 디자이너 성향, 서술형 자료조사 특기가 한 조에 고루 섞여 역할 시너지가 나도록 설계).
+
+[답변 가이드]
+반드시 다음 형태의 깔끔하게 디자인된 HTML 카드 템플릿(인라인 스타일 적용) 형식들만 다이렉트로 결합하여 전체 목록을 한 번에 리턴해 주세요.
+절대 서론이나 부가적인 줄글 설명은 하지 말고, 오직 완성된 HTML 코드 블록만 즉시 리턴해 주세요.
+
+(HTML 카드 구조 가이드)
+\`\`\`html
+<div class="group-card" style="background: rgba(255, 255, 255, 0.5); border: 1.5px solid rgba(184, 150, 219, 0.2); border-radius: 20px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(184, 150, 219, 0.15); padding-bottom:8px;">
+    <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--color-purple);">[모둠명(예: 뉴턴의 거인들 등)]</h4>
+    <span style="font-size:0.75rem; background:rgba(184, 150, 219, 0.12); color:var(--color-purple); padding:3px 8px; border-radius:6px; font-weight:700;">4인조</span>
+  </div>
+  <div style="font-size:0.88rem; line-height:1.6; color:var(--text-primary);">
+    • <strong>조원:</strong> 조원1(역할), 조원2(역할), 조원3(역할), 조원4(역할)<br>
+    • <strong>시너지 강점:</strong> [이 조원 구성원들이 결합했을 때 기대되는 협업 및 과제 해결 측면의 보완 시너지를 한 줄로 요약]
+  </div>
+</div>
+\`\`\`
+  `;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "system",
+            content: "당신은 고등학교 학급의 협동과제 모둠을 성향별로 균형 있게 짜주는 노련한 AI 에듀테크 협동학습 전문가 봇입니다. 반드시 제공된 HTML 카드 마크업 형태들로만 이루어진 답변을 전달해 주어야 합니다."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      let htmlResponse = data.message.content;
+      // 혹시 모를 마크다운 백틱 코드블록 래퍼가 있으면 제거
+      htmlResponse = htmlResponse.replace(/```html|```/g, "").trim();
+      resultsBox.innerHTML = htmlResponse;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (err) {
+    console.error("AI grouping compiler failed:", err);
+    resultsBox.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #c92a2a; font-weight: 700;">
+        ❌ AI 모둠 추천 실패: ${err.message}<br>
+        <button class="modal-btn secondary" style="margin-top: 10px;" onclick="runAiGrouping()">다시 시도하기 🔄</button>
+      </div>
+    `;
+  }
+}
+
+// 교사 로그아웃
+function logout() {
+  if (confirm("정말 로그아웃 하시겠습니까? 🌸")) {
+    localStorage.removeItem("sociallms_profile");
+    localStorage.removeItem("sociallms_student_id");
+    localStorage.removeItem("sociallms_role");
+    
+    // 강제 화면 세션 리셋
+    state.student = { studentId: "", gradeClass: "", name: "", emoji: "👧" };
+    state.progress = {};
+    
+    const authSec = document.getElementById("authSection");
+    const dashboard = document.getElementById("mainDashboard");
+    const tDashboard = document.getElementById("teacherDashboard");
+
+    if (authSec) authSec.style.display = "flex";
+    if (dashboard) dashboard.classList.remove("active");
+    if (tDashboard) tDashboard.style.display = "none";
+    
+    // 로그인 탭 초기화
+    switchAuthTab("login");
+  }
 }

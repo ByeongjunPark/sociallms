@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>박병준 선생님의 통합사회 교실 🌸</title>
   <meta name="description" content="고등학교 통합사회 7개 성취기준에 맞춤화된 인터랙티브 배움 대시보드">
+  <!-- Chart.js CDN 탑재 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <link rel="stylesheet" href="css/style.css">
   <style>
     /* 로그인 & 회원가입 전용 스타일 추가 */
@@ -188,6 +190,16 @@
         <div class="auth-tabs">
           <button id="tabLogin" class="auth-tab-btn active" onclick="switchAuthTab('login')">로그인</button>
           <button id="tabSignup" class="auth-tab-btn" onclick="switchAuthTab('signup')">회원등록</button>
+          <button id="tabTeacher" class="auth-tab-btn" onclick="switchAuthTab('teacher')" style="color: var(--color-purple); font-weight: 800;">🔑 교사용</button>
+        </div>
+
+        <!-- 3. 교사 로그인 폼 -->
+        <div id="teacherLoginForm" class="auth-form">
+          <div class="form-group">
+            <label for="teacherPassword">교사 인증 비밀번호</label>
+            <input type="password" id="teacherPassword" placeholder="교사 인증 비밀번호를 입력해 주세요">
+          </div>
+          <button class="modal-btn primary" style="margin-top: 10px; background: var(--color-purple);" onclick="handleTeacherLogin()">선생님 로그인 🔑</button>
         </div>
 
         <!-- 1. 로그인 폼 -->
@@ -653,6 +665,125 @@
       </main>
     </div>
 
+    <!-- ================= [교사용 LMS 대시보드 화면] ================= -->
+    <div id="teacherDashboard" style="display: none; padding: 20px 0;">
+      <!-- 헤더 영역 -->
+      <header>
+        <div class="header-top" style="margin-bottom: 24px;">
+          <div class="logo-section">
+            <h1 style="color: var(--color-purple); font-size: 1.8rem; font-weight: 800;">통합사회 교사용 관제 LMS 🔑</h1>
+            <p>우리 반 학생들의 성향 분석, 진단평가 데이터 통계 및 AI 최적 모둠 큐레이션</p>
+          </div>
+          <div class="controls-section" style="margin-right: 50px; display: flex; align-items: center; gap: 14px;">
+            <div class="teacher-profile-badge" style="background: rgba(184, 150, 219, 0.15); color: var(--color-purple); padding: 8px 16px; border-radius: 12px; font-weight: 700; font-size: 0.9rem;">
+              👑 박병준 교사 모드
+            </div>
+            <button type="button" class="gen-btn" onclick="logout()" style="background: rgba(0,0,0,0.04); font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">로그아웃</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 반별 필터 및 탭 네비게이션 조작 바 -->
+      <div class="teacher-control-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; background: rgba(255,255,255,0.3); padding: 14px 20px; border-radius: 20px; border: 1px solid var(--border-glass);">
+        <!-- 반 선택 셀렉터 -->
+        <div class="class-filter-container" style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">학급 필터:</span>
+          <select id="teacherClassSelect" onchange="filterTeacherClass()" style="font-family: var(--font-family-body); font-weight: 700; font-size: 0.9rem; padding: 6px 12px; border-radius: 10px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor:pointer; color: var(--text-primary);">
+            <option value="all">🏫 1학년 전체 학급</option>
+            <option value="11">🏫 1학년 1반</option>
+            <option value="12">🏫 1학년 2반</option>
+            <option value="13">🏫 1학년 3반</option>
+            <option value="14">🏫 1학년 4반</option>
+            <option value="15">🏫 1학년 5반</option>
+            <option value="16">🏫 1학년 6반</option>
+          </select>
+        </div>
+
+        <!-- 교사용 대시보드 탭 버튼 -->
+        <div class="teacher-tabs" style="display: flex; gap: 8px;">
+          <button id="tTabBtn_list" type="button" class="filter-chip active" onclick="switchTeacherTab('list')">👥 학생 목록 & 진도</button>
+          <button id="tTabBtn_group" type="button" class="filter-chip" onclick="switchTeacherTab('group')">🤖 AI 스마트 모둠 편성</button>
+          <button id="tTabBtn_stats" type="button" class="filter-chip" onclick="switchTeacherTab('stats')">📊 종합 성향 및 학업 통계</button>
+        </div>
+      </div>
+
+      <!-- [교사 탭 1] 학생 목록 및 과제 상태 -->
+      <section id="tSection_list" class="teacher-tab-section active-section">
+        <div class="card" style="padding: 24px; border-radius: 24px; overflow-x: auto; background: var(--bg-card); border: 1px solid var(--border-glass);">
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--color-purple); border-bottom: 2px solid var(--color-pink-soft); padding-bottom: 10px; margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
+            <span>👥 학급 학생 성취 현황 목록</span>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 8px;">선택 반 학생 수: <strong id="tStudentCount" style="color: var(--color-purple);">0</strong>명</span>
+          </h3>
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid rgba(0,0,0,0.06); color: var(--text-secondary); font-weight: 700;">
+                <th style="padding: 12px 8px; width: 15%;">학번</th>
+                <th style="padding: 12px 8px; width: 15%;">이름</th>
+                <th style="padding: 12px 8px; width: 10%;">캐릭터</th>
+                <th style="padding: 12px 8px; width: 25%;">관심 진로</th>
+                <th style="padding: 12px 8px; width: 20%;">1단원 연표 과제 점수</th>
+                <th style="padding: 12px 8px; text-align: center; width: 15%;">가입 진단정보</th>
+              </tr>
+            </thead>
+            <tbody id="teacherStudentTableBody">
+              <!-- JS로 학생 리스트 렌더링 예정 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- [교사 탭 2] AI 스마트 모둠 편성 -->
+      <section id="tSection_group" class="teacher-tab-section" style="display: none;">
+        <div class="card" style="padding: 32px; border-radius: 24px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass);">
+          <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin-bottom: 12px;">🤖 AI 기반 스마트 모둠(조) 편성 시뮬레이터</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto;">
+            선택된 학급 학생들의 <strong>[진로 희망, 나의 특징, 모둠 역할 선호도, 특기 과제]</strong> 데이터를 다각도로 수집 분석하여, 
+            역할과 성향이 고루 분포된 <strong>최적의 협동학습 4인 1개조 모둠</strong>을 Upstage AI가 자동으로 구성해 줍니다. 🌿
+          </p>
+          <button type="button" class="modal-btn primary" id="btnRunAiGrouping" onclick="runAiGrouping()" style="background: var(--color-purple); font-size: 0.95rem; padding: 10px 24px; margin-bottom: 10px;">🤖 AI 추천 모둠 편성하기</button>
+          
+          <!-- 모둠 편성 결과 출력 컨테이너 -->
+          <div id="aiGroupingResults" style="margin-top: 36px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; text-align: left;">
+            <!-- 모둠 카드가 삽입될 뷰포트 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- [교사 탭 3] 종합 통계 (Chart.js 리포트) -->
+      <section id="tSection_stats" class="teacher-tab-section" style="display: none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 24px;">
+          <!-- 1. 진로/직업군 관심 분포 -->
+          <div class="card" style="padding: 24px; border-radius: 24px; height: 380px; display:flex; flex-direction:column; justify-content:space-between; background: var(--bg-card); border: 1px solid var(--border-glass);">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-left: 4px solid var(--color-pink); padding-left: 8px; margin-bottom: 12px;">🧭 희망 진로 및 직업군 통계</h4>
+            <div style="flex:1; position:relative; width:100%; height:80%;"><canvas id="chartCareer"></canvas></div>
+          </div>
+          <!-- 2. 학생 인지적 성향 분포 -->
+          <div class="card" style="padding: 24px; border-radius: 24px; height: 380px; display:flex; flex-direction:column; justify-content:space-between; background: var(--bg-card); border: 1px solid var(--border-glass);">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-left: 4px solid var(--color-purple); padding-left: 8px; margin-bottom: 12px;">🏷️ 인지 성향 및 특징 분포</h4>
+            <div style="flex:1; position:relative; width:100%; height:80%;"><canvas id="chartTraits"></canvas></div>
+          </div>
+        </div>
+        <!-- 3. 진단평가 문항 오답률 통계 -->
+        <div class="card" style="padding: 24px; border-radius: 24px; height: 420px; display:flex; flex-direction:column; justify-content:space-between; background: var(--bg-card); border: 1px solid var(--border-glass);">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-left: 4px solid var(--color-mint); padding-left: 8px; margin-bottom: 12px;">📊 기초 학업 진단평가 오답률 통계 (문항별 백분율)</h4>
+          <div style="flex:1; position:relative; width:100%; height:85%;"><canvas id="chartDiagnostic"></canvas></div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <!-- 교사용 상세 학생 정보 보기 모달 -->
+  <div id="teacherDetailModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 600px; width: 90%;">
+      <button type="button" class="modal-close-btn" onclick="closeTeacherDetailModal()">&times;</button>
+      <div id="teacherDetailModalBody" class="modal-feedback-body" style="max-height: 480px; overflow-y:auto; font-size: 0.9rem; line-height: 1.6;">
+        <!-- 학생 진단 정보 상세 표출 -->
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn primary" onclick="closeTeacherDetailModal()" style="background: var(--color-purple);">조회 닫기 🌿</button>
+      </div>
+    </div>
   </div>
 
   <!-- 대시보드 전용 AI 코칭 모달 -->
