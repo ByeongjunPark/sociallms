@@ -22,6 +22,22 @@ function doPost(e) {
     const action = data.action;
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
     
+    // ================= 0. 학번 중복 사전 체크 =================
+    if (action === "checkDuplicate") {
+      const userSheet = sheet.getSheetByName("Users");
+      if (!userSheet) {
+        return createJsonResponse({ success: true, message: "가입 가능한 첫 학번입니다. 🌸" });
+      }
+      const studentId = String(data.studentId);
+      const rows = userSheet.getDataRange().getValues();
+      for (let i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]) === studentId) {
+          return createJsonResponse({ success: false, message: "이미 가입 완료된 학번입니다. 로그인 탭을 이용해 주세요! 🌸" });
+        }
+      }
+      return createJsonResponse({ success: true, message: "가입 가능한 학번입니다." });
+    }
+
     // ================= 1. 회원가입 및 진단평가 기록 (동적 컬럼 개설) =================
     if (action === "signup") {
       let userSheet = sheet.getSheetByName("Users");

@@ -298,12 +298,12 @@ function resetWizard() {
 }
 
 // 회원등록 마법사 스텝 이동
-function navigateWizard(direction) {
+async function navigateWizard(direction) {
   const currentStep = state.currentWizardStep;
   const nextStep = currentStep + direction;
 
   if (direction === 1) {
-    // 1단계: 기본 인풋 유효성 검사
+    // 1단계: 기본 인풋 유효성 검사 및 학번 중복 사전 가드
     if (currentStep === 1) {
       const studentId = document.getElementById("signupStudentId").value.trim();
       const studentName = document.getElementById("signupStudentName").value.trim();
@@ -315,6 +315,26 @@ function navigateWizard(direction) {
       if (!validateStudentId(studentId)) {
         alert("학번은 반드시 숫자 4자리로 적어주세요. (예: 1402) 🥺");
         return;
+      }
+
+      // 💡 [학번 중복 사전 차단 가드] 진단평가(7단계) 다 풀고 가입할 때 튕기는 불상사 사전 예방
+      try {
+        const checkRes = await fetch("/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "checkDuplicate",
+            studentId: studentId,
+            studentName: studentName
+          })
+        });
+        const checkData = await checkRes.json();
+        if (!checkData.success) {
+          alert(checkData.message || "이미 등록 완료된 학번입니다! 로그인 탭으로 이동해 로그인해 주세요. 🌸");
+          return;
+        }
+      } catch (err) {
+        console.warn("Duplicate check API failed, skipping guard:", err);
       }
     }
     
@@ -359,9 +379,9 @@ function navigateWizard(direction) {
       }
     }
     
-    // 6단계: 1단원 인권 개념 및 토론 진단평가 검증 (Q10 ~ Q17 전원 필수)
+    // 6단계: 1단원 인권 개념 및 토론 진단평가 검증 (Q10 ~ Q15 전원 필수)
     else if (currentStep === 6) {
-      for (let qNum = 10; qNum <= 17; qNum++) {
+      for (let qNum = 10; qNum <= 15; qNum++) {
         const selected = document.querySelector(`input[name='q${qNum}']:checked`);
         if (!selected) {
           alert(`1단원 진단평가의 Q${qNum}번 문항에 답해 주세요! 🏛️\n모든 개념 및 토론 문제에 답하셔야 합니다.`);
@@ -378,9 +398,9 @@ function navigateWizard(direction) {
       }
     }
     
-    // 7단계: 3단원 경제 개념 및 토론 진단평가 검증 (Q18 ~ Q24 전원 필수)
+    // 7단계: 3단원 경제 개념 및 토론 진단평가 검증 (Q16 ~ Q21 전원 필수)
     else if (currentStep === 7) {
-      for (let qNum = 18; qNum <= 24; qNum++) {
+      for (let qNum = 16; qNum <= 21; qNum++) {
         const selected = document.querySelector(`input[name='q${qNum}']:checked`);
         if (!selected) {
           alert(`3단원 진단평가의 Q${qNum}번 문항에 답해 주세요! 📈\n모든 개념 및 토론 문제에 답하셔야 합니다.`);
@@ -505,7 +525,7 @@ async function handleSignup() {
   // 🔐 설정한 이모지 패스워드 취득
   const password = emojiPickerState.signup.map(idx => PASSWORD_EMOJIS[idx]).join("");
 
-  // 데이터 수집 프로세스
+  // 데이터 수집 프로세스 (총 Q1~Q21개 문항으로 축소)
   const payload = {
     action: "signup",
     studentId,
@@ -522,26 +542,23 @@ async function handleSignup() {
     "Q6_AI경험": getCheckboxValues("q6", true),
     "Q7_AI습관": getCheckboxValues("q7"),
     "Q8_AI윤리자각": getCheckboxValues("q8", true),
-    "Q9_AI과제어려움": getCheckboxValues("q9", true),
+    "Q9_AI과제불편함": getCheckboxValues("q9", true),
 
-    // [PART 2] 1단원 인권 진단평가
-    "Q10_3세대인권": getRadioValueWithQuiz("q10", "③"),
-    "Q11_오늘날인권": getRadioValueWithQuiz("q11", "④"),
-    "Q12_기본권설명": getRadioValueWithQuiz("q12", "③"),
-    "Q13_시민불복종": getRadioValueWithQuiz("q13", "③"),
-    "Q14_사회적소수자": getRadioValueWithQuiz("q14", "④"),
-    "Q15_청소년노동법": getRadioValueWithQuiz("q15", "①"),
-    "Q16_인권보편논쟁": getRadioValueWithQuiz("q16", null, true),
-    "Q17_자유vs안전": getRadioValueWithQuiz("q17", null, true),
+    // [PART 2] 1단원 인권 진단평가 (중학교 성취기준 기반 6문항)
+    "Q10_기본권매칭": getRadioValueWithQuiz("q10", "①"),
+    "Q11_기본권제한목적": getRadioValueWithQuiz("q11", "④"),
+    "Q12_청소년근로권": getRadioValueWithQuiz("q12", "④"),
+    "Q13_인권구제기관": getRadioValueWithQuiz("q13", "①"),
+    "Q14_인권보편성토론": getRadioValueWithQuiz("q14", null, true),
+    "Q15_자유vs안전토론": getRadioValueWithQuiz("q15", null, true),
 
-    // [PART 3] 3단원 경제 진단평가
-    "Q18_가격원리": getRadioValueWithQuiz("q18", "③"),
-    "Q19_합리적선택": getRadioValueWithQuiz("q19", "①"),
-    "Q20_지속가능책임": getRadioValueWithQuiz("q20", "②"),
-    "Q21_예적금vs주식": getRadioValueWithQuiz("q21", "③"),
-    "Q22_국제무역원인": getRadioValueWithQuiz("q22", "②"),
-    "Q23_시장자율vs개입": getRadioValueWithQuiz("q23", null, true),
-    "Q24_자산관리원칙": getRadioValueWithQuiz("q24", null, true)
+    // [PART 3] 3단원 경제 진단평가 (중학교 성취기준 기반 6문항)
+    "Q16_합리적선택": getRadioValueWithQuiz("q16", "②"),
+    "Q17_시장가격결정": getRadioValueWithQuiz("q17", "①"),
+    "Q18_예적금vs주식": getRadioValueWithQuiz("q18", "③"),
+    "Q19_환율상승영향": getRadioValueWithQuiz("q19", "①"),
+    "Q20_자율vs개입규제토론": getRadioValueWithQuiz("q20", null, true),
+    "Q21_자산관리우선가치토론": getRadioValueWithQuiz("q21", null, true)
   };
 
   try {
