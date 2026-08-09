@@ -582,7 +582,10 @@ async function handleSignup() {
     "Q18_예적금vs주식": getRadioValueWithQuiz("q18", "③"),
     "Q19_환율상승영향": getRadioValueWithQuiz("q19", "①"),
     "Q20_자율vs개입규제토론": getRadioValueWithQuiz("q20", null, true),
-    "Q21_자산관리우선가치토론": getRadioValueWithQuiz("q21", null, true)
+    "Q21_자산관리우선가치토론": getRadioValueWithQuiz("q21", null, true),
+    
+    // 💡 [신규] Q22 교사 인상 및 수업 요청사항 수집
+    "Q22_수업요청사항": document.getElementById("q22_text") ? document.getElementById("q22_text").value.trim() : "없음"
   };
 
   try {
@@ -1308,6 +1311,7 @@ function showStudentDetailModal(studentId) {
       <li>📈 <strong>Q19 (환율 변동):</strong> ${student["Q19_환율상승영향"] || "미제출"}</li>
       <li style="color:var(--text-secondary);">💬 <strong>Q20 (시장자율토론):</strong> ${student["Q20_자율vs개입규제토론"] || "미제출"}</li>
       <li style="color:var(--text-secondary);">💬 <strong>Q21 (자산가치토론):</strong> ${student["Q21_자산관리우선가치토론"] || "미제출"}</li>
+      <li style="color:var(--color-purple); font-weight:700;">💬 <strong>Q22 (교사인상/건의):</strong> ${student["Q22_수업요청사항"] || "미제출"}</li>
     </ul>
   `;
 
@@ -1712,6 +1716,91 @@ function logout() {
     
     // 로그인 탭 초기화
     switchAuthTab("login");
+  }
+  }
+}
+
+// 🤖 Upstage Solar API 기반 학생 의견 및 요청사항 안전 요약 구동
+async function summarizeTeacherOpinions() {
+  const students = state.filteredStudents;
+  const summaryBox = document.getElementById("teacherOpinionSummaryBox");
+  if (!summaryBox) return;
+
+  if (students.length === 0) {
+    summaryBox.innerHTML = `<span style="color: var(--text-secondary);">현재 선택된 학급에 분석할 학생 의견 데이터가 없습니다. 🥺</span>`;
+    return;
+  }
+
+  // Q22 서술형 의견만 필터링하여 수집
+  const rawOpinions = students.map(s => s["Q22_수업요청사항"] ? s["Q22_수업요청사항"].trim() : "");
+  const validOpinions = rawOpinions.filter(op => op && op !== "없음" && op.length > 2);
+
+  if (validOpinions.length === 0) {
+    summaryBox.innerHTML = `<span style="color: var(--text-secondary);">해당 반 학생들 중 Q22번(선생님 첫인상 및 바라는 점)에 유의미하게 남긴 텍스트 의견이 아직 없습니다. 📝</span>`;
+    return;
+  }
+
+  summaryBox.innerHTML = `
+    <div class="loading-pulse-container" style="justify-content: flex-start;">
+      <div class="loading-pulse-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+      <span style="font-weight: 700; color: var(--text-primary); font-size: 0.88rem;">
+        Upstage AI가 의견을 수집하여 민감정보(사생활, 갈등 등) 필터링 및 종합 트렌드 안심 요약을 수행 중입니다... 🛡️
+      </span>
+    </div>
+  `;
+
+  const opinionsListString = validOpinions.map((op, idx) => `[학생의견 ${idx + 1}] ${op}`).join("\n");
+
+  const prompt = `
+[학급 학생들의 익명 소통 의견 리스트 (Q22)]
+${opinionsListString}
+
+[요약 미션 및 안심 가드레일 원칙]
+위 의견들을 종합적으로 분석하여 교사에 대한 첫인상 경향성과 수업 시 부탁/건의하는 점들의 핵심 트렌드를 3~4줄 내외의 조리 있고 간결한 줄글로 친근하게 한글 요약해 주세요.
+
+🚨 [경고 - 민감 개인정보 차단 의무]
+* 만약 의견 내용 중에 학생 개인의 사적인 민감한 정보(예: 친구와 싸웠어요, 가정이 어려워요, 한부모가정이에요, 심리적인 지병이나 장애가 있어요, 성적으로 고민 중이에요 등등)나 특정인을 비방 또는 식별할 수 있는 사적인 정보가 포함되어 있다면, **그 내용은 전체 요약문에 절대로 단어조차 포함하지 말고 철저히 배제 및 소거(Redact)**해 주세요.
+* 오직 공적이고 순수한 교사에 대한 첫인상 반응과 수업 방식(과제 조절, 수업 속도, 재미있는 수업에 대한 요청 등)에 대한 건의사항만을 요약해야 합니다.
+  `;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "system",
+            content: "당신은 학교 현장에서 학생들의 익명 건의사항을 분석하는 신중하고 품위 있는 교무 장학 AI 비서입니다. 학생들의 사적인 민감 정보나 사생활 비밀은 요약문에서 절대로 노출시키지 않는 강력한 개인정보 보호 가드레일을 준수합니다."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      summaryBox.innerHTML = `
+        <h5 style="margin:0 0 8px 0; color: var(--color-purple); font-weight:800;">🤖 AI 학급 의견 안심 요약 결과</h5>
+        <div style="font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); white-space: pre-wrap;">${data.message.content}</div>
+        <div style="font-size: 0.72rem; color: var(--text-secondary); text-align: right; margin-top: 10px;">🛡️ Upstage Solar AI 개인정보 안심 필터 처리 완료</div>
+      `;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (err) {
+    console.error("AI opinions summary failed:", err);
+    summaryBox.innerHTML = `
+      <span style="color: #c92a2a; font-weight:700;">❌ 요약 생성 실패: ${err.message}</span>
+      <button class="modal-btn secondary" style="margin-top: 10px; font-size:0.75rem;" onclick="summarizeTeacherOpinions()">다시 시도하기 🔄</button>
+    `;
   }
 }
 

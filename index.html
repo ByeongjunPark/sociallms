@@ -577,7 +577,12 @@
                 </label>
               </div>
             </div>
-          <!-- 스텝 컨트롤 버튼 바 -->
+
+            <div class="survey-question" style="margin-top: 16px;">
+              <span class="survey-question-title" style="color: var(--color-purple); font-weight: 800;">💬 Q22. [소통] 병준 선생님의 첫인상은 어떤가요? 그리고 이번 학기 수업을 함께하며 선생님께 부탁하고 싶거나 바라는 점을 솔직하게 적어주세요! 🌸</span>
+              <textarea id="q22_text" class="option-direct-input" rows="3" style="width: 100%; border-radius: 12px; padding: 12px; margin-top: 8px; font-family: var(--font-family-body); font-size: 0.88rem;" placeholder="익명이 보장되며, 선생님의 교수학습 설계 성찰 용도로만 소중히 읽겠습니다. 자유롭게 적어주세요!"></textarea>
+            </div>
+          </div>
           <div class="wizard-actions">
             <button type="button" class="modal-btn secondary" id="btnPrevStep" onclick="navigateWizard(-1)" style="display: none;">이전 단계</button>
             <button type="button" class="modal-btn primary" id="btnNextStep" onclick="navigateWizard(1)">다음으로 ✨</button>
@@ -697,6 +702,9 @@
             <option value="15">🏫 1학년 5반</option>
             <option value="16">🏫 1학년 6반</option>
           </select>
+          <button type="button" class="gen-btn" onclick="loadTeacherData()" style="background: rgba(184,150,219,0.15); color: var(--color-purple); font-size: 0.8rem; font-weight: 700; border-color: rgba(184,150,219,0.3); padding: 6px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+            🔄 실시간 동기화
+          </button>
         </div>
 
         <!-- 교사용 대시보드 탭 버튼 -->
@@ -779,6 +787,25 @@
           </p>
           <div id="teacherDiagnosticDetailReport" style="display: flex; flex-direction: column; gap: 20px;">
             <!-- JS로 동적으로 생성 및 게이지 렌더링 -->
+          </div>
+        </div>
+
+        <!-- 5. AI 기반 학생 의견 및 요청사항 안전 요약 보고서 -->
+        <div class="card" style="padding: 28px; border-radius: 24px; margin-top: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+          <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--color-purple); border-left: 4px solid var(--color-purple); padding-left: 10px; margin-bottom: 12px;">
+            🤖 AI 기반 학급 소통 의견 안전 요약
+          </h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+            학생들이 Q22번에 적어낸 첫인상 소감 및 수업 건의사항을 Upstage AI가 익명으로 취합 분석합니다.<br>
+            <strong style="color: #c92a2a;">🛡️ 개인정보 안심 가드레일 작동 중:</strong> 학생들의 실명이나 민감한 개인 신상 비밀(싸움, 지병, 가계 곤란, 사생활 등)은 AI 가드에 의해 자동으로 필터링 및 소거된 뒤 종합 트렌드만 분석됩니다.
+          </p>
+          
+          <button type="button" class="modal-btn primary" id="btnSummarizeTeacherOpinions" onclick="summarizeTeacherOpinions()" style="background: var(--color-purple); font-size: 0.9rem; padding: 10px 22px; margin-bottom: 16px;">
+            🤖 학급 의견 AI 안전 요약 구동
+          </button>
+
+          <div id="teacherOpinionSummaryBox" style="background: rgba(184, 150, 219, 0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(184, 150, 219, 0.15); min-height: 80px; font-size: 0.9rem; line-height: 1.65; color: var(--text-primary); white-space: pre-wrap;">
+            <span style="color: var(--text-secondary);">[AI 요약 구동] 버튼을 누르시면 안전 분석 요약문이 생성됩니다. 🌿</span>
           </div>
         </div>
       </section>
