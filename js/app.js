@@ -1493,6 +1493,95 @@ function renderTeacherCharts() {
       }
     });
   }
+
+  // -------------------------------------------------------------
+  // [신규 4. 기초 학업 진단평가 문항별 상세 선지 분석 보고서 & 해설]
+  // -------------------------------------------------------------
+  const reportBox = document.getElementById("teacherDiagnosticDetailReport");
+  if (reportBox) {
+    let reportHTML = "";
+
+    const qKeys = ["q10", "q11", "q12", "q13", "q16", "q17", "q18", "q19"];
+    qKeys.forEach(qKey => {
+      const qInfo = DIAGNOSTIC_QUESTIONS_DB[qKey];
+      if (!qInfo) return;
+
+      // 선지별 선택 집계
+      const counts = { "①": 0, "②": 0, "③": 0, "④": 0 };
+      let totalAnswered = 0;
+
+      students.forEach(s => {
+        const mapKeys = {
+          q10: "Q10_기본권매칭",
+          q11: "Q11_기본권제한목적",
+          q12: "Q12_청소년근로권",
+          q13: "Q13_인권구제기관",
+          q16: "Q16_합리적선택",
+          q17: "Q17_시장가격결정",
+          q18: "Q18_예적금vs주식",
+          q19: "Q19_환율상승영향"
+        };
+        const rawVal = s[mapKeys[qKey]];
+        if (rawVal) {
+          const selectedNum = rawVal.substring(0, 1);
+          if (counts[selectedNum] !== undefined) {
+            counts[selectedNum]++;
+            totalAnswered++;
+          }
+        }
+      });
+
+      // 개별 문항 HTML 생성
+      reportHTML += `
+        <div style="background: rgba(0,0,0,0.015); border: 1px solid rgba(0,0,0,0.05); border-radius: 18px; padding: 20px; margin-bottom: 8px;">
+          <h5 style="margin: 0 0 8px 0; font-size: 0.92rem; font-weight: 800; color: var(--color-purple); display:flex; justify-content:space-between;">
+            <span>${qInfo.title}</span>
+            <span style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 500;">응답 학생: ${totalAnswered}명</span>
+          </h5>
+          <p style="margin: 0 0 16px 0; font-size: 0.85rem; color: var(--text-primary); line-height: 1.5; font-weight: 500;">${qInfo.question}</p>
+          
+          <!-- 선지 선택률 게이지 바 리스트 -->
+          <div style="display:flex; flex-direction:column; gap: 8px; margin-bottom: 16px;">
+      `;
+
+      Object.keys(qInfo.options).forEach(optNum => {
+        const optText = qInfo.options[optNum];
+        const count = counts[optNum] || 0;
+        const rate = totalAnswered > 0 ? Math.round((count / totalAnswered) * 100) : 0;
+        const isCorrect = optNum === qInfo.correct;
+
+        // 정답 선지는 하이라이트 디자인 적용
+        const bgBarColor = isCorrect ? "rgba(43, 138, 62, 0.15)" : "rgba(0,0,0,0.03)";
+        const barColor = isCorrect ? "var(--color-mint)" : "rgba(0,0,0,0.12)";
+        const textWeight = isCorrect ? "700" : "500";
+        const textColor = isCorrect ? "#2b8a3e" : "var(--text-primary)";
+
+        reportHTML += `
+          <div style="font-size: 0.82rem; color: ${textColor}; font-weight: ${textWeight}; display:flex; flex-direction:column; gap: 4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>${isCorrect ? '✅ ' : ''}${optText}</span>
+              <span>${count}명 (${rate}%)</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: ${bgBarColor}; border-radius: 6px; overflow: hidden; position:relative;">
+              <div style="width: ${rate}%; height: 100%; background: ${barColor}; border-radius: 6px; transition: width 0.6s ease;"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      reportHTML += `
+          </div>
+          
+          <!-- 해설 팁 영역 -->
+          <div style="background: rgba(184, 150, 219, 0.06); border-left: 4px solid var(--color-purple); padding: 12px 16px; border-radius: 12px; font-size: 0.8rem; line-height: 1.55; color: var(--text-secondary);">
+            <strong>💡 단원 성취기준 핵심 해설:</strong> ${qInfo.explanation}
+          </div>
+        </div>
+      `;
+    });
+
+    reportBox.innerHTML = reportHTML;
+  }
 }
 
 // 🤖 Upstage Solar API 기반 학급 최적 모둠 편성 구동
@@ -1625,3 +1714,103 @@ function logout() {
     switchAuthTab("login");
   }
 }
+
+// 📖 기초 학업 진단평가 문항 데이터 및 해설 DB (객관식 8문항)
+const DIAGNOSTIC_QUESTIONS_DB = {
+  q10: {
+    title: "Q10. 기본권 종류 매칭",
+    question: "일상생활 속에서 국가 권력의 간섭을 받지 않고 자유롭게 행동할 수 있는 자유권, 국가에 대해 최소한의 인간다운 생활 보장을 요구할 수 있는 사회권, 정치에 참여할 수 있는 참정권 등 헌법이 보장하는 기본권의 성격이 올바르게 짝지어진 것은?",
+    options: {
+      "①": "① 선거권 행사 - 참정권 / 행복추구 및 신체의 자유 - 자유권 / 최저임금 보장 요구 - 사회권",
+      "②": "② 선거권 행사 - 사회권 / 행복추구 및 신체의 자유 - 자유권 / 최저임금 보장 요구 - 참정권",
+      "③": "③ 선거권 행사 - 자유권 / 행복추구 및 신체의 자유 - 참정권 / 최저임금 보장 요구 - 사회권",
+      "④": "④ 선거권 행사 - 참정권 / 행복추구 및 신체의 자유 - 사회권 / 최저임금 보장 요구 - 청구권"
+    },
+    correct: "①",
+    explanation: "선거권이나 공무담임권은 정치 과정에 참여하는 '참정권'이며, 신체의 자유와 행복추구는 간섭을 배제하는 '자유권'이고, 국가에 인간다운 생활을 요구하는 최저임금제 등은 복지적 이념의 '사회권'입니다."
+  },
+  q11: {
+    title: "Q11. 기본권 제한 목적",
+    question: "우리 헌법 제37조 제2항에 따르면, 국민의 모든 자유와 권리는 국가안전보장, 질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있습니다. 다음 중 기본권을 제한할 수 있는 헌법상 정당한 목적이나 원칙이 아닌 것은?",
+    options: {
+      "①": "① 국가의 안전을 보장하기 위한 목적",
+      "②": "② 사회 공동체의 질서를 유지하기 위한 목적",
+      "③": "③ 사회 전체의 이익과 공공의 복리를 증진하기 위한 목적",
+      "④": "④ 특정 종교나 사상을 모든 국민에게 강제하여 사상을 통일하기 위한 목적"
+    },
+    correct: "④",
+    explanation: "헌법상 기본권 제한은 오직 '국가안전보장', '질서유지', '공공복리'라는 목적하에서만 법률로써 가능하며, 특정 사상이나 종교의 강제를 목적으로 기본권을 제한하는 것은 위헌입니다."
+  },
+  q12: {
+    title: "Q12. 청소년 근로 권리",
+    question: "중학생이나 고등학생 등 청소년이 아르바이트나 근로 활동을 할 때 보호받을 수 있는 근로기준법상 권리로 올바르지 않은 것은?",
+    options: {
+      "①": "① 근로계약서는 반드시 작성하여 사업주와 근로자가 한 부씩 나누어 가져야 한다.",
+      "②": "② 청소년도 성인과 동일한 법정 최저임금을 적용받는다.",
+      "③": "③ 하루 1시간 이상 일하면 10분 이상의 휴게시간이 근무시간 중에 주어져야 한다.",
+      "④": "④ 청소년은 위험하거나 유해한 업종(예: 유흥주점 등)에서도 부모님의 동의만 있다면 근로가 가능하다."
+    },
+    correct: "④",
+    explanation: "청소년은 도덕상 또는 보건상 유해하거나 위험한 업종(청소년 유해업소 등)에서는 부모의 동의 여부와 무관하게 법적으로 근로가 전면 금지됩니다."
+  },
+  q13: {
+    title: "Q13. 인권 침해 구제 기관",
+    question: "학교 내 학교폭력, 직장 내 부당한 차별 대우, 국가 기관에 의한 권리 침해 등 인권을 침해당했을 때 도움을 요청하고 구제받을 수 있는 국가 공공기관과 그 역할이 올바르게 짝지어진 것은?",
+    options: {
+      "①": "① 국가인권위원회 - 성별, 장애, 종교 등을 이유로 한 차별 행위를 조사하고 시정을 권고한다.",
+      "②": "② 법원 - 헌법재판소 법률의 위헌 여부만을 최종 심판한다.",
+      "③": "③ 헌법재판소 - 개인 간의 돈 거래 갈등이나 형사 범죄 형량을 판결한다.",
+      "④": "④ 경찰서 - 국가 법률이 헌법에 합치하는지 위헌성 심판을 내린다."
+    },
+    correct: "①",
+    explanation: "인권 침해 및 차별 행위를 조사하고 구제를 권고하는 대표 기구는 '국가인권위원회'입니다. 법원은 민사/형사 판결을 내리며, 헌법재판소는 위헌법률심판이나 헌법소원심판을 주관합니다."
+  },
+  q16: {
+    title: "Q16. 합리적 선택 기준",
+    question: "경제학에서 말하는 '합리적 선택'에 대한 설명 중 가장 올바른 것은 무엇인가요?",
+    options: {
+      "①": "① 선택에 따라 지출하는 명목상의 비용만 최소화하면 무조건 합리적이다.",
+      "②": "② 선택을 통해 얻는 편익(만족감, 이익)이 그 선택의 기회비용(포기한 대안의 가치 + 실제 지출 비용)보다 커야 한다.",
+      "③": "③ 만족감(편익)은 전혀 고려하지 않고, 오직 회계상 비용이 0원에 가까울수록 합리적이다.",
+      "④": "④ 기회비용은 개인마다 다를 수 없으며, 언제나 고정된 정답 금액으로 산출된다."
+    },
+    correct: "②",
+    explanation: "합리적 선택은 편익이 기회비용(회계적 비용 + 암묵적 비용)보다 크거나 같을 때 성립합니다. 회계적 비용만 아끼는 것이 아니라 총만족(편익)이 포기한 가치보다 커야 합니다."
+  },
+  q17: {
+    title: "Q17. 시장 가격 결정과 변동",
+    question: "완전경쟁시장 안에서 초콜릿의 수요(사는 사람)가 갑자기 증가하여 공급(파는 양)을 훨씬 초과하는 '수요 초과' 상태가 발생했을 때 나타나는 시장 가격의 변동 양상으로 올바른 것은?",
+    options: {
+      "①": "① 초콜릿 가격이 상승하여 새로운 균형 가격을 찾아간다.",
+      "②": "② 초콜릿 가격이 하락하여 사는 사람이 더 많아진다.",
+      "③": "③ 가격은 변하지 않고 공급량만 무한대로 늘어난다.",
+      "④": "④ 정부가 개입하기 전까지는 가격이 강제로 0원이 된다."
+    },
+    correct: "①",
+    explanation: "수요가 공급보다 많으면(수요 초과) 시장 내에서 초콜릿을 사려는 경쟁이 일어나 가격이 '상승'하게 됩니다."
+  },
+  q18: {
+    title: "Q18. 예적금 vs 주식 자산 관리",
+    question: "금융 자산 관리에서 은행의 '예적금'과 기업의 '주식'이 가진 일반적인 특징을 비교한 설명으로 가장 적절한 것은?",
+    options: {
+      "①": "① 주식은 예적금에 비해 원금 손실 위험이 전혀 없다.",
+      "②": "② 예적금은 주식에 비해 단기간에 엄청난 대박 수익률(고수익성)을 보장한다.",
+      "③": "③ 예적금은 원금 보장성(안전성)이 높지만 수익성이 낮고, 주식은 고수익을 기대할 수 있으나 원금 손실 위험(위험성)이 크다.",
+      "④": "④ 예적금과 주식 모두 예금자보호법에 의해 동일하게 5천만 원까지 전액 보호받는다."
+    },
+    correct: "③",
+    explanation: "예적금은 안전성은 높고 수익성은 낮으며, 주식은 수익성은 높지만 안전성이 떨어져 원금 손실 위험이 큽니다. 주식은 예금자보호법 적용 대상이 아닙니다."
+  },
+  q19: {
+    title: "Q19. 환율 변동과 실생활 영향",
+    question: "최근 원/달러 환율이 1달러당 1,200원에서 1,400원으로 급격하게 '상승'하였습니다. 이러한 환율 상승이 우리나라 경제 생활에 미치는 영향으로 가장 올바른 것은?",
+    options: {
+      "①": "① 미국 대학에 자녀를 유학 보낸 한국 부모의 해외 송금비 부담이 늘어난다.",
+      "②": "② 미국에서 수입해 오는 밀가루와 석유 등 수입품 가격이 국내에서 싸진다.",
+      "③": "③ 미국인들이 한국으로 여행 올 때 달러의 구매력이 낮아져 관광을 기피한다.",
+      "④": "④ 한국 수출 기업들이 미국에 물건을 팔 때 달러 표시 가격 경쟁력이 극도로 불리해진다."
+    },
+    correct: "①",
+    explanation: "환율이 오르면(원화 가치 하락) 1달러를 송금하기 위해 더 많은 원화(1,200원 ➔ 1,400원)가 필요하므로 유학생 자녀를 둔 한국 부모의 송금 부담이 커집니다."
+  }
+};
