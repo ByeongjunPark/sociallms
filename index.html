@@ -437,7 +437,55 @@
                 <label class="option-check-label"><input type="checkbox" name="q5" value="핵심요약" class="option-check-input"> ⑦ 긴 자료나 도서를 읽고 한 눈에 핵심 요약하는 과제</label>
                 <label class="option-check-label"><input type="checkbox" name="q5" value="영상제작편집" class="option-check-input"> ⑧ UCC, 영상 편집 및 오디오 제작 관련 과제</label>
                 <label class="option-check-label">
-                  <input type="checkbox" name="q5" value="기타" class="option-check-inp            <div class="survey-question">
+                  <input type="checkbox" name="q5" value="기타" class="option-check-input" id="q5_etc_check"> ⑨ 기타: 
+                  <input type="text" id="q5_etc_text" class="option-direct-input" placeholder="직접 입력">
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- [Step 5] AI 리터러시 및 활용 습관 -->
+          <div class="wizard-step" id="signUpStep5">
+            <h4 style="font-size: 1.1rem; border-bottom: 2px solid var(--color-purple-soft); padding-bottom: 8px;">🤖 [PART 1] 5단계: AI 리터러시 및 학습 성향</h4>
+
+            <div class="survey-question">
+              <span class="survey-question-title">Q6. 내가 학교나 일상에서 인공지능(AI) 도구를 써 본 경험이 있는 종류는 무엇인가요? (복수 선택)</span>
+              <div class="survey-options">
+                <label class="option-check-label"><input type="checkbox" name="q6" value="대화형AI" class="option-check-input"> ① 대화형 AI 챗봇 (ChatGPT, 뤼튼, Claude 등)</label>
+                <label class="option-check-label"><input type="checkbox" name="q6" value="이미지동영상생성" class="option-check-input"> ② 이미지/동영상 생성 및 편집 AI (DALL-E, Midjourney 등)</label>
+                <label class="option-check-label"><input type="checkbox" name="q6" value="번역외국어" class="option-check-input"> ③ 번역 및 외국어 학습 AI (DeepL, 파파고 등)</label>
+                <label class="option-check-label"><input type="checkbox" name="q6" value="검색요약" class="option-check-input"> ④ 검색 및 요약 지원 AI (Perplexity, 구글 AI 등)</label>
+                <label class="option-check-label">
+                  <input type="checkbox" name="q6" value="기타" class="option-check-input" id="q6_etc_check"> ⑤ 기타: 
+                  <input type="text" id="q6_etc_text" class="option-direct-input" placeholder="직접 입력">
+                </label>
+              </div>
+            </div>
+
+            <div class="survey-question">
+              <span class="survey-question-title">Q7. 인공지능(AI) 도구를 대하는 평소 나의 습관이나 성향은 어떠한가요? (복수 선택)</span>
+              <div class="survey-options">
+                <label class="option-check-label"><input type="checkbox" name="q7" value="얼리어답터" class="option-check-input"> ① 새로운 AI 도구가 나오면 적극적으로 써보는 편이다.</label>
+                <label class="option-check-label"><input type="checkbox" name="q7" value="추천활용" class="option-check-input"> ② 친구들이나 선생님이 유용하다고 추천하면 가끔 써본다.</label>
+                <label class="option-check-label"><input type="checkbox" name="q7" value="상시활용" class="option-check-input"> ③ 과제나 공부를 할 때 AI의 힘을 매우 자주 빌려 해결한다.</label>
+                <label class="option-check-label"><input type="checkbox" name="q7" value="내힘해결" class="option-check-input"> ④ AI 결과물은 신뢰하기 어려워 내 힘으로 해결하는 걸 선호한다.</label>
+              </div>
+            </div>
+
+            <div class="survey-question">
+              <span class="survey-question-title">Q8. AI 결과물을 과제 등에 활용할 때 윤리적 기준(저작권, 표절 등)에 대해 생각하나요? (복수 선택)</span>
+              <div class="survey-options">
+                <label class="option-check-label"><input type="checkbox" name="q8" value="출처밝힘" class="option-check-input"> ① 출처를 명확히 밝히고 사실 여부를 확인하여 활용한다.</label>
+                <label class="option-check-label"><input type="checkbox" name="q8" value="그대로제출" class="option-check-input"> ② 귀찮아서 AI 답변을 거의 그대로 복사해 제출하곤 한다.</label>
+                <label class="option-check-label"><input type="checkbox" name="q8" value="지적재산권무관" class="option-check-input"> ③ AI 생성물은 지적재산권 문제가 없으므로 자유롭게 쓴다.</label>
+                <label class="option-check-label">
+                  <input type="checkbox" name="q8" value="기타" class="option-check-input" id="q8_etc_check"> ④ 기타: 
+                  <input type="text" id="q8_etc_text" class="option-direct-input" placeholder="직접 입력">
+                </label>
+              </div>
+            </div>
+
+            <div class="survey-question">
               <span class="survey-question-title">Q9. AI를 활용해 공부하거나 과제를 할 때 가장 어렵거나 불편한 점은? (복수 선택)</span>
               <div class="survey-options">
                 <label class="option-check-label"><input type="checkbox" name="q9" value="원하는답안나옴" class="option-check-input"> ① 원하는 답을 얻기 위해 질문을 여러 번 고쳐야 함</label>
