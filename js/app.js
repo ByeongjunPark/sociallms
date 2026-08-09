@@ -584,8 +584,9 @@ async function handleSignup() {
     "Q20_자율vs개입규제토론": getRadioValueWithQuiz("q20", null, true),
     "Q21_자산관리우선가치토론": getRadioValueWithQuiz("q21", null, true),
     
-    // 💡 [신규] Q22 교사 인상 및 수업 요청사항 수집
-    "Q22_수업요청사항": document.getElementById("q22_text") ? document.getElementById("q22_text").value.trim() : "없음"
+    // 💡 [개선] Q22 선생님 첫인상 및 Q23 수업 요청사항 분리 수집
+    "Q22_선생님첫인상": document.getElementById("q22_text") ? document.getElementById("q22_text").value.trim() : "없음",
+    "Q23_수업요청사항": document.getElementById("q23_text") ? document.getElementById("q23_text").value.trim() : "없음"
   };
 
   try {
@@ -1311,7 +1312,8 @@ function showStudentDetailModal(studentId) {
       <li>📈 <strong>Q19 (환율 변동):</strong> ${student["Q19_환율상승영향"] || "미제출"}</li>
       <li style="color:var(--text-secondary);">💬 <strong>Q20 (시장자율토론):</strong> ${student["Q20_자율vs개입규제토론"] || "미제출"}</li>
       <li style="color:var(--text-secondary);">💬 <strong>Q21 (자산가치토론):</strong> ${student["Q21_자산관리우선가치토론"] || "미제출"}</li>
-      <li style="color:var(--color-purple); font-weight:700;">💬 <strong>Q22 (교사인상/건의):</strong> ${student["Q22_수업요청사항"] || "미제출"}</li>
+      <li style="color:var(--color-pink); font-weight:700;">💬 <strong>Q22 (교사 첫인상):</strong> ${student["Q22_선생님첫인상"] || student["Q22_수업요청사항"] || "미제출"}</li>
+      <li style="color:var(--color-purple); font-weight:700;">💬 <strong>Q23 (수업 바라는점):</strong> ${student["Q23_수업요청사항"] || "미제출"}</li>
     </ul>
   `;
 
@@ -1730,12 +1732,16 @@ async function summarizeTeacherOpinions() {
     return;
   }
 
-  // Q22 서술형 의견만 필터링하여 수집
-  const rawOpinions = students.map(s => s["Q22_수업요청사항"] ? s["Q22_수업요청사항"].trim() : "");
-  const validOpinions = rawOpinions.filter(op => op && op !== "없음" && op.length > 2);
+  // 💡 Q22 첫인상 의견 수집 (레거시 하위호환 지원)
+  const rawImpressions = students.map(s => (s["Q22_선생님첫인상"] || s["Q22_수업요청사항"] || "").trim());
+  const validImpressions = rawImpressions.filter(op => op && op !== "없음" && op.length > 2);
 
-  if (validOpinions.length === 0) {
-    summaryBox.innerHTML = `<span style="color: var(--text-secondary);">해당 반 학생들 중 Q22번(선생님 첫인상 및 바라는 점)에 유의미하게 남긴 텍스트 의견이 아직 없습니다. 📝</span>`;
+  // 💡 Q23 수업 요청 건의사항 수집
+  const rawRequests = students.map(s => (s["Q23_수업요청사항"] || "").trim());
+  const validRequests = rawRequests.filter(op => op && op !== "없음" && op.length > 2);
+
+  if (validImpressions.length === 0 && validRequests.length === 0) {
+    summaryBox.innerHTML = `<span style="color: var(--text-secondary);">해당 반 학생들 중 Q22(첫인상) 및 Q23(바라는점)에 남긴 유의미한 소통 의견이 아직 없습니다. 📝</span>`;
     return;
   }
 
@@ -1752,11 +1758,15 @@ async function summarizeTeacherOpinions() {
     </div>
   `;
 
-  const opinionsListString = validOpinions.map((op, idx) => `[학생의견 ${idx + 1}] ${op}`).join("\n");
+  const impressionsString = validImpressions.map((op, idx) => `[첫인상 ${idx + 1}] ${op}`).join("\n");
+  const requestsString = validRequests.map((op, idx) => `[수업건의 ${idx + 1}] ${op}`).join("\n");
 
   const prompt = `
-[학급 학생들의 익명 소통 의견 리스트 (Q22 - 구글 시트 Users 탭의 AA열 수집 데이터)]
-${opinionsListString}
+[학급 학생들이 작성한 병준 선생님 첫인상 의견 리스트 (Q22 - 구글 Users 탭 AA열)]
+${impressionsString || "(제출된 첫인상 의견 없음)"}
+
+[학급 학생들이 작성한 수업 바라는점 의견 리스트 (Q23 - 구글 Users 탭 AB열)]
+${requestsString || "(제출된 수업 건의 의견 없음)"}
 
 [요약 미션 - 분리 요약 필수의무]
 제공된 익명 의견들을 면밀히 취합하여, 반드시 다음 2가지 영역으로 나누어 요약해 주세요.
@@ -1944,7 +1954,6 @@ function renderWordCloud(containerId, wordsList) {
 
     container.appendChild(span);
   });
-}
 }
 
 // 📖 기초 학업 진단평가 문항 데이터 및 해설 DB (객관식 8문항)
