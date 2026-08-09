@@ -1776,7 +1776,18 @@ ${opinionsListString}
 * 오직 제공된 의견 텍스트들에만 100% 근거하여 요약해야 합니다.
 
 🚨 [경고 - 민감 개인정보 차단 의무]
-* 만약 의견 내용 중에 학생 개인의 사적인 민감한 정보(예: 친구와 싸웠어요, 가정이 어려워요, 한부모가정이에요, 심리적인 지병이나 장애가 있어요, 성적으로 고민 중이에요 등등)나 특정인을 비방 또는 식별할 수 있는 사적인 정보가 포함되어 있다면, 그 내용은 전체 요약문에 절대로 단어조차 포함하지 말고 철저히 배제 및 소거(Redact)해 주세요.
+* 만약 의견 내용 중에 학생 개인의 사적인 민감한 정보는 절대로 포함하지 말고 철저히 배제 및 소거(Redact)해 주세요.
+
+[🎨 워드클라우드 단어 가중치 통계 출력 의무]
+위의 순수 텍스트 요약이 끝난 후, 맨 하단에 정확히 아래 문자열 구분자와 함께 워드클라우드용 단어 통계 JSON 데이터를 반드시 반환해 주세요.
+* 불용어(은, 는, 이, 가, 을, 를, 하며, 하고, 진짜, 너무 등)는 철저히 제거하고 의미 있는 명사/형용사 키워드만을 추출해 빈도/가중치를 매겨주세요.
+* JSON 포맷 예시:
+---JSON_DATA_START---
+{
+  "impression": [["재밌다", 10], ["친절하다", 8], ["열정적", 7], ["꼼꼼하다", 5], ["무서움", 1]],
+  "request": [["과제조절", 10], ["진도속도", 8], ["모둠활동", 6], ["게임수업", 5]]
+}
+---JSON_DATA_END---
   `;
 
   try {
@@ -1787,7 +1798,7 @@ ${opinionsListString}
         messages: [
           {
             role: "system",
-            content: "당신은 학교 현장에서 학생들의 익명 건의사항을 분석하는 신중하고 품위 있는 교무 장학 AI 비서입니다. 응답 시 샵(#)이나 별표(*) 같은 마크다운 문법 기호를 절대로 사용하지 않고 오직 일반 줄바꿈과 텍스트로만 정돈되게 답변합니다. 없는 사실을 지어내는 할루시네이션은 전면 배제하며 개인정보 보호 가드레일을 철저히 지킵니다."
+            content: "당신은 학교 현장에서 학생들의 익명 건의사항을 분석하는 신중하고 품위 있는 교무 장학 AI 비서입니다. 응답 시 샵(#)이나 별표(*) 같은 마크다운 문법 기호를 절대로 사용하지 않고 오직 일반 줄바꿈과 텍스트로만 답변합니다. 없는 사실을 지어내는 할루시네이션은 전면 배제하며 개인정보 보호 가드레일을 철저히 지킵니다."
           },
           {
             role: "user",
@@ -1799,11 +1810,45 @@ ${opinionsListString}
 
     const data = await response.json();
     if (data.success) {
+      let content = data.message.content;
+      
+      // JSON 데이터 영역 추출 파싱
+      let textSummary = content;
+      let wordCloudData = null;
+      
+      if (content.includes("---JSON_DATA_START---")) {
+        const parts = content.split("---JSON_DATA_START---");
+        textSummary = parts[0].trim();
+        
+        const subParts = parts[1].split("---JSON_DATA_END---");
+        const jsonStr = subParts[0].trim();
+        
+        try {
+          wordCloudData = JSON.parse(jsonStr);
+        } catch (e) {
+          console.error("Failed to parse wordcloud JSON from AI response:", e);
+        }
+      }
+      
       summaryBox.innerHTML = `
         <h5 style="margin:0 0 8px 0; color: var(--color-purple); font-weight:800;">🤖 AI 학급 의견 안심 요약 결과</h5>
-        <div style="font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); white-space: pre-wrap;">${data.message.content}</div>
+        <div style="font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); white-space: pre-wrap;">${textSummary}</div>
         <div style="font-size: 0.72rem; color: var(--text-secondary); text-align: right; margin-top: 10px;">🛡️ Upstage Solar AI 개인정보 안심 필터 처리 완료</div>
       `;
+
+      // 워드클라우드 렌더링 시작
+      const cloudContainer = document.getElementById("teacherWordCloudContainer");
+      if (cloudContainer && wordCloudData) {
+        cloudContainer.style.display = "grid";
+        // 렌더링 호출
+        setTimeout(() => {
+          renderWordCloud("wordcloud_impression", wordCloudData.impression);
+          renderWordCloud("wordcloud_request", wordCloudData.request);
+        }, 50);
+      } else if (cloudContainer) {
+        cloudContainer.style.display = "none";
+      }
+
     } else {
       throw new Error(data.message);
     }
@@ -1813,7 +1858,93 @@ ${opinionsListString}
       <span style="color: #c92a2a; font-weight:700;">❌ 요약 생성 실패: ${err.message}</span>
       <button class="modal-btn secondary" style="margin-top: 10px; font-size:0.75rem;" onclick="summarizeTeacherOpinions()">다시 시도하기 🔄</button>
     `;
+    const cloudContainer = document.getElementById("teacherWordCloudContainer");
+    if (cloudContainer) cloudContainer.style.display = "none";
   }
+}
+
+// 🎨 순수 자바스크립트 기반 dynamic 워드클라우드 렌더러
+function renderWordCloud(containerId, wordsList) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (!wordsList || wordsList.length === 0) {
+    container.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-secondary); margin: auto;">추출된 키워드가 없습니다. 🥺</span>`;
+    return;
+  }
+
+  // 가중치 정렬 및 최대/최소 가중치 구하기
+  const weights = wordsList.map(w => w[1]);
+  const maxWeight = Math.max(...weights);
+  const minWeight = Math.min(...weights);
+
+  // 컨테이너 크기 구하기
+  const width = container.offsetWidth || 280;
+  const height = container.offsetHeight || 220;
+
+  // 단어들을 순회하며 절대 좌표로 배치
+  wordsList.forEach((wordArr, idx) => {
+    const word = wordArr[0];
+    const weight = wordArr[1];
+
+    const span = document.createElement("span");
+    span.innerText = word;
+    span.style.position = "absolute";
+    span.style.whiteSpace = "nowrap";
+    span.style.fontWeight = "800";
+    span.style.cursor = "default";
+    span.style.transition = "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    
+    // 호버 시 단어 튀어오르는 효과
+    span.onmouseenter = () => {
+      span.style.transform = "scale(1.25) rotate(0deg)";
+      span.style.zIndex = "100";
+    };
+    span.onmouseleave = () => {
+      span.style.transform = `scale(1) rotate(${rotate}deg)`;
+      span.style.zIndex = "10";
+    };
+
+    // 폰트 크기 계산 (13px ~ 30px)
+    const fontSize = maxWeight === minWeight ? 16 : 13 + ((weight - minWeight) / (maxWeight - minWeight)) * 17;
+    span.style.fontSize = `${fontSize}px`;
+
+    // 테마 및 종류별 색상 배정
+    let color;
+    if (containerId.includes("impression")) {
+      // 첫인상: 따뜻한 핑크-오렌지-골드 계열 (HSL 330 ~ 360, 0 ~ 30)
+      const hue = Math.floor(Math.random() * 60) - 30; // -30 ~ 30
+      color = `hsl(${hue < 0 ? 360 + hue : hue}, 85%, 60%)`;
+    } else {
+      // 바라는점: 차분하고 스마트한 보라-블루-민트 계열 (HSL 220 ~ 280)
+      const hue = 220 + Math.floor(Math.random() * 60);
+      color = `hsl(${hue}, 80%, 55%)`;
+    }
+    span.style.color = color;
+
+    // 회전 각도 (-15도 ~ 15도 무작위, 큰 단어는 수평)
+    const rotate = fontSize > 20 ? 0 : Math.floor(Math.random() * 30) - 15;
+    span.style.transform = `rotate(${rotate}deg)`;
+
+    // Spiral(나선형) 배치 공식으로 단어 겹침 최소화
+    // 황금각 피보나치 나선을 응용하여 배치
+    const theta = idx * 2.4;
+    const r = Math.sqrt(idx) * (width * 0.09); // 나선 반경
+    const x = width / 2 + r * Math.cos(theta) - (fontSize * word.length * 0.4);
+    const y = height / 2 + r * Math.sin(theta) - (fontSize * 0.5);
+
+    // 경계 처리
+    const finalX = Math.max(10, Math.min(width - (fontSize * word.length * 0.9) - 10, x));
+    const finalY = Math.max(10, Math.min(height - fontSize - 10, y));
+
+    span.style.left = `${finalX}px`;
+    span.style.top = `${finalY}px`;
+    span.style.animation = "fadeInUp 0.5s ease forwards";
+
+    container.appendChild(span);
+  });
+}
 }
 
 // 📖 기초 학업 진단평가 문항 데이터 및 해설 DB (객관식 8문항)
