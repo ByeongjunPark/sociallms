@@ -553,26 +553,41 @@
 <body>
   <div class="activity-page">
     
-    <!-- 상단 헤더 -->
-    <header class="activity-header">
+    <!-- 최상단 투명 바 (LMS 대시보드 백링크 & 우측 실시간 학급/학생 현황 배지) -->
+    <div class="activity-top-nav">
       <a href="../index.html" class="activity-back-link">
-        <span>← 대시보드로 돌아가기</span>
+        <span>🌸 통합사회 대시보드로 돌아가기</span>
       </a>
-      <div>
-        <div class="student-badge">
-          <span id="welcomeEmoji">👧</span> <span id="studentNameDisplay">통합사회 학생</span>
-        </div>
-        <h1 class="activity-title">인권 역사와 3세대 변화 연표 🏛️</h1>
-        <p class="activity-subtitle">
-          인권이 언제, 어떤 사회적 조건 속에서 어떠한 과정(역사적 사건)을 통해 탄생하고 확장되어 왔는지 탐색해 봅시다. <br>
-          단순한 순서 암기를 넘어 <strong>'사회적 조건 ➔ 사건 발생 ➔ 권리 탄생'</strong>의 깊이 있는 인과관계를 완성해 보세요!
-        </p>
+      <div class="student-badge" id="studentBadge">
+        👧 게스트 학생 (로그인 없음)
       </div>
-    </header>
+    </div>
 
     <main class="activity-container">
       <div class="card-activity">
         
+        <h2 class="activity-title" style="margin-bottom: 4px;">인권 역사와 3세대 변화 연표 🏛️</h2>
+        <p class="activity-subtitle" style="margin-bottom: 20px;">
+          인권이 언제, 어떤 사회적 조건 속에서 어떠한 과정(역사적 사건)을 통해 탄생하고 확장되어 왔는지 탐색해 봅시다. <br>
+          단순한 순서 암기를 넘어 <strong>'사회적 조건 ➔ 사건 발생 ➔ 권리 탄생'</strong>의 깊이 있는 인과관계를 완성해 보세요!
+        </p>
+
+        <!-- 3단계 스텝바 진행 상황 표시기 추가 -->
+        <nav class="step-progress-bar" aria-label="활동 단계 진행 상황">
+          <div class="step-item active" id="stepIndicator_1">
+            <span class="step-number">1</span>
+            <span>1단계: 형성평가 📝</span>
+          </div>
+          <div class="step-item" id="stepIndicator_2">
+            <span class="step-number">2</span>
+            <span>2단계: 4세대 인권 🧠</span>
+          </div>
+          <div class="step-item" id="stepIndicator_3">
+            <span class="step-number">3</span>
+            <span>3단계: 성찰 저널 💡</span>
+          </div>
+        </nav>
+
         <!-- [1단계] 연표 형성평가 (조건매칭 + 연표정렬/세대지정 통합) -->
         <section class="step-section active" id="step1">
           <div class="step-header">
@@ -760,15 +775,21 @@
     };
 
     window.addEventListener("load", () => {
-      const savedProfile = localStorage.getItem("sociallms_profile");
-      if (savedProfile) {
-        const student = JSON.parse(savedProfile);
-        document.getElementById("studentNameDisplay").textContent = student.name;
-        document.getElementById("welcomeEmoji").textContent = student.emoji;
-      }
+      loadUserProfile();
       shuffleMatchingCards(); // 1단계 카드 랜덤 셔플링 실행 🧩
       renderSortCards();
     });
+
+    function loadUserProfile() {
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      const badge = document.getElementById("studentBadge");
+      if (savedProfile && badge) {
+        const student = JSON.parse(savedProfile);
+        badge.textContent = `${student.emoji} ${student.gradeClass ? student.gradeClass.substring(0,1) + '학년 ' + student.gradeClass.substring(1) + '반 ' : ''}${student.name} 학생`;
+      } else if (badge) {
+        badge.textContent = "👧 게스트 학생 (로그인 없음)";
+      }
+    }
 
     // 🧩 1단계 매칭 카드 셔플 헬퍼 함수
     function shuffleMatchingCards() {
@@ -1279,9 +1300,18 @@
       const nextStep = currentStep + direction;
 
       if (nextStep >= 1 && nextStep <= 3) {
+        document.getElementById(`stepIndicator_${currentStep}`).classList.remove("active");
+        if (direction === 1) {
+          document.getElementById(`stepIndicator_${currentStep}`).classList.add("completed");
+        } else {
+          document.getElementById(`stepIndicator_${nextStep}`).classList.remove("completed");
+        }
+
         document.getElementById(`step${currentStep}`).classList.remove("active");
         document.getElementById(`step${nextStep}`).classList.add("active");
         currentStep = nextStep;
+
+        document.getElementById(`stepIndicator_${currentStep}`).classList.add("active");
 
         const btnPrev = document.getElementById("btnPrev");
         const btnNext = document.getElementById("btnNext");

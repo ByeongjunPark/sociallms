@@ -665,11 +665,15 @@
             <h1>통합사회 배움 교실 🌸</h1>
             <p>박병준 선생님과 함께하는 즐거운 사회 탐구 여행</p>
           </div>
-          <div class="controls-section" style="margin-right: 50px;"> <!-- 테마 버튼 겹침 방지 -->
-            <!-- 학생 로그인 표시 및 로그아웃 버튼 -->
-            <button class="profile-btn" onclick="handleLogout()">
+          <div class="controls-section" style="margin-right: 50px; display: flex; align-items: center; gap: 10px;"> <!-- 테마 버튼 겹침 방지 -->
+            <!-- 학생 로그인 표시 -->
+            <div style="background: var(--color-pink-soft); color: var(--color-pink); padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
               <span id="studentEmoji">👧</span>
-              <span id="studentNameDisplay">로그아웃</span>
+              <span id="studentNameDisplay">통합사회 학생</span>
+            </div>
+            <!-- 명시적 로그아웃 버튼 신설 -->
+            <button type="button" class="gen-btn" onclick="handleLogout()" style="background: rgba(0,0,0,0.04); font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              로그아웃 🔓
             </button>
           </div>
         </div>

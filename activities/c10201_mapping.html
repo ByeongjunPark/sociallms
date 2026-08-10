@@ -483,6 +483,54 @@
             <div class="quiz-feedback" id="quizFeedback_3"></div>
           </div>
 
+          <!-- 퀴즈 4 -->
+          <div class="quiz-card" id="quizCard_4">
+            <h4 class="quiz-title">Q4. 인권의 일반적인 특성(천부성, 보편성, 항구성, 불가침성 등)에 대한 설명으로 가장 올바르지 않은 것은?</h4>
+            <div class="quiz-options">
+              <label class="quiz-option-label" onclick="selectQuizOption(4, '①', this)">
+                <input type="radio" name="q4" value="①" class="quiz-option-input">
+                <span>① 천부성: 인권은 태어나면서부터 자연적으로 부여받은 권리이며 국가가 제정해주는 법률보다 앞선다.</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(4, '②', this)">
+                <input type="radio" name="q4" value="②" class="quiz-option-input">
+                <span>② 보편성: 성별, 인종, 국적, 신앙 등 어떤 차별 조건과도 무관하게 인류 구성원 모두 동등하게 누린다.</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(4, '③', this)">
+                <input type="radio" name="q4" value="③" class="quiz-option-input">
+                <span>③ 항구성: 일정한 유효 기간이 만료되거나 국가적 비상사태 시 임의로 영구 박탈해 처분할 수 있는 한시적 가치이다.</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(4, '④', this)">
+                <input type="radio" name="q4" value="④" class="quiz-option-input">
+                <span>④ 불가침성: 어떠한 권력이나 타인도 침범하여 빼앗을 수 없으며 타인에게 임의로 양도할 수도 없는 신성한 것이다.</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" id="quizFeedback_4"></div>
+          </div>
+
+          <!-- 퀴즈 5 -->
+          <div class="quiz-card" id="quizCard_5">
+            <h4 class="quiz-title">Q5. 다음 인권 종류 중 국가의 적극적인 개입과 제도적 보장(사회 복지, 교육의 기회 제공 등)을 통해 국민으로서 인간다운 최소한의 품위를 누릴 수 있도록 보장하는 '2세대 사회권적 기본권'에 해당하지 않는 것은?</h4>
+            <div class="quiz-options">
+              <label class="quiz-option-label" onclick="selectQuizOption(5, '①', this)">
+                <input type="radio" name="q5" value="①" class="quiz-option-input">
+                <span>① 근로의 권리 및 노동삼권 (단결권, 단체교섭권, 단체행동권)</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(5, '②', this)">
+                <input type="radio" name="q5" value="②" class="quiz-option-input">
+                <span>② 어떠한 외부 간섭도 받지 않고 개인의 사적인 생활과 신체의 자유, 종교적 신념을 지킬 자유권</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(5, '③', this)">
+                <input type="radio" name="q5" value="③" class="quiz-option-input">
+                <span>③ 건강하고 쾌적한 주거에서 영양 및 보건을 챙기며 살 수 있는 환경권 및 주거권</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(5, '④', this)">
+                <input type="radio" name="q5" value="④" class="quiz-option-input">
+                <span>④ 경제적 계층에 차별받지 않고 균등하게 필요한 공교육 지도를 누릴 수 있는 교육권</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" id="quizFeedback_5"></div>
+          </div>
+
           <div style="text-align: center; margin-top: 24px;">
             <button type="button" class="btn-submit" onclick="gradeStep1Quiz()" style="background: var(--color-purple); padding: 12px 30px;">형성평가 제출 및 채점하기 📝</button>
           </div>
@@ -602,7 +650,7 @@
     const state = {
       student: { studentId: "", gradeClass: "", name: "", emoji: "👧" },
       currentStep: 1,
-      quizAnswers: { q1: "", q2: "", q3: "" },
+      quizAnswers: { q1: "", q2: "", q3: "", q4: "", q5: "" },
       quizGraded: false,
       myPinsCount: 0,
       allPins: [],
@@ -618,7 +666,9 @@
     const QUIZ_ANSWER_KEYS = {
       q1: "④",
       q2: "②",
-      q3: "①"
+      q3: "①",
+      q4: "③",
+      q5: "②"
     };
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -666,21 +716,21 @@
 
     // 1단계 형성평가 제출 채점
     function gradeStep1Quiz() {
-      if (!state.quizAnswers.q1 || !state.quizAnswers.q2 || !state.quizAnswers.q3) {
-        alert("아직 풀지 않은 문제가 있습니다. 3문항을 모두 선택해 주세요! 📝");
+      if (!state.quizAnswers.q1 || !state.quizAnswers.q2 || !state.quizAnswers.q3 || !state.quizAnswers.q4 || !state.quizAnswers.q5) {
+        alert("아직 풀지 않은 문제가 있습니다. 5문항을 모두 선택해 주세요! 📝");
         return;
       }
 
       let score = 0;
       
       // 개별 문항 채점 피드백 렌더링
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= 5; i++) {
         const selected = state.quizAnswers[`q${i}`];
         const correct = QUIZ_ANSWER_KEYS[`q${i}`];
         const feedbackBox = document.getElementById(`quizFeedback_${i}`);
         
         if (selected === correct) {
-          score += 33;
+          score += 20;
           feedbackBox.textContent = `✅ 정답입니다! [해설]: ${getQuizExplanation(i)}`;
           feedbackBox.className = "quiz-feedback correct";
         } else {
@@ -689,8 +739,6 @@
         }
       }
       
-      if (score >= 99) score = 100; // 보정
-
       state.quizGraded = true;
 
       if (score === 100) {
@@ -706,8 +754,12 @@
         return "개인의 자유나 영리 개발을 위해서라도 환경권은 헌법 제37조 2항의 공공복리와 질서유지 기준에 의해 법률로 엄격히 제한되며, 무제한 훼손은 절대 불가합니다.";
       } else if (num === 2) {
         return "과거의 디지털 흔적을 포털 등에서 지워달라고 요청할 수 있는 권리는 현대 정보화 사회에서 대두된 대표적 권리인 '디지털 잊힐 권리'입니다.";
-      } else {
+      } else if (num === 3) {
         return "장애인 및 노약자를 위해 저상버스를 보급하거나 유도블록을 놓는 것은 쾌적한 보행 이동 환경과 사회 안전망을 누릴 '안전권 및 이동권(접근성)'에 부합합니다.";
+      } else if (num === 4) {
+        return "인권의 항구성 특성은 일시적인 권리가 아니라 인간이 살아있는 한 영구히 보장되는 권리임을 명시합니다. 국가 비상사태 하에서도 인간 존엄의 근본적 핵심은 침해되거나 영구 박탈될 수 없습니다.";
+      } else {
+        return "사생활의 비밀과 신체의 자유, 종교적 신념 등은 국가의 간섭이나 침해를 받지 않으려는 방어적 성격의 '1세대 자유권'에 해당합니다.";
       }
     }
 
