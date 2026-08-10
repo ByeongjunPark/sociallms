@@ -1631,6 +1631,148 @@ function renderTeacherCharts() {
 
     reportBox.innerHTML = reportHTML;
   }
+
+  // -------------------------------------------------------------
+  // [신규 5. 인권 역사(연표) 및 현대 인권(맵핑) 실시간 통계 및 의견 공유 보드]
+  // -------------------------------------------------------------
+  let c101_totalScore = 0;
+  let c101_count = 0;
+  let c101_sortCount = 0;
+  const c101_refAnswers = [];
+
+  let c102_total = 0;
+  const c102_quizCounts = {
+    q1: { correct: 0, total: 0 },
+    q2: { correct: 0, total: 0 },
+    q3: { correct: 0, total: 0 },
+    q4: { correct: 0, total: 0 },
+    q5: { correct: 0, total: 0 }
+  };
+  const c102_refAnswers = [];
+
+  students.forEach(s => {
+    // A. 인권 역사와 3세대 변화 연표 🏛️ 데이터 집계
+    const c101ScoreStr = s["인권 역사와 3세대 변화 연표 🏛️"];
+    if (c101ScoreStr) {
+      const scoreVal = parseInt(c101ScoreStr);
+      if (!isNaN(scoreVal)) {
+        c101_totalScore += scoreVal;
+        c101_count++;
+      }
+      // 세부 JSON 정보 파싱
+      const c101Details = s["인권 역사와 3세대 변화 연표 🏛️_details"];
+      if (c101Details) {
+        try {
+          const detailObj = typeof c101Details === "string" ? JSON.parse(c101Details) : c101Details;
+          if (detailObj["연대기정렬성공"] === "성공") {
+            c101_sortCount++;
+          }
+          if (detailObj["Q1_4세대인권상상"]) {
+            c101_refAnswers.push({
+              name: s["이름 (StudentName)"] || "이름미정",
+              id: s["학번 (StudentID)"],
+              answer: detailObj["Q1_4세대인권상상"]
+            });
+          }
+        } catch (e) {
+          console.error("Failed to parse c101 details:", e);
+        }
+      }
+    }
+
+    // B. 현대 인권과 지역사회 커뮤니티 맵핑 🗺️ 데이터 집계
+    const c102Details = s["현대 인권과 지역사회 커뮤니티 맵핑 🗺️_details"];
+    if (c102Details) {
+      try {
+        const detailObj = typeof c102Details === "string" ? JSON.parse(c102Details) : c102Details;
+        c102_total++;
+
+        // "형성평가퀴즈": "Q1:④, Q2:②, Q3:①, Q4:③, Q5:②" 파싱
+        const quizStr = detailObj["형성평가퀴즈"];
+        if (quizStr) {
+          const correctKeys = { q1: "④", q2: "②", q3: "①", q4: "③", q5: "②" };
+          const tokens = quizStr.split(",");
+          tokens.forEach(tok => {
+            const parts = tok.trim().split(":");
+            if (parts.length === 2) {
+              const qKey = parts[0].trim().toLowerCase(); // "q1", "q2" 등
+              const userAns = parts[1].trim();
+              if (correctKeys[qKey]) {
+                c102_quizCounts[qKey].total++;
+                if (userAns === correctKeys[qKey]) {
+                  c102_quizCounts[qKey].correct++;
+                }
+              }
+            }
+          });
+        }
+
+        if (detailObj["시민참여성찰답변"]) {
+          c102_refAnswers.push({
+            name: s["이름 (StudentName)"] || "이름미정",
+            id: s["학번 (StudentID)"],
+            answer: detailObj["시민참여성찰답변"]
+          });
+        }
+      } catch (e) {
+        console.error("Failed to parse c102 details:", e);
+      }
+    }
+  });
+
+  // UI 요소 갱신 - 인권 역사 연표
+  const elC101Avg = document.getElementById("tStats_c101_avg");
+  const elC101SortRate = document.getElementById("tStats_c101_sortRate");
+  const elC101RefList = document.getElementById("tStats_c101_refList");
+
+  if (elC101Avg) {
+    elC101Avg.textContent = c101_count > 0 ? (c101_totalScore / c101_count).toFixed(1) + "점" : "0.0점";
+  }
+  if (elC101SortRate) {
+    elC101SortRate.textContent = c101_count > 0 ? Math.round((c101_sortCount / c101_count) * 100) + "%" : "0%";
+  }
+  if (elC101RefList) {
+    if (c101_refAnswers.length > 0) {
+      elC101RefList.innerHTML = c101_refAnswers.map(ans => `
+        <div style="background:var(--bg-card); padding:8px 12px; border-radius:10px; border:1px solid rgba(0,0,0,0.03); position:relative;">
+          <span style="font-weight:700; color:var(--color-purple); display:block; font-size:0.75rem; margin-bottom:4px;">🙋 ${ans.id} ${ans.name} 학생의 4세대 인권 제안</span>
+          <p style="margin:0; line-height:1.4; color:var(--text-primary); font-size:0.78rem;">"${ans.answer}"</p>
+          <button type="button" class="gen-btn" onclick="shareStudentOpinionToClass('${ans.name}', '4세대 인권 제안: ${ans.answer.replace(/'/g, "\\'")}')" style="position:absolute; right:8px; top:6px; font-size:0.6rem; padding:2px 6px; background:var(--color-pink-soft); color:var(--color-pink); border:none; border-radius:6px; cursor:pointer;">우수 답변 공유 📢</button>
+        </div>
+      `).join("");
+    } else {
+      elC101RefList.innerHTML = `<span style="color:var(--text-secondary);">제출된 성찰 답변이 없습니다.</span>`;
+    }
+  }
+
+  // UI 요소 갱신 - 현대 인권 맵핑
+  for (let i = 1; i <= 5; i++) {
+    const elQ = document.getElementById(`tStats_c102_q${i}`);
+    if (elQ) {
+      const qStats = c102_quizCounts[`q${i}`];
+      elQ.textContent = qStats.total > 0 ? Math.round((qStats.correct / qStats.total) * 100) + "%" : "0%";
+    }
+  }
+
+  const elC102RefList = document.getElementById("tStats_c102_refList");
+  if (elC102RefList) {
+    if (c102_refAnswers.length > 0) {
+      elC102RefList.innerHTML = c102_refAnswers.map(ans => `
+        <div style="background:var(--bg-card); padding:8px 12px; border-radius:10px; border:1px solid rgba(0,0,0,0.03); position:relative;">
+          <span style="font-weight:700; color:var(--color-purple); display:block; font-size:0.75rem; margin-bottom:4px;">🙋 ${ans.id} ${ans.name} 학생의 시민 참여 성찰</span>
+          <p style="margin:0; line-height:1.4; color:var(--text-primary); font-size:0.78rem;">"${ans.answer}"</p>
+          <button type="button" class="gen-btn" onclick="shareStudentOpinionToClass('${ans.name}', '시민참여 성찰: ${ans.answer.replace(/'/g, "\\'")}')" style="position:absolute; right:8px; top:6px; font-size:0.6rem; padding:2px 6px; background:var(--color-pink-soft); color:var(--color-pink); border:none; border-radius:6px; cursor:pointer;">우수 답변 공유 📢</button>
+        </div>
+      `).join("");
+    } else {
+      elC102RefList.innerHTML = `<span style="color:var(--text-secondary);">제출된 성찰 답변이 없습니다.</span>`;
+    }
+  }
+}
+
+// 학생 우수 답변 학급 공유 알림
+function shareStudentOpinionToClass(studentName, opinionText) {
+  alert(`📢 [학급 우수 답변 공유 알림]\n\n박병준 선생님께서 ${studentName} 학생의 우수한 성찰 답변을 모범 사례로 학급 전체에 공유하셨습니다! 👍\n\n"${opinionText}"`);
 }
 
 // 🤖 Upstage Solar API 기반 학급 최적 모둠 편성 구동
