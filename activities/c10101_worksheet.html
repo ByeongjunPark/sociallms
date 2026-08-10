@@ -45,6 +45,63 @@
       line-height: 1.5;
     }
 
+    /* 3단계 스텝바 인디케이터 */
+    .step-progress-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.02);
+      padding: 14px 20px;
+      border-radius: 18px;
+      margin-bottom: 32px;
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+    [data-theme="dark"] .step-progress-bar {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+    
+    .step-item.active {
+      color: var(--color-purple);
+      font-weight: 800;
+    }
+    
+    .step-item.completed {
+      color: var(--color-mint);
+    }
+    
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #dee2e6;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    [data-theme="dark"] .step-number {
+      background: rgba(255,255,255,0.1);
+    }
+    .step-item.active .step-number {
+      background: var(--color-purple);
+      box-shadow: 0 4px 10px rgba(184, 150, 219, 0.4);
+    }
+    .step-item.completed .step-number {
+      background: var(--color-mint);
+    }
+
     /* 단계 컨테이너 */
     .step-section {
       display: none;

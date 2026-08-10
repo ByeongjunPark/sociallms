@@ -1703,15 +1703,15 @@ function renderTeacherCharts() {
                 let isCorr = false;
                 if (qKey === "q2") {
                   const cleanAns = userAns.replace(/\s/g, "");
-                  isCorr = (cleanAns === "디지털잊힐권리" || cleanAns === "잊힐권리" || cleanAns === "디지털잊을권리");
+                  isCorr = (cleanAns === "주거권" || cleanAns === "주거");
                 } else if (qKey === "q3") {
-                  isCorr = (userAns === "안전권 및 이동권");
+                  isCorr = (userAns === "안전권");
                 } else if (qKey === "q1") {
                   isCorr = (userAns === "④");
                 } else if (qKey === "q4") {
-                  isCorr = (userAns === "③");
-                } else if (qKey === "q5") {
                   isCorr = (userAns === "②");
+                } else if (qKey === "q5") {
+                  isCorr = (userAns === "①");
                 }
 
                 if (isCorr) {
