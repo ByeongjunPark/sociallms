@@ -435,50 +435,26 @@
             <div class="quiz-feedback" id="quizFeedback_1"></div>
           </div>
 
-          <!-- 퀴즈 2 -->
+          <!-- 퀴즈 2 (단답형 입력 문항으로 변경) -->
           <div class="quiz-card" id="quizCard_2">
-            <h4 class="quiz-title">Q2. 인터넷상의 여러 사이트에 원치 않게 검색되거나 노출되어 사생활을 침해하고 있는 본인의 과거 디지털 활동 흔적, 사진, 게시물 등을 강제로 지워달라고 플랫폼에 요구할 수 있는 현대적 인권 개념을 무엇이라 하는가?</h4>
-            <div class="quiz-options">
-              <label class="quiz-option-label" onclick="selectQuizOption(2, '①', this)">
-                <input type="radio" name="q2" value="①" class="quiz-option-input">
-                <span>① 주거권 (주택 보장권)</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(2, '②', this)">
-                <input type="radio" name="q2" value="②" class="quiz-option-input">
-                <span>② 디지털 잊힐 권리 (잊힐 권리)</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(2, '③', this)">
-                <input type="radio" name="q2" value="③" class="quiz-option-input">
-                <span>③ 문화 누림권</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(2, '④', this)">
-                <input type="radio" name="q2" value="④" class="quiz-option-input">
-                <span>④ 사회적 안전권</span>
-              </label>
+            <h4 class="quiz-title">Q2. 인터넷상의 여러 사이트에 원치 않게 검색되거나 노출되어 사생활을 침해하고 있는 본인의 과거 디지털 활동 흔적, 사진, 게시물 등을 강제로 지워달라고 플랫폼에 요구할 수 있는 현대적 인권 개념을 무엇이라 하는가? (초성 힌트: ㄷㅈㅌ ㅇㅎ ㄱㄹ)</h4>
+            <div class="quiz-options" style="gap:0;">
+              <input type="text" id="quizInput_2" class="reflection-textarea" style="min-height: 48px; font-weight:700; background:rgba(255,255,255,0.7); border:1.5px solid rgba(0,0,0,0.05); border-radius:12px; padding:12px 16px; outline:none;" placeholder="정답을 한글 단어형식으로 입력해 주세요. (예: 디지털 잊힐 권리)" oninput="state.quizAnswers.q2 = this.value">
             </div>
             <div class="quiz-feedback" id="quizFeedback_2"></div>
           </div>
 
-          <!-- 퀴즈 3 -->
+          <!-- 퀴즈 3 (드롭다운 매칭 문항으로 변경) -->
           <div class="quiz-card" id="quizCard_3">
-            <h4 class="quiz-title">Q3. 계단 대신 휠체어 램프 설치, 저상 버스 보급, 시각장애인용 보도블록 확충 등 교통 약자나 장애인이 물리적인 이동에 제약을 받지 않고 공공시설을 차별 없이 이용할 수 있게 보장하는 현대적 권리는?</h4>
-            <div class="quiz-options">
-              <label class="quiz-option-label" onclick="selectQuizOption(3, '①', this)">
-                <input type="radio" name="q3" value="①" class="quiz-option-input">
-                <span>① 안전권 및 이동권 (접근성 보장 권리)</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(3, '②', this)">
-                <input type="radio" name="q3" value="②" class="quiz-option-input">
-                <span>② 쾌적한 환경권</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(3, '③', this)">
-                <input type="radio" name="q3" value="③" class="quiz-option-input">
-                <span>③ 디지털 잊힐 권리</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(3, '④', this)">
-                <input type="radio" name="q3" value="④" class="quiz-option-input">
-                <span>④ 인간다운 문화향유권</span>
-              </label>
+            <h4 class="quiz-title">Q3. 계단 대신 휠체어 램프 설치, 저상 버스 보급, 시각장애인용 보도블록 확충 등 교통 약자나 장애인이 물리적인 이동에 제약을 받지 않고 공공시설을 차별 없이 이용할 수 있게 보장하는 현대적 권리는 무엇인지 선택하세요.</h4>
+            <div class="quiz-options" style="gap:0;">
+              <select id="quizSelect_3" onchange="state.quizAnswers.q3 = this.value" style="width:100%; padding:14px; border-radius:14px; border:1.5px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.7); font-family:var(--font-family-body); font-size:0.9rem; font-weight:600; color:var(--text-primary); outline:none;">
+                <option value="">[ 권리 종류를 선택해 주세요 ]</option>
+                <option value="환경권">🌿 쾌적한 환경권</option>
+                <option value="디지털 잊힐 권리">💻 디지털 잊힐 권리</option>
+                <option value="안전권 및 이동권">♿ 안전권 및 이동권 (접근성 보장 권리)</option>
+                <option value="인간다운 문화향유권">🎨 인간다운 문화향유권</option>
+              </select>
             </div>
             <div class="quiz-feedback" id="quizFeedback_3"></div>
           </div>
@@ -726,17 +702,32 @@
       // 개별 문항 채점 피드백 렌더링
       for (let i = 1; i <= 5; i++) {
         const selected = state.quizAnswers[`q${i}`];
-        const correct = QUIZ_ANSWER_KEYS[`q${i}`];
         const feedbackBox = document.getElementById(`quizFeedback_${i}`);
+        let isCorrect = false;
+
+        if (i === 2) {
+          // Q2 단답형 입력 허용 채점
+          const cleanAns = (selected || "").trim().replace(/\s/g, "");
+          isCorrect = (cleanAns === "디지털잊힐권리" || cleanAns === "잊힐권리" || cleanAns === "디지털잊을권리");
+        } else if (i === 3) {
+          // Q3 드롭다운 채점
+          isCorrect = (selected === "안전권 및 이동권");
+        } else {
+          // Q1, Q4, Q5 객관식 채점
+          const correct = QUIZ_ANSWER_KEYS[`q${i}`];
+          isCorrect = (selected === correct);
+        }
         
-        if (selected === correct) {
+        if (isCorrect) {
           score += 20;
           feedbackBox.textContent = `✅ 정답입니다! [해설]: ${getQuizExplanation(i)}`;
           feedbackBox.className = "quiz-feedback correct";
         } else {
-          feedbackBox.textContent = `❌ 오답입니다. (내가 고른 선지: ${selected}) [해설]: ${getQuizExplanation(i)}`;
+          const userDisplay = (i === 2) ? `입력값: "${selected}"` : `선택: ${selected || '미지정'}`;
+          feedbackBox.textContent = `❌ 오답입니다. (${userDisplay}) [해설]: ${getQuizExplanation(i)}`;
           feedbackBox.className = "quiz-feedback incorrect";
         }
+        feedbackBox.style.display = "block";
       }
       
       state.quizGraded = true;

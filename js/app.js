@@ -1687,19 +1687,34 @@ function renderTeacherCharts() {
         const detailObj = typeof c102Details === "string" ? JSON.parse(c102Details) : c102Details;
         c102_total++;
 
-        // "형성평가퀴즈": "Q1:④, Q2:②, Q3:①, Q4:③, Q5:②" 파싱
+        // "형성평가퀴즈": "Q1:④, Q2:디지털 잊힐 권리, Q3:안전권 및 이동권, Q4:③, Q5:②" 파싱
         const quizStr = detailObj["형성평가퀴즈"];
         if (quizStr) {
-          const correctKeys = { q1: "④", q2: "②", q3: "①", q4: "③", q5: "②" };
           const tokens = quizStr.split(",");
           tokens.forEach(tok => {
             const parts = tok.trim().split(":");
             if (parts.length === 2) {
               const qKey = parts[0].trim().toLowerCase(); // "q1", "q2" 등
               const userAns = parts[1].trim();
-              if (correctKeys[qKey]) {
+              
+              if (qKey in c102_quizCounts) {
                 c102_quizCounts[qKey].total++;
-                if (userAns === correctKeys[qKey]) {
+                
+                let isCorr = false;
+                if (qKey === "q2") {
+                  const cleanAns = userAns.replace(/\s/g, "");
+                  isCorr = (cleanAns === "디지털잊힐권리" || cleanAns === "잊힐권리" || cleanAns === "디지털잊을권리");
+                } else if (qKey === "q3") {
+                  isCorr = (userAns === "안전권 및 이동권");
+                } else if (qKey === "q1") {
+                  isCorr = (userAns === "④");
+                } else if (qKey === "q4") {
+                  isCorr = (userAns === "③");
+                } else if (qKey === "q5") {
+                  isCorr = (userAns === "②");
+                }
+
+                if (isCorr) {
                   c102_quizCounts[qKey].correct++;
                 }
               }
