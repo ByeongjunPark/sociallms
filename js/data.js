@@ -23,6 +23,14 @@ const CURRICULUM_DATA = [
         type: "worksheet",
         timeRequired: "15분",
         url: "activities/c10101_worksheet.html"
+      },
+      {
+        id: "c10201_mapping",
+        title: "현대 인권과 지역사회 커뮤니티 맵핑 🗺️",
+        description: "형성평가, Leaflet 지도 기반의 우리 지역 인권 소외구역 맵핑(3개 핀 등록), 성찰 저널로 이어지는 3단계 현대 인권 탐구 모듈",
+        type: "simulation",
+        timeRequired: "20분",
+        url: "activities/c10201_mapping.html"
       }
     ]
   },

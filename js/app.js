@@ -1222,7 +1222,7 @@ function renderTeacherStudentsTable() {
   if (state.filteredStudents.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; padding: 40px; font-weight: 700; color: var(--text-secondary);">
+        <td colspan="7" style="text-align: center; padding: 40px; font-weight: 700; color: var(--text-secondary);">
           선택된 학급에 가입된 학생이 아직 없습니다. 🥺
         </td>
       </tr>
@@ -1255,6 +1255,14 @@ function renderTeacherStudentsTable() {
       scoreBadge = `<span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700;">제출 (${actScore})</span>`;
     }
 
+    // 💡 현대 인권 맵핑 과제 점수 매칭
+    const mapScore = s.activities && s.activities["현대 인권 맵핑 및 성찰"];
+    let mapScoreBadge = `<span style="background: rgba(201, 42, 42, 0.08); color: #c92a2a; padding: 4px 10px; border-radius: 8px; font-weight: 700;">미제출 ❌</span>`;
+    
+    if (mapScore !== undefined) {
+      mapScoreBadge = `<span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700;">제출 (${mapScore})</span>`;
+    }
+
     return `
       <tr style="border-bottom: 1px solid rgba(0,0,0,0.04); transition: background 0.2s;">
         <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText} <span style="font-size:0.75rem; color:var(--text-secondary);">(${sId})</span></td>
@@ -1262,6 +1270,7 @@ function renderTeacherStudentsTable() {
         <td style="padding: 14px 8px; font-size: 1.15rem;">${sEmoji}</td>
         <td style="padding: 14px 8px; color: var(--text-secondary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width: 180px;" title="${career}">${career}</td>
         <td style="padding: 14px 8px;">${scoreBadge}</td>
+        <td style="padding: 14px 8px;">${mapScoreBadge}</td>
         <td style="padding: 14px 8px; text-align: center;">
           <button type="button" class="gen-btn" style="padding: 4px 10px; font-size:0.75rem; border-color: var(--color-purple); color: var(--color-purple);" onclick="showStudentDetailModal('${sId}')">상세조회 🔍</button>
         </td>
@@ -1312,9 +1321,43 @@ function showStudentDetailModal(studentId) {
       <li>📈 <strong>Q19 (환율 변동):</strong> ${student["Q19_환율상승영향"] || "미제출"}</li>
       <li style="color:var(--text-secondary);">💬 <strong>Q20 (시장자율토론):</strong> ${student["Q20_자율vs개입규제토론"] || "미제출"}</li>
       <li style="color:var(--text-secondary);">💬 <strong>Q21 (자산가치토론):</strong> ${student["Q21_자산관리우선가치토론"] || "미제출"}</li>
-      <li style="color:var(--color-pink); font-weight:700;">💬 <strong>Q22 (교사 첫인상):</strong> ${student["Q22_선생님첫인상"] || student["Q22_수업요청사항"] || "미제출"}</li>
-      <li style="color:var(--color-purple); font-weight:700;">💬 <strong>Q23 (수업 바라는점):</strong> ${student["Q23_수업요청사항"] || "미제출"}</li>
+      <li style="color:var(--color-pink); font-weight:700;">💬 <strong>Q22 (교사 첫인상):</strong> ${student["Q22_선생님 첫인"] || student["Q22_선생님첫인상"] || student["Q22_수업요청사항"] || "미제출"}</li>
+      <li style="color:var(--color-purple); font-weight:700;">💬 <strong>Q23 (수업 바라는점):</strong> ${student["Q23_수업 요청사"] || student["Q23_수업요청사항"] || "미제출"}</li>
     </ul>
+    
+    <!-- 💡 현대 인권 맵핑 상세 과제 정보 추출 -->
+    ${(() => {
+      const mapDetails = student.activities && student.activities["현대 인권 맵핑 및 성찰_details"];
+      if (mapDetails) {
+        const quizRes = mapDetails["형성평가퀴즈"] || "미기입";
+        const pinCnt = mapDetails["등록한핀개수"] || "0개";
+        const essayText = mapDetails["시민참여성찰답변"] || "답변 없음";
+        const submitTime = mapDetails["제출시간 (Timestamp)"] || "시간 미상";
+
+        return `
+          <div style="margin-top: 18px; padding: 14px; background: rgba(184, 150, 219, 0.08); border-radius: 16px; border: 1px solid rgba(184, 150, 219, 0.15); font-size: 0.85rem;">
+            <h5 style="margin: 0 0 10px 0; color: var(--color-purple); font-weight: 800; display: flex; align-items: center; gap: 6px;">
+              🗺️ 현대 인권 맵핑 & 성찰 과제 수행서
+            </h5>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.06); padding-bottom: 8px; color: var(--text-primary);">
+              <div>• <strong>형성평가 결과:</strong> ${quizRes}</div>
+              <div>• <strong>등록한 지도 핀:</strong> ${pinCnt}</div>
+              <div style="grid-column: span 2;">• <strong>제출 시간:</strong> ${new Date(submitTime).toLocaleString()}</div>
+            </div>
+            <div>
+              <strong style="color: var(--text-primary);">✍️ 주거·안전·환경권 시민참여 성찰 저널:</strong>
+              <p style="margin: 6px 0 0 0; padding: 10px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-glass); font-size: 0.8rem; line-height: 1.5; color: var(--text-primary); white-space: pre-wrap;">${essayText}</p>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div style="margin-top: 18px; padding: 12px; background: rgba(0, 0, 0, 0.02); border-radius: 14px; border: 1px dashed rgba(0,0,0,0.06); font-size: 0.82rem; text-align: center; color: var(--text-secondary);">
+            📍 현대 인권 커뮤니티 맵핑 및 성찰 저널 미제출 상태입니다.
+          </div>
+        `;
+      }
+    })()}
   `;
 
   body.innerHTML = infoHTML;
@@ -1732,15 +1775,14 @@ async function summarizeTeacherOpinions() {
     return;
   }
 
-  // 💡 Q22 첫인상 의견 수집 (레거시 하위호환 지원)
-  const rawImpressions = students.map(s => (s["Q22_선생님첫인상"] || s["Q22_수업요청사항"] || "").trim());
+  // 💡 Q22 첫인상 의견 수집 (시트 컬럼명 "Q22_선생님 첫인" 매칭 및 레거시 펄백)
+  const rawImpressions = students.map(s => (s["Q22_선생님 첫인"] || s["Q22_선생님첫인상"] || s["Q22_수업요청사항"] || "").trim());
   const validImpressions = rawImpressions.filter(op => op && op !== "없음" && op.length > 2);
 
-  // 💡 Q23 수업 요청 건의사항 수집 (구글 Users 시트 AB열 데이터. 만약 비어있다면 레거시 AA열 Q22_수업요청사항을 펄백으로 사용)
+  // 💡 Q23 수업 요청 건의사항 수집 (시트 컬럼명 "Q23_수업 요청사" 매칭 및 레거시 펄백)
   const rawRequests = students.map(s => {
-    const newReq = (s["Q23_수업요청사항"] || "").trim();
+    const newReq = (s["Q23_수업 요청사"] || s["Q23_수업요청사항"] || "").trim();
     const legacyReq = (s["Q22_수업요청사항"] || "").trim();
-    // 신규 Q23 데이터가 비어있지 않다면 사용하고, 비어있다면 예전 가입 건의 레거시 AA열(Q22_수업요청사항)을 사용!
     return newReq ? newReq : legacyReq;
   });
   const validRequests = rawRequests.filter(op => op && op !== "없음" && op.length > 2);

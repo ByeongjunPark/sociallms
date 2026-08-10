@@ -222,6 +222,68 @@ function doPost(e) {
 
       return createJsonResponse({ success: true, message: "활동 제출이 동적 탭에 안전하게 기록되었습니다! ⭐" });
     }
+
+    // ================= [신규] 3-1. 커뮤니티 맵핑 핀 저장 =================
+    else if (action === "saveMappingPin") {
+      let pinSheet = sheet.getSheetByName("MappingPins");
+      
+      if (!pinSheet) {
+        pinSheet = sheet.insertSheet("MappingPins");
+        const header = ["학급 (Class)", "학번 (StudentID)", "이름 (StudentName)", "장소명 (PlaceName)", "위도 (Latitude)", "경도 (Longitude)", "인권유형 (RightsType)", "침해현황 (Description)", "개선아이디어 (Idea)", "등록시간 (Timestamp)"];
+        pinSheet.appendRow(header);
+        pinSheet.getRange("A1:J1").setFontWeight("bold").setBackground("#d3f9d8");
+      }
+
+      const gradeClass = String(data.gradeClass || "");
+      const studentId = String(data.studentId || "");
+      const studentName = String(data.studentName || "");
+      const placeName = String(data.placeName || "");
+      const lat = String(data.lat || "");
+      const lng = String(data.lng || "");
+      const rightsType = String(data.rightsType || "");
+      const desc = String(data.desc || "");
+      const idea = String(data.idea || "");
+
+      // 핀 개별 등록
+      const newPinRow = [gradeClass, studentId, studentName, placeName, lat, lng, rightsType, desc, idea, new Date().toISOString()];
+      pinSheet.appendRow(newPinRow);
+
+      return createJsonResponse({ success: true, message: "지도에 인권 관심 핀이 안전하게 실시간 등록되었습니다! 📍" });
+    }
+
+    // ================= [신규] 3-2. 전체 커뮤니티 맵핑 핀 목록 가져오기 =================
+    else if (action === "getMappingPins") {
+      const pinSheet = sheet.getSheetByName("MappingPins");
+      if (!pinSheet) {
+        return createJsonResponse({ success: true, pins: [] });
+      }
+
+      const rows = pinSheet.getDataRange().getValues();
+      const headers = rows[0].map(h => String(h).trim());
+      const pins = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const pin = {};
+        headers.forEach((h, colIdx) => {
+          let key = h;
+          if (h.startsWith("학급")) key = "gradeClass";
+          else if (h.startsWith("학번")) key = "studentId";
+          else if (h.startsWith("이름")) key = "studentName";
+          else if (h.startsWith("장소명")) key = "placeName";
+          else if (h.startsWith("위도")) key = "lat";
+          else if (h.startsWith("경도")) key = "lng";
+          else if (h.startsWith("인권유형")) key = "rightsType";
+          else if (h.startsWith("침해현황")) key = "desc";
+          else if (h.startsWith("개선아이디어")) key = "idea";
+          else if (h.startsWith("등록시간")) key = "timestamp";
+          
+          pin[key] = rows[i][colIdx];
+        });
+        pins.push(pin);
+      }
+
+      return createJsonResponse({ success: true, pins: pins });
+    }
     
     // ================= 4. 전체 학습 진행도 조회 =================
     else if (action === "getProgress") {
@@ -269,12 +331,19 @@ function doPost(e) {
         const idIdx = headers.findIndex(h => h.startsWith("학번"));
         const scoreIdx = headers.findIndex(h => h.startsWith("평가/수익률"));
 
-        if (idIdx !== -1 && scoreIdx !== -1) {
+        if (idIdx !== -1) {
           for (let i = 1; i < rows.length; i++) {
             const sId = String(rows[i][idIdx]);
-            const sScore = rows[i][scoreIdx];
             if (!scoreMap[sId]) scoreMap[sId] = {};
-            scoreMap[sId][sName] = sScore;
+            
+            // 행 전체 데이터를 객체화
+            const actData = {};
+            headers.forEach((h, colIdx) => {
+              actData[String(h).trim()] = rows[i][colIdx];
+            });
+            
+            scoreMap[sId][sName] = scoreIdx !== -1 ? rows[i][scoreIdx] : "제출완료";
+            scoreMap[sId][sName + "_details"] = actData;
           }
         }
       });
