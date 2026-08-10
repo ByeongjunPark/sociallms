@@ -758,12 +758,13 @@
               📖 단원 핵심 개념 질문
             </h4>
             <p style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-              전통적 인권(근대 자유권 및 평등권)과 다르게, 우리 지역의 주거·안전·환경권을 실질적으로 보장하기 위해서 
-              <strong>국가는 어떠한 적극적 역할(예: 법률, 인프라 보장)을 다해야 하며</strong>, 
-              <strong>우리 주권자 시민들은 공동체에 어떠한 행동으로 참여해야 할까요?</strong>
+              우리 동네에서 주거, 안전, 환경과 관련된 인권 문제를 해결하려면, 
+              <strong>국가는 우리를 위해 어떤 노력을 해야 할까요?</strong> 그리고 
+              <strong>우리 학생들과 시민들은 어떤 행동을 실천할 수 있을까요?</strong><br>
+              맵핑 활동을 하면서 느낀 점을 바탕으로 자유롭게 적어보세요.
             </p>
             
-            <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6;" placeholder="이전 단계의 맵핑 활동 경험을 연계하여, 주거·안전·환경권 보장을 위한 국가의 책임과 시민 참여 방안에 대해 나의 생각을 조리 있게 4~5줄 이상 서술해 주세요. (최소 50글자 필수)"></textarea>
+            <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6;" placeholder="국가의 역할과 시민의 참여 방안에 대해 나의 생각을 자유롭게 적어주세요. (최소 30글자 이상)"></textarea>
           </div>
         </div>
 
@@ -1084,6 +1085,11 @@
 
     // 단계 이동 제어 (Wizard Navigation)
     async function navigateStep(direction) {
+      if (mappingState.currentStep === 3 && direction === 1) {
+        await submitFinalWorksheet();
+        return;
+      }
+
       if (direction === 1) {
         // 비로그인 사용자 입력 밸리데이션
         if (!mappingState.student.studentId || !mappingState.student.name) {
@@ -1164,12 +1170,6 @@
 
       // 단계 이동 시 자동 저장
       saveDraft();
-
-      // 최종 제출 처리
-      if (mappingState.currentStep === 4) {
-        mappingState.currentStep = 3; // 복구
-        await submitFinalWorksheet();
-      }
     }
 
     // 📍 Leaflet 지도 초기화 로직
@@ -1309,12 +1309,30 @@
         });
 
         const data = await response.json();
+        
+        // 새로 등록한 핀 객체 구성
+        const newPinObj = {
+          studentId: mappingState.student.studentId,
+          studentName: mappingState.student.name,
+          gradeClass: mappingState.student.gradeClass,
+          placeName,
+          lat: mappingState.selectedLat,
+          lng: mappingState.selectedLng,
+          rightsType,
+          desc,
+          idea
+        };
+
         if (data.success) {
           alert(data.message);
           
           mappingState.myPinsCount++;
           updatePinCounterText();
           saveDraft(); // 핀 등록 수 자동 저장
+
+          // 지도에 즉각 반영
+          mappingState.allPins.push(newPinObj);
+          loadMappingPinsToMap();
 
           // 입력 폼 비우기 및 닫기
           document.getElementById("pinPlaceName").value = "";
@@ -1331,6 +1349,11 @@
             mappingState.myPinsCount++;
             updatePinCounterText();
             saveDraft();
+            
+            // 오프라인 지도에도 즉각 반영
+            mappingState.allPins.push(newPinObj);
+            loadMappingPinsToMap();
+
             closePinForm();
             alert("선생님의 서버가 아직 업데이트되지 않았습니다. 임시 오프라인 모드로 핀이 성공적으로 등록되었습니다! 📍");
           } else {
@@ -1342,9 +1365,25 @@
         alert("서버 연결에 실패하여 핀을 등록하지 못했습니다. 오프라인 모드로 추가합니다.");
         
         // 오프라인 로컬 가상 마크
+        const newPinObj = {
+          studentId: mappingState.student.studentId,
+          studentName: mappingState.student.name,
+          gradeClass: mappingState.student.gradeClass,
+          placeName,
+          lat: mappingState.selectedLat,
+          lng: mappingState.selectedLng,
+          rightsType,
+          desc,
+          idea
+        };
+
         mappingState.myPinsCount++;
         updatePinCounterText();
         saveDraft(); // 오프라인 핀 수 저장
+        
+        mappingState.allPins.push(newPinObj);
+        loadMappingPinsToMap();
+
         closePinForm();
       }
     }

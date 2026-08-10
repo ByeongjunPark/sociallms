@@ -79,7 +79,10 @@ function checkLoginState() {
     
     // 화면 전환 (엘리먼트가 존재할 때만 안전하게 실행)
     if (authSec) authSec.style.display = "none";
-    if (dashboard) dashboard.classList.add("active");
+    if (dashboard) {
+      dashboard.style.display = "block";
+      dashboard.classList.add("active");
+    }
     if (tDashboard) tDashboard.style.display = "none";
 
     updateProfileUI();
