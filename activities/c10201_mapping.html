@@ -953,10 +953,10 @@
         
         // gradeClass가 없고 studentId가 4자리라면 학반 추출
         if (!mappingState.student.gradeClass && mappingState.student.studentId.length === 4) {
-          mappingState.student.gradeClass = mappingState.student.studentId.substring(0, 2);
+          mappingState.student.gradeClass = String(mappingState.student.studentId).substring(0, 2);
         }
 
-        badge.textContent = `${mappingState.student.emoji} ${mappingState.student.gradeClass ? mappingState.student.gradeClass.substring(0,1) + '학년 ' + parseInt(mappingState.student.gradeClass.substring(1)) + '반 ' : ''}${mappingState.student.name} 학생`;
+        badge.textContent = `${mappingState.student.emoji} ${mappingState.student.gradeClass ? String(mappingState.student.gradeClass).substring(0,1) + '학년 ' + parseInt(String(mappingState.student.gradeClass).substring(1)) + '반 ' : ''}${mappingState.student.name} 학생`;
         document.getElementById("step_login_card").style.display = "none";
       } else {
         // 비로그인 사용자 폼 노출
@@ -1477,7 +1477,7 @@
           <div style="font-size: 0.85rem; width: 220px; line-height: 1.5;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
               <span class="rights-badge ${pin.rightsType}">${pin.rightsType}</span>
-              <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight:700;">${pin.studentName} (${pin.gradeClass ? pin.gradeClass.substring(1) + '반' : ''})</span>
+              <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight:700;">${pin.studentName} (${pin.gradeClass ? String(pin.gradeClass).substring(1) + '반' : ''})</span>
             </div>
             <h5 style="margin: 4px 0; font-size: 0.95rem; font-weight:800; color: var(--text-primary);">📍 ${pin.placeName}</h5>
             <p style="margin: 6px 0; color: var(--text-secondary); font-size: 0.82rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 6px;">

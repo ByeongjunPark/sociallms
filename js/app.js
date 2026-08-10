@@ -2805,7 +2805,7 @@ function drawTeacherPinsOnMap(classFilter) {
       <div style="font-size: 0.85rem; width: 220px; line-height: 1.5;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span class="rights-badge ${pin.rightsType}" style="padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; color: white; background: var(--color-purple);">${pin.rightsType}</span>
-          <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">${pin.studentName} (${pin.gradeClass ? pin.gradeClass.substring(1) + '반' : ''})</span>
+          <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">${pin.studentName} (${pin.gradeClass ? String(pin.gradeClass).substring(1) + '반' : ''})</span>
         </div>
         <h5 style="margin: 4px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">📍 ${pin.placeName}</h5>
         <p style="margin: 6px 0; color: var(--text-secondary); font-size: 0.82rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 6px;">
