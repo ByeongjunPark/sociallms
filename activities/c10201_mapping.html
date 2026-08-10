@@ -1333,7 +1333,7 @@
 
           // 지도에 즉각 반영
           mappingState.allPins.push(newPinObj);
-          loadMappingPinsToMap();
+          drawPinsOnMap();
 
           // 입력 폼 비우기 및 닫기
           document.getElementById("pinPlaceName").value = "";
@@ -1353,7 +1353,7 @@
             
             // 오프라인 지도에도 즉각 반영
             mappingState.allPins.push(newPinObj);
-            loadMappingPinsToMap();
+            drawPinsOnMap();
 
             closePinForm();
             alert("선생님의 서버가 아직 업데이트되지 않았습니다. 임시 오프라인 모드로 핀이 성공적으로 등록되었습니다! 📍");
@@ -1383,7 +1383,7 @@
         saveDraft(); // 오프라인 핀 수 저장
         
         mappingState.allPins.push(newPinObj);
-        loadMappingPinsToMap();
+        drawPinsOnMap();
 
         closePinForm();
       }

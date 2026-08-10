@@ -24,9 +24,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: "필수 입력값이 누락되었습니다." });
     }
 
-    // 학번 4자리 엄격 검증 (숫자 4자리)
+    // 학번 4자리 엄격 검증 (교사인 경우는 허용)
     const idRegex = /^\d{4}$/;
-    if (!idRegex.test(String(studentId))) {
+    if (studentId !== "teacher" && !idRegex.test(String(studentId))) {
       return res.status(400).json({ success: false, message: "학번은 반드시 숫자 4자리여야 합니다. 🥺" });
     }
 
