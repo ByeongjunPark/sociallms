@@ -1225,13 +1225,44 @@
         const selected = worksheetQuizAnswers[`q${i}`];
         const correct = WORKSHEET_QUIZ_KEYS[`q${i}`];
         const feedbackBox = document.getElementById(`wQuizFeedback_${i}`);
+        const card = document.getElementById(`quizCard_c${i}`);
+        
+        // 옵션 라벨 초기화
+        const optionLabels = card.querySelectorAll(".quiz-option-label");
+        optionLabels.forEach(lbl => {
+          lbl.style.borderColor = "rgba(0,0,0,0.04)";
+          lbl.style.background = "rgba(255,255,255,0.75)";
+        });
+
         if (selected === correct) {
           quizCorrectCount++;
-          feedbackBox.textContent = `✅ 정답입니다! [해설]: ${wQuizExplanations[i]}`;
+          feedbackBox.textContent = `✅ 정답입니다! (정답: ${correct}) [정답 해설]: ${wQuizExplanations[i]}`;
           feedbackBox.className = "quiz-feedback correct";
+
+          optionLabels.forEach(lbl => {
+            const inp = lbl.querySelector("input");
+            if (inp && inp.value === correct) {
+              lbl.style.borderColor = "var(--color-mint)";
+              lbl.style.background = "rgba(79, 209, 197, 0.06)";
+            }
+          });
         } else {
-          feedbackBox.textContent = `❌ 오답입니다. (내가 고른 선지: ${selected}) [해설]: ${wQuizExplanations[i]}`;
+          feedbackBox.textContent = `❌ 오답입니다. (내가 고른 선지: ${selected} / 실제 정답은 "${correct}" 입니다.) [정답 해설]: ${wQuizExplanations[i]}`;
           feedbackBox.className = "quiz-feedback incorrect";
+
+          optionLabels.forEach(lbl => {
+            const inp = lbl.querySelector("input");
+            if (inp) {
+              if (inp.value === selected) {
+                lbl.style.borderColor = "#ff6b6b";
+                lbl.style.background = "rgba(255, 107, 107, 0.06)";
+              }
+              if (inp.value === correct) {
+                lbl.style.borderColor = "var(--color-mint)";
+                lbl.style.background = "rgba(79, 209, 197, 0.06)";
+              }
+            }
+          });
         }
         feedbackBox.style.display = "block";
       }

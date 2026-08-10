@@ -664,8 +664,19 @@
       const badge = document.getElementById("studentBadge");
 
       if (savedProfile) {
-        state.student = JSON.parse(savedProfile);
-        badge.textContent = `${state.student.emoji} ${state.student.gradeClass ? state.student.gradeClass.substring(0,1) + '학년 ' + state.student.gradeClass.substring(1) + '반 ' : ''}${state.student.name} 학생`;
+        const parsed = JSON.parse(savedProfile);
+        state.student = {
+          studentId: parsed["학번 (StudentID)"] || parsed.studentId || "",
+          name: parsed["이름 (StudentName)"] || parsed.name || "학생",
+          emoji: parsed["캐릭터 (Emoji)"] || parsed.emoji || "👧",
+          gradeClass: parsed.gradeClass || ""
+        };
+        // gradeClass가 없고 studentId가 4자리라면 학반 추출
+        if (!state.student.gradeClass && state.student.studentId.length === 4) {
+          state.student.gradeClass = state.student.studentId.substring(0, 2);
+        }
+
+        badge.textContent = `${state.student.emoji} ${state.student.gradeClass ? state.student.gradeClass.substring(0,1) + '학년 ' + parseInt(state.student.gradeClass.substring(1)) + '반 ' : ''}${state.student.name} 학생`;
         document.getElementById("step_login_card").style.display = "none";
       } else {
         // 비로그인 사용자 폼 노출
@@ -703,7 +714,10 @@
       for (let i = 1; i <= 5; i++) {
         const selected = state.quizAnswers[`q${i}`];
         const feedbackBox = document.getElementById(`quizFeedback_${i}`);
+        const card = document.getElementById(`quizCard_${i}`);
         let isCorrect = false;
+
+        const correct = QUIZ_ANSWER_KEYS[`q${i}`];
 
         if (i === 2) {
           // Q2 단답형 입력 허용 채점 (주거권)
@@ -714,18 +728,50 @@
           isCorrect = (selected === "안전권");
         } else {
           // Q1, Q4, Q5 객관식 채점
-          const correct = QUIZ_ANSWER_KEYS[`q${i}`];
           isCorrect = (selected === correct);
         }
         
+        // 카드 내의 라벨들 스타일 초기화
+        const optionLabels = card.querySelectorAll(".quiz-option-label");
+        optionLabels.forEach(lbl => {
+          lbl.style.borderColor = "rgba(0,0,0,0.05)";
+          lbl.style.background = "rgba(255, 255, 255, 0.75)";
+        });
+
         if (isCorrect) {
           score += 20;
-          feedbackBox.textContent = `✅ 정답입니다! [해설]: ${getQuizExplanation(i)}`;
+          feedbackBox.textContent = `✅ 정답입니다! (정답: ${correct}) [정답 해설]: ${getQuizExplanation(i)}`;
           feedbackBox.className = "quiz-feedback correct";
+          
+          if (i !== 2 && i !== 3) {
+            optionLabels.forEach(lbl => {
+              const inp = lbl.querySelector("input");
+              if (inp && inp.value === correct) {
+                lbl.style.borderColor = "var(--color-mint)";
+                lbl.style.background = "rgba(79, 209, 197, 0.06)";
+              }
+            });
+          }
         } else {
           const userDisplay = (i === 2) ? `입력값: "${selected}"` : `선택: ${selected || '미지정'}`;
-          feedbackBox.textContent = `❌ 오답입니다. (${userDisplay}) [해설]: ${getQuizExplanation(i)}`;
+          feedbackBox.textContent = `❌ 오답입니다. (${userDisplay} / 실제 정답은 "${correct}" 입니다.) [정답 해설]: ${getQuizExplanation(i)}`;
           feedbackBox.className = "quiz-feedback incorrect";
+
+          if (i !== 2 && i !== 3) {
+            optionLabels.forEach(lbl => {
+              const inp = lbl.querySelector("input");
+              if (inp) {
+                if (inp.value === selected) {
+                  lbl.style.borderColor = "#ff6b6b";
+                  lbl.style.background = "rgba(255, 107, 107, 0.06)";
+                }
+                if (inp.value === correct) {
+                  lbl.style.borderColor = "var(--color-mint)";
+                  lbl.style.background = "rgba(79, 209, 197, 0.06)";
+                }
+              }
+            });
+          }
         }
         feedbackBox.style.display = "block";
       }
