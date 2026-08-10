@@ -696,8 +696,7 @@
       if (score === 100) {
         alert("🎉 100점 만점 정답입니다! 2단계 커뮤니티 맵핑(인권 실천) 과제가 해금되었습니다. 하단 [다음으로] 단추를 눌러주세요!");
       } else {
-        alert(`🚨 점수: ${score}점. 100점을 획득해야 다음 단계로 갈 수 있습니다. 오답 문항의 라디오 선택지를 고쳐서 다시 채점해 보세요!`);
-        state.quizGraded = false; // 재시도 가능하게 잠금 해제
+        alert(`💡 형성평가 채점 완료: ${score}점입니다. 아쉽게 틀린 문제가 있으나 하단의 오답 해설 피드백을 참고하여 그대로 2단계 배움으로 진행하실 수 있습니다! 🌿`);
       }
     }
 
@@ -745,13 +744,9 @@
 
         // 스텝별 검증
         if (state.currentStep === 1) {
-          // 퀴즈 100점 점검
-          const q1 = state.quizAnswers.q1 === QUIZ_ANSWER_KEYS.q1;
-          const q2 = state.quizAnswers.q2 === QUIZ_ANSWER_KEYS.q2;
-          const q3 = state.quizAnswers.q3 === QUIZ_ANSWER_KEYS.q3;
-
-          if (!q1 || !q2 || !q3) {
-            alert("형성평가 3문항을 모두 맞추어 100점을 획득해야 다음 단계로 해금됩니다! 📝");
+          // 퀴즈 채점 완료 확인
+          if (!state.quizGraded) {
+            alert("형성평가 제출 및 채점하기 단추를 눌러 먼저 채점을 완료해 주세요! 📝");
             return;
           }
         } else if (state.currentStep === 2) {

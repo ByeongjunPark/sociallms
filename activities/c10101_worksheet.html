@@ -330,66 +330,6 @@
       color: var(--color-pink);
     }
 
-    /* 3단계 서술 템플릿 */
-    .builder-list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .sentence-builder-card {
-      background: rgba(255, 255, 255, 0.4);
-      border: 1.5px solid rgba(0, 0, 0, 0.05);
-      border-radius: 20px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    [data-theme="dark"] .sentence-builder-card {
-      background: rgba(255, 255, 255, 0.01);
-    }
-
-    .builder-card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--color-pink);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .builder-sentence {
-      font-size: 1rem;
-      line-height: 2.2;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .builder-select, .builder-input {
-      font-family: var(--font-family-body);
-      font-weight: 700;
-      font-size: 0.95rem;
-      padding: 4px 12px;
-      border: none;
-      border-bottom: 2px solid var(--color-pink-soft);
-      background: transparent;
-      outline: none;
-      color: var(--color-pink);
-      text-align: center;
-      transition: border-color 0.2s;
-    }
-    .builder-select {
-      cursor: pointer;
-    }
-    .builder-input {
-      width: 250px;
-    }
-    .builder-select:focus, .builder-input:focus {
-      border-color: var(--color-pink);
-    }
-
     /* 힌트 시스템 디자인 */
     .hint-container {
       margin-top: 10px;
@@ -438,7 +378,7 @@
       display: block;
     }
 
-    /* 4단계 고차사고력 성찰 블록 */
+    /* 3단계 고차사고력 성찰 블록 */
     .reflection-form {
       display: flex;
       flex-direction: column;
@@ -463,7 +403,7 @@
     }
     .reflection-textarea {
       width: 100%;
-      min-height: 100px;
+      min-height: 110px;
       background: rgba(255, 255, 255, 0.6);
       border: 1.5px solid rgba(0,0,0,0.06);
       border-radius: 14px;
@@ -489,11 +429,6 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
-    /* 피드백 박스 (대용 모달이 생겼으므로 보조로만 둠) */
-    .feedback-box {
-      display: none;
-    }
-
     /* 푸터 조작 */
     .activity-footer {
       display: flex;
@@ -502,7 +437,7 @@
       margin-top: 40px;
     }
 
-    /* 팝업 모달 스타일 (.active 스위칭 연동형) */
+    /* 팝업 모달 스타일 */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -571,10 +506,6 @@
       align-items: center;
       gap: 6px;
     }
-    .modal-feedback-body ul {
-      padding-left: 20px;
-      margin-bottom: 12px;
-    }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
@@ -642,20 +573,20 @@
     <main class="activity-container">
       <div class="card-activity">
         
-        <!-- [1단계] 사회 조건과 사건 매칭 -->
+        <!-- [1단계] 연표 형성평가 (조건매칭 + 연표정렬/세대지정 통합) -->
         <section class="step-section active" id="step1">
           <div class="step-header">
             <span class="step-number">1</span>
-            <h2 class="step-title">사회적 요구 조건과 사건 매칭하기</h2>
-            <button type="button" class="gen-btn" onclick="resetStep1()" style="margin-left: auto; background: rgba(0,0,0,0.04); font-size: 0.75rem;">🔄 매칭 초기화</button>
+            <h2 class="step-title">1단계: 인권 연표 및 세대 형성평가</h2>
+            <button type="button" class="gen-btn" onclick="resetStep1()" style="margin-left: auto; background: rgba(0,0,0,0.04); font-size: 0.75rem;">🔄 전체 초기화</button>
           </div>
-          <p class="step-desc">
-            과거 사람들은 어떤 상황 때문에 힘들어했고, 무엇을 요구했을까요? <br>
-            <strong>왼쪽의 사회적 조건 카드</strong>를 누르고, <strong>오른쪽의 알맞은 역사적 사건 박스</strong>를 순서대로 클릭하여 선을 이어 주세요! 🔗<br>
-            <span style="font-size: 0.8rem; color: var(--color-pink); font-weight: bold;">💡 실수로 잘못 연결했나요? 이미 연결된 카드를 한 번 더 누르면 연결이 샥 취소됩니다!</span>
+          <p class="step-desc" style="margin-bottom: 20px;">
+            <strong>[파작 1] 조건 매칭</strong>: 왼쪽의 구체적 요구 조건을 오른쪽의 역사적 사건 박스에 연결해 주세요! 🔗 <br>
+            <strong>[파작 2] 연표 및 세대 지정</strong>: 하단 카드의 <strong>▲/▼ 화살표</strong>를 눌러 사건을 <strong>연대순(가장 과거가 1번)</strong>으로 정렬하고, 각 사건의 <strong>정당한 세대 권리 종류</strong>를 탭하여 분류하세요!
           </p>
 
-          <div class="matching-grid">
+          <div style="font-weight: 800; color: var(--color-pink); font-size: 0.95rem; margin-bottom: 8px;">🔗 [파트 A] 요구 조건과 역사적 사건 짝짓기</div>
+          <div class="matching-grid" style="margin-bottom: 40px;">
             <div class="matching-column" id="conditionsCol">
               <div class="matching-column-title">당시의 구체적 사회적 요구 조건 📜</div>
               <div class="match-card" data-type="cond" data-id="c1" onclick="selectMatchCard(this)">
@@ -665,10 +596,10 @@
                 "왕정과 식민 지배의 절대 권력에 저항하여, 시민 혁명을 통해 모든 인간에게 주어진 신성불가침의 자유와 권리를 쟁취하고자 선언했다."
               </div>
               <div class="match-card" data-type="cond" data-id="c3" onclick="selectMatchCard(this)">
-                "시민 혁명 후에도 여전히 선거권에서 배제된 노동자들이 독점적 정치 구조에 항의하며 보통선거권(인민헌장)을 강력히 요구했다."
+                "시민 혁명 후에도 여전히 선거권에서 배제된 노동자들이 보통선거권을 강력히 요구하며 영국 최초의 민중 헌장 운동을 전개했다."
               </div>
               <div class="match-card" data-type="cond" data-id="c4" onclick="selectMatchCard(this)">
-                "산업화와 자본주의의 심화로 노동자들이 극심한 빈곤에 처하자, 국가가 개입하여 국민의 최소한의 인간다운 생활을 보장해줄 것을 외쳤다."
+                "산업화와 자본주의의 심화로 노동자들이 극심한 빈곤에 처하자, 국가가 개입하여 최소한의 인간다운 생활을 보장해줄 것을 청구했다."
               </div>
               <div class="match-card" data-type="cond" data-id="c5" onclick="selectMatchCard(this)">
                 "양차 세계 대전과 대학살의 참상을 겪으면서, 국경을 불문하고 인류 모두가 연대하여 준수해야 할 보편적 인권 기준을 세우고자 약속했다."
@@ -700,173 +631,68 @@
               </div>
             </div>
           </div>
-        </section>
 
-        <!-- [2단계] 시대순 배열 + 세대 분류 -->
-        <section class="step-section" id="step2">
-          <div class="step-header">
-            <span class="step-number">2</span>
-            <h2 class="step-title">인권 문서 시대순 배열 및 세대 분류하기</h2>
-            <button type="button" class="gen-btn" onclick="resetStep2()" style="margin-left: auto; background: rgba(0,0,0,0.04); font-size: 0.75rem;">🔄 정렬/세대 초기화</button>
-          </div>
-          <p class="step-desc">
-            이제 아래 카드들의 순서를 연대순에 맞춰 정렬하고, 각 권리가 어떤 세대의 성격을 지니는지 분류해 봅시다. <br>
-            • 우측의 <strong>▲ / ▼ 버튼</strong>을 눌러 순서를 연대순으로 맞추세요. <br>
-            • 각 카드의 **[자유권] / [참정권] / [사회권] / [연대권]** 버튼을 눌러 지정해 주세요.
-          </p>
-
+          <div style="font-weight: 800; color: var(--color-pink); font-size: 0.95rem; margin-bottom: 8px; border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 24px;">📅 [파트 B] 시대순 정렬 및 권리 세대 분류</div>
           <div class="sortable-list" id="sortableList">
             <!-- 동적으로 시대순 카드 노출 예정 -->
           </div>
         </section>
 
-        <!-- [3단계] 나만의 한 줄 설명 (3개 사건) -->
-        <section class="step-section" id="step3">
+        <!-- [2단계] 고차사고력 전이과제 (4세대 인권 제안) -->
+        <section class="step-section" id="step2">
           <div class="step-header">
-            <span class="step-number">3</span>
-            <h2 class="step-title">3개 역사적 인과관계 문장 재구성하기</h2>
+            <span class="step-number">2</span>
+            <h2 class="step-title">2단계: 미래 4세대 인권 제안하기 (전이과제)</h2>
           </div>
           <p class="step-desc">
-            앞 단계에서 탐구한 6개의 핵심 인권 문서 중 **3개를 다르게 선택하여** 당시 사회적 조건과 결과적 권리의 탄생 과정을 논리적 인과관계 문장으로 재구성해 봅시다.
-          </p>
-
-          <div class="builder-list">
-            <!-- 1번째 문장 -->
-            <div class="sentence-builder-card">
-              <span class="builder-card-title">📖 [사건 분석 1]</span>
-              <div class="builder-sentence">
-                <span>사건:</span>
-                <select class="builder-select" id="builderSelect_1" onchange="updateBuilderPlaceholder(1)">
-                  <option value="">-- 사건 선택 --</option>
-                  <option value="영국 대헌장">영국 대헌장</option>
-                  <option value="근대 시민 혁명과 인권 문서">근대 시민 혁명과 인권 문서</option>
-                  <option value="영국 차티스트 운동">영국 차티스트 운동</option>
-                  <option value="독일 바이마르 헌법">독일 바이마르 헌법</option>
-                  <option value="세계 인권 선언">세계 인권 선언</option>
-                  <option value="국제 인권 규약">국제 인권 규약</option>
-                </select>
-                <span>은/는</span>
-                <br>
-                <input type="text" class="builder-input" id="builderCondition_1" placeholder="당시 사회가 요구했던 구체적 배경">
-                <span>(이)라는 조건 때문에 일어났고,</span>
-                <br>
-                <span>그 결과</span>
-                <input type="text" class="builder-input" id="builderRight_1" placeholder="그 결과 획득된 핵심 권리명">
-                <span>이/가 새롭게 확립되었다.</span>
-              </div>
-              <div class="hint-container">
-                <button type="button" class="hint-trigger-btn" id="hintBtn3_1" onclick="toggleHint3(1)">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)</button>
-                <div class="hint-bubble" id="hintBubble3_1">사건을 먼저 위에서 선택해 주세요.</div>
-              </div>
-            </div>
-
-            <!-- 2번째 문장 -->
-            <div class="sentence-builder-card">
-              <span class="builder-card-title">📖 [사건 분석 2]</span>
-              <div class="builder-sentence">
-                <span>사건:</span>
-                <select class="builder-select" id="builderSelect_2" onchange="updateBuilderPlaceholder(2)">
-                  <option value="">-- 사건 선택 --</option>
-                  <option value="영국 대헌장">영국 대헌장</option>
-                  <option value="근대 시민 혁명과 인권 문서">근대 시민 혁명과 인권 문서</option>
-                  <option value="영국 차티스트 운동">영국 차티스트 운동</option>
-                  <option value="독일 바이마르 헌법">독일 바이마르 헌법</option>
-                  <option value="세계 인권 선언">세계 인권 선언</option>
-                  <option value="국제 인권 규약">국제 인권 규약</option>
-                </select>
-                <span>은/는</span>
-                <br>
-                <input type="text" class="builder-input" id="builderCondition_2" placeholder="당시 사회가 요구했던 구체적 배경">
-                <span>(이)라는 조건 때문에 일어났고,</span>
-                <br>
-                <span>그 결과</span>
-                <input type="text" class="builder-input" id="builderRight_2" placeholder="그 결과 획득된 핵심 권리명">
-                <span>이/가 새롭게 확립되었다.</span>
-              </div>
-              <div class="hint-container">
-                <button type="button" class="hint-trigger-btn" id="hintBtn3_2" onclick="toggleHint3(2)">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)</button>
-                <div class="hint-bubble" id="hintBubble3_2">사건을 먼저 위에서 선택해 주세요.</div>
-              </div>
-            </div>
-
-            <!-- 3번째 문장 -->
-            <div class="sentence-builder-card">
-              <span class="builder-card-title">📖 [사건 분석 3]</span>
-              <div class="builder-sentence">
-                <span>사건:</span>
-                <select class="builder-select" id="builderSelect_3" onchange="updateBuilderPlaceholder(3)">
-                  <option value="">-- 사건 선택 --</option>
-                  <option value="영국 대헌장">영국 대헌장</option>
-                  <option value="근대 시민 혁명과 인권 문서">근대 시민 혁명과 인권 문서</option>
-                  <option value="영국 차티스트 운동">영국 차티스트 운동</option>
-                  <option value="독일 바이마르 헌법">독일 바이마르 헌법</option>
-                  <option value="세계 인권 선언">세계 인권 선언</option>
-                  <option value="국제 인권 규약">국제 인권 규약</option>
-                </select>
-                <span>은/는</span>
-                <br>
-                <input type="text" class="builder-input" id="builderCondition_3" placeholder="당시 사회가 요구했던 구체적 배경">
-                <span>(이)라는 조건 때문에 일어났고,</span>
-                <br>
-                <span>그 결과</span>
-                <input type="text" class="builder-input" id="builderRight_3" placeholder="그 결과 획득된 핵심 권리명">
-                <span>이/가 새롭게 확립되었다.</span>
-              </div>
-              <div class="hint-container">
-                <button type="button" class="hint-trigger-btn" id="hintBtn3_3" onclick="toggleHint3(3)">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)</button>
-                <div class="hint-bubble" id="hintBubble3_3">사건을 먼저 위에서 선택해 주세요.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="feedback-box" id="step3Feedback" style="display:block; background: rgba(184, 150, 219, 0.05); border-style: solid;">
-            💡 <strong>작성 팁:</strong> 분석 1, 2, 3은 각각 서로 다른 권리 세대(1세대 자유/참정권, 2세대 사회권, 3세대 연대권)의 문서를 골고루 골라 작성하면, 나중에 전이 학습 성찰 결과를 취합해 평가할 때 풍부한 성과가 만들어집니다! 🌿
-          </div>
-        </section>
-
-        <!-- [4단계] 고차적 성찰 및 메타인지 학습 -->
-        <section class="step-section" id="step4">
-          <div class="step-header">
-            <span class="step-number">4</span>
-            <h2 class="step-title">고차적 성찰 및 메타인지 학습전략 수립하기</h2>
-          </div>
-          <p class="step-desc">
-            오늘 탐구한 인권의 역사와 나의 배움 과정을 종합하여 스스로의 지식 수준을 점검하고 성찰해 봅시다.
+            과거와 달리 현대 정보화 사회, AI 시대, 우주 과학 문명 도래에 맞춰 우리 인류는 어떤 새로운 권리를 보장해야 할까요? <br>
+            기존 세대(자유/사회/연대)를 뛰어넘어, <strong>만약 새롭게 보장해야 할 '4세대 인권'을 제안한다면</strong> 그것은 무엇이어야 하는지 명칭과 함께 구체적 근거를 작성해 봅시다.
           </p>
 
           <div class="reflection-form">
-            <!-- 질문 1: 간소화된 4세대 인권 질문 -->
-            <div class="reflection-question">
-              <label class="reflection-title" for="reflection4thGen">
-                🧠 <strong>Q1. 만약 4세대 인권이 있다면 그것은 무엇이어야 한다고 생각하세요? 근거와 함께 적어봅시다.</strong>
+            <div class="reflection-question" style="background: rgba(184, 150, 219, 0.05); border: 1.5px solid rgba(184, 150, 219, 0.15);">
+              <label class="reflection-title" for="reflection4thGen" style="color: var(--color-purple); font-size:1.02rem;">
+                🧠 내가 제안하는 [4세대 인권] 명칭과 정당한 근거 서술
               </label>
-              <textarea class="reflection-textarea" id="reflection4thGen" placeholder="내가 제안하고 싶은 현대적 4세대 인권의 가치와 그 타당한 근거를 서술해 주세요."></textarea>
+              <textarea class="reflection-textarea" id="reflection4thGen" placeholder="예: '디지털 잊힐 권리' 또는 '인공지능 알고리즘 차별 배제권', '우주 안전 주거권' 등 자유롭게 명칭을 지정하고, 현대 사회의 변화 속에서 왜 이 권리가 주권자인 우리 모두에게 반드시 보장되어야 하는지 설득력 있는 근거를 4~5줄 서술하세요. (최소 30글자 필수)"></textarea>
               <div class="hint-container">
-                <button type="button" class="hint-trigger-btn" id="hintBtn4_q1" onclick="toggleHint4('q1')">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -10점 감점)</button>
+                <button type="button" class="hint-trigger-btn" id="hintBtn4_q1" onclick="toggleHint4('q1')">💡 정말 어려워요! 힌트 도움 및 가이드 예시 보기</button>
                 <div class="hint-bubble" id="hintBubble4_q1">
-                  <strong>[4세대 인권 제안 예시]</strong><br>
-                  • "인터넷 세상에서 원하지 않는 개인 기록을 지울 디지털 잊힐 권리가 필요하다고 생각합니다. 오늘날 온라인 상의 신상 털기나 정보 박제는 사생활을 심각하게 훼손하기 때문입니다."
-                </div>
-              </div>
-            </div>
-
-            <!-- 질문 2: 메타인지 학습 전략 성찰 질문 -->
-            <div class="reflection-question">
-              <label class="reflection-title" for="reflectionSelf">
-                 🌱 <strong>Q2. 오늘 학습을 진행하면서 스스로 가장 까다롭거나 판단하기 까다로웠던 인권 개념/사건(예: 세대 구분, 역사적 선후 인과 등)은 무엇이었나요? 다음번에 이와 유사한 탐구 과제를 해결할 때 나만의 메타인지 학습 전략(배경지식 선행 점검, 오답 원인 분석 방식 등)을 어떻게 개선해나갈 것인지 구체적으로 서술해 봅시다.</strong>
-              </label>
-              <textarea class="reflection-textarea" id="reflectionSelf" placeholder="학습 도중 까다롭고 모호했던 영역과, 차후 이를 극복하기 위한 나만의 구체적 공부 전략을 성찰하여 서술하세요."></textarea>
-              <div class="hint-container">
-                <button type="button" class="hint-trigger-btn" id="hintBtn4_q2" onclick="toggleHint4('q2')">💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -10점 감점)</button>
-                <div class="hint-bubble" id="hintBubble4_q2">
-                  <strong>[메타인지 학습 성찰 예시]</strong><br>
-                  • "영국 대헌장과 시민혁명 문서들의 선후 선언 인과관계를 매칭하고 구분해 내는 것이 모호했습니다. 다음 학습 시에는 사건의 발생 배경과 결과 문서의 주권을 미리 테이블로 정리해 두고 탐구하는 학습 보완책을 쓸 것입니다."
+                  <strong>[4세대 인권 제안 도움말]</strong><br>
+                  • 정보 통신 및 인터넷 발달: 잊힐 권리, 뇌 사생활 보호권(신경 인권)<br>
+                  • 생명 과학 발달: 유전자 정보 차별 배제권, 기후 환경 안전권<br>
+                  • 인공지능 보급: AI 차별 및 편향 필터링 배제권, 로봇 공존 생명권
                 </div>
               </div>
             </div>
           </div>
+        </section>
 
-          <div class="feedback-box" id="step4Feedback"></div>
+        <!-- [3단계] 학습과정 성찰 (메타인지 학습전략) -->
+        <section class="step-section" id="step3">
+          <div class="step-header">
+            <span class="step-number">3</span>
+            <h2 class="step-title">3단계: 학습 성찰 및 메타인지 전략 수립</h2>
+          </div>
+          <p class="step-desc">
+            오늘 활동을 마무리하며 나의 인권 학습 과정과 사고방식을 성찰해 봅시다.
+          </p>
+
+          <div class="reflection-form">
+            <div class="reflection-question">
+              <label class="reflection-title" for="reflectionSelf">
+                 🌱 <strong>오늘 학습 중 가장 헷갈렸거나 파악하기 모호했던 인권 문서/개념은 무엇이었나요? 차후에 이와 유사한 성취기준 과제를 해결할 때 나만의 메타인지 학습 전략(공부 보완책)을 구체적으로 어떻게 세워갈 것인지 성찰해 봅시다.</strong>
+              </label>
+              <textarea class="reflection-textarea" id="reflectionSelf" placeholder="나의 까다로웠던 지점을 고백하고, 극복을 위한 주관적 배움 습관 개선안을 서술해 주세요. (최소 30글자 필수)"></textarea>
+              <div class="hint-container">
+                <button type="button" class="hint-trigger-btn" id="hintBtn4_q2" onclick="toggleHint4('q2')">💡 정말 어려워요! 작성 예시 힌트 보기</button>
+                <div class="hint-bubble" id="hintBubble4_q2">
+                  <strong>[메타인지 학습 성찰 예시]</strong><br>
+                  • "독일 바이마르 헌법과 근대 시민혁명 권리의 성격 구분이 혼동되었습니다. 앞으로는 사건 발생 년도의 자본주의 고도화 수준과 연계하여 권리 목적을 먼저 도식화하여 배움을 점검하겠습니다."
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- 하단 액션 버튼 바 -->
@@ -902,7 +728,6 @@
     let userMatches = {}; 
 
     // 힌트 사용 여부 상태
-    let hintsUsedStep3 = { 1: false, 2: false, 3: false };
     let hintsUsedStep4 = { q1: false, q2: false };
     
     const correctMatches = {
@@ -944,34 +769,6 @@
       "e6": "국제인권규약(1966년)은 선언에 머문 규정들을 국가 간 조약 체결로 실효적 구속력을 부여한 20세기 중반의 국제 연대적 사건입니다."
     };
 
-    // 3단계용 실제 예시 데이터베이스
-    const step3HintDatabase = {
-      "영국 대헌장": {
-        cond: "왕이 승인 없이 세금을 매기고 신하들을 재판 없이 구금하던 전제적 모순",
-        right: "국왕 법률에 의한 국왕 권력 제한 및 신민의 신체 보장(자유권)"
-      },
-      "근대 시민 혁명과 인권 문서": {
-        cond: "절대 왕정의 신분제 억압과 무제한적 시민 통제 및 식민 지배",
-        right: "자유민으로서의 천부인권, 신체의 자유, 사유 재산 및 저항권"
-      },
-      "영국 차티스트 운동": {
-        cond: "시민혁명 이후 노동자들이 배제되었던 독점적 참정권 상황",
-        right: "일정한 세금을 내지 않는 노동자 등의 민중 보통선거권(참정권)"
-      },
-      "독일 바이마르 헌법": {
-        cond: "산업 혁명 및 자본주의 심화로 대다수 노동자가 겪은 극심한 빈곤",
-        right: "국가의 복지적 개입을 청구할 수 있는 인간다운 살 권리(사회권)"
-      },
-      "세계 인권 선언": {
-        cond: "제2차 세계 대전 시기 자행된 참혹한 홀로코스트 및 대량 학살의 참상",
-        right: "인종/성별 국경을 넘어 모든 인류가 보편적으로 지켜야 할 권리 연대"
-      },
-      "국제 인권 규약": {
-        cond: "세계인권선언의 법적 선언적 한계를 극복하고 실효 구속력을 지우려는 목적",
-        right: "조약 가입국 정부에 법적 구속력을 부여하는 실질적 국제 인권 보장"
-      }
-    };
-
     window.addEventListener("load", () => {
       const savedProfile = localStorage.getItem("sociallms_profile");
       if (savedProfile) {
@@ -990,7 +787,6 @@
 
       if (!condsCol || !eventsCol) return;
 
-      // 1. 조건 카드 셔플
       const condCards = Array.from(condsCol.querySelectorAll(".match-card"));
       const condTitle = condsCol.querySelector(".matching-column-title");
       for (let i = condCards.length - 1; i > 0; i--) {
@@ -1001,7 +797,6 @@
       if (condTitle) condsCol.appendChild(condTitle);
       condCards.forEach(card => condsCol.appendChild(card));
 
-      // 2. 역사적 사건 카드 셔플
       const eventCards = Array.from(eventsCol.querySelectorAll(".match-card"));
       const eventTitle = eventsCol.querySelector(".matching-column-title");
       for (let i = eventCards.length - 1; i > 0; i--) {
@@ -1046,7 +841,6 @@
         actions.appendChild(nextBtn);
       }
 
-      // style.css에 정의된 오버레이 노출 애니메이션 연동을 위해 active 클래스 추가!
       modal.classList.add("active");
     }
 
@@ -1075,38 +869,12 @@
     }
 
     // ================= 힌트 열람 제어 함수 =================
-    function toggleHint3(index) {
-      const select = document.getElementById(`builderSelect_${index}`);
-      const val = select.value;
-      const bubble = document.getElementById(`hintBubble3_${index}`);
-      const btn = document.getElementById(`hintBtn3_${index}`);
-
-      if (!val) {
-        alert("사건 분석을 위해 위의 사건을 먼저 선택하고 힌트를 눌러 주세요! 🌸");
-        return;
-      }
-
-      const hintData = step3HintDatabase[val];
-      if (hintData) {
-        bubble.innerHTML = `
-          <strong>[${val} 힌트]</strong><br>
-          • <strong>당시 사회 조건 힌트:</strong> "${hintData.cond}"<br>
-          • <strong>확립된 권리 힌트:</strong> "${hintData.right}"
-        `;
-        bubble.classList.add("active");
-        btn.textContent = "💡 힌트 열람 완료 (-5점 감점 반영)";
-        btn.disabled = true;
-        btn.style.opacity = "0.7";
-        hintsUsedStep3[index] = true;
-      }
-    }
-
     function toggleHint4(qName) {
       const bubble = document.getElementById(`hintBubble4_${qName}`);
       const btn = document.getElementById(`hintBtn4_${qName}`);
 
       bubble.classList.add("active");
-      btn.textContent = "💡 힌트 열람 완료 (-10점 감점 반영)";
+      btn.textContent = "💡 힌트 열람 완료";
       btn.disabled = true;
       btn.style.opacity = "0.7";
       hintsUsedStep4[qName] = true;
@@ -1197,54 +965,28 @@
     }
 
     function resetStep1() {
-      if (confirm("1단계 조건 연결 내역을 모두 초기화하고 처음부터 다시 하시겠습니까? 🔄")) {
+      if (confirm("1단계 연결 및 정렬 설정을 모두 초기화하고 처음부터 다시 하시겠습니까? 🔄")) {
         userMatches = {};
         selectedCond = null;
         selectedEvent = null;
         rebuildMatchBadges();
+
+        sortCards = [
+          { id: "e2", title: "근대 시민 혁명과 인권 문서", year: 1789, gen: 0, correctGens: [1, 4] },
+          { id: "e5", title: "세계 인권 선언", year: 1948, gen: 0, correctGens: [3] },
+          { id: "e1", title: "영국 대헌장", year: 1215, gen: 0, correctGens: [1] },
+          { id: "e6", title: "국제 인권 규약", year: 1966, gen: 0, correctGens: [3] },
+          { id: "e3", title: "영국 차티스트 운동", year: 1838, gen: 0, correctGens: [4] },
+          { id: "e4", title: "독일 바이마르 헌법", year: 1919, gen: 0, correctGens: [2] }
+        ];
+        renderSortCards();
       }
     }
 
-    function evaluateStep1() {
-      const matchesCount = Object.keys(userMatches).length;
-      if (matchesCount < 6) {
-        alert("모든 요구 조건 카드를 알맞은 역사적 사건 박스에 연결해 주세요! 🔗");
-        return false;
-      }
-
-      let score = 0;
-      let allCorrect = true;
-      let feedbackHTML = "<h4>🔍 1단계 매칭 평가 피드백</h4><ul>";
-
-      for (let condId in correctMatches) {
-        const userEventId = userMatches[condId];
-        const correctEventId = correctMatches[condId];
-        
-        const eventCard = document.querySelector(`[data-id="${correctEventId}"]`);
-        const eventTitle = eventCard ? eventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim() : "미정";
-
-        if (userEventId === correctEventId) {
-          score += Math.round(100 / 6);
-          feedbackHTML += `<li style="color: #2b8a3e; margin-bottom: 8px;">💚 <strong>정답</strong>: ${eventTitle}<br><small style="color: var(--text-primary); font-size:0.8rem;">${matchExplanations[correctEventId]}</small></li>`;
-        } else {
-          allCorrect = false;
-          const wrongEventCard = userEventId ? document.querySelector(`[data-id="${userEventId}"]`) : null;
-          const wrongTitle = wrongEventCard ? wrongEventCard.textContent.replace(/▲|▼|연결\s*\d+/g, "").trim() : "미지정";
-          feedbackHTML += `<li style="color: #c92a2a; margin-bottom: 8px;">❌ <strong>오류 발견</strong> (선택: ${wrongTitle} ➔ 권장 짝: ${eventTitle})<br><small style="color: var(--text-primary); font-size:0.8rem;">${matchExplanations[correctEventId]}</small></li>`;
-        }
-      }
-
-      if (score > 95) score = 100;
-      feedbackHTML += `</ul><p style="font-weight: 700; margin-top: 14px; font-size: 1.05rem;">📊 연결 정확도 점수: ${score}점 / 100점</p>`;
-
-      // 팝업 모달에 피드백 띄우기 (틀린 내역이 있더라도 학생의 자율적 탐구 선택권 존중을 위해 항상 다음 버튼 노출)
-      openWorksheetModal(feedbackHTML, true, "2단계(연표 정렬)로 가기 👉");
-      return allCorrect;
-    }
-
-    // ================= 2단계 정렬 및 세대 매칭 =================
+    // ================= 1단계 파트 B 정렬 및 세대 매칭 =================
     function renderSortCards() {
       const listContainer = document.getElementById("sortableList");
+      if (!listContainer) return;
       listContainer.innerHTML = "";
 
       sortCards.forEach((card, index) => {
@@ -1300,119 +1042,83 @@
       }
     }
 
-    // 초기화
-    function resetStep2() {
-      if (confirm("2단계의 카드 정렬 순서와 세대 분류 설정을 모두 초기화하시겠습니까? 🔄")) {
-        sortCards = [
-          { id: "e2", title: "근대 시민 혁명과 인권 문서", year: 1789, gen: 0, correctGens: [1, 4] },
-          { id: "e5", title: "세계 인권 선언", year: 1948, gen: 0, correctGens: [3] },
-          { id: "e1", title: "영국 대헌장", year: 1215, gen: 0, correctGens: [1] },
-          { id: "e6", title: "국제 인권 규약", year: 1966, gen: 0, correctGens: [3] },
-          { id: "e3", title: "영국 차티스트 운동", year: 1838, gen: 0, correctGens: [4] },
-          { id: "e4", title: "독일 바이마르 헌법", year: 1919, gen: 0, correctGens: [2] }
-        ];
-        renderSortCards();
+    // [1단계 최종 채점 및 평가]
+    function evaluateStep1() {
+      // 1. 매칭 확인
+      const matchesCount = Object.keys(userMatches).length;
+      if (matchesCount < 6) {
+        alert("모든 요구 조건 카드를 알맞은 역사적 사건 박스에 연결해 주세요! 🔗");
+        return;
       }
-    }
-
-    function evaluateStep2() {
+      // 2. 세대 지정 확인
       const unassigned = sortCards.filter(c => c.gen === 0);
       if (unassigned.length > 0) {
-        alert("모든 카드의 세대/성격 권리 버튼을 하나씩 탭하여 지정해 주세요! 🏷️");
-        return false;
+        alert("모든 카드의 세대/성격 권리 버튼을 지정해 주세요! 🏷️");
+        return;
       }
 
+      let matchScore = 0;
       let sortCorrect = true;
-      let genCorrect = true;
-      let score = 0;
-      let wrongItems = [];
+      let genCorrectCount = 0;
 
+      // 파트 A 채점
+      for (let condId in correctMatches) {
+        if (userMatches[condId] === correctMatches[condId]) {
+          matchScore += 10; // 만점 60점
+        }
+      }
+
+      // 파트 B 채점
       sortCards.forEach((card, index) => {
-        const expectedId = correctSortOrder[index];
-        if (card.id !== expectedId) {
+        if (card.id !== correctSortOrder[index]) {
           sortCorrect = false;
         }
-      });
-
-      sortCards.forEach(card => {
         if (card.correctGens.includes(card.gen)) {
-          score += 10;
-        } else {
-          genCorrect = false;
-          wrongItems.push(card);
+          genCorrectCount++; // 만점 6개
         }
       });
 
-      if (sortCorrect && genCorrect) {
-        score += 40;
-      }
+      const sortScore = sortCorrect ? 20 : 0;
+      const genScore = Math.round((genCorrectCount / 6) * 20);
+      const step1Score = matchScore + sortScore + genScore;
 
-      let feedbackHTML = `<h4>🔍 2단계 연대기 및 세대 채점 피드백</h4>`;
-      if (sortCorrect && genCorrect) {
-        feedbackHTML += `<p style="color: #2b8a3e; font-weight: 700;">💚 완벽합니다! 인권의 역사와 확립 흐름을 정확히 꿰뚫고 있네요! (2단계 점수: 100점/100점)</p>`;
+      let feedbackHTML = `<h4>🔍 1단계 형성평가 종합 피드백</h4>`;
+      feedbackHTML += `<p style="font-weight: bold; font-size: 1.05rem; color: var(--color-purple);">평가 획득 점수: ${step1Score}점 / 100점</p><ul>`;
+
+      // 매칭 피드백
+      if (matchScore === 60) {
+        feedbackHTML += `<li style="color: #2b8a3e; margin-bottom: 6px;">✅ [조건 매칭]: 6개 요구 조건 짝짓기를 완벽하게 완수하셨습니다!</li>`;
       } else {
-        feedbackHTML += `<p style="color: #e67700; font-weight: 700;">⚠️ 약간의 조정이 필요해요. 인과관계를 생각해 볼 수 있는 힌트를 드립니다! (획득 점수: ${score}점/100점)</p><ul>`;
-        
-        if (!sortCorrect) {
-          feedbackHTML += `<li style="margin-bottom: 8px;">⏰ <strong>연표 정렬 힌트</strong>: 사건들이 일어날 수 있었던 '시대적 배경'을 연대별로 복기해 보세요.<br>영국 대헌장(1215) -> 근대 시민혁명 문서(17~18세기) -> 차티스트 운동(1838) -> 독일 바이마르 헌법(1919) -> 세계 인권선언(1948) -> 국제인권규약(1966) 순입니다.</li>`;
-        }
-
-        wrongItems.forEach(card => {
-          feedbackHTML += `<li style="margin-bottom: 8px; color: #c92a2a;">💡 <strong>${card.title} 힌트</strong>: <span style="color: var(--text-primary);">${sortCardHints[card.id]}</span></li>`;
-        });
-        feedbackHTML += "</ul>";
+        feedbackHTML += `<li style="color: #e67700; margin-bottom: 6px;">⚠️ [조건 매칭]: 일부 조건 매칭에 오류가 있습니다. 카드를 다시 눌러 알맞은 짝을 맞춰볼 수 있습니다.</li>`;
       }
 
-      // 최종 피드백 모달 출력 (틀린 내역이 있더라도 항상 다음 버튼 노출)
-      openWorksheetModal(feedbackHTML, true, "3단계(문장 조립)로 가기 👉");
-      return (sortCorrect && genCorrect);
-    }
+      // 정렬 피드백
+      if (sortCorrect) {
+        feedbackHTML += `<li style="color: #2b8a3e; margin-bottom: 6px;">✅ [연대기 정렬]: 1215년부터 1966년까지의 역사적 흐름을 정확히 배열했습니다!</li>`;
+      } else {
+        feedbackHTML += `<li style="color: #c92a2a; margin-bottom: 6px;">❌ [연대기 정렬]: 연표 순서가 맞지 않습니다. (대헌장 ➔ 시민혁명 ➔ 차티스트 ➔ 바이마르 ➔ 세계인권 ➔ 국제규약)</li>`;
+      }
 
-    // ================= 3단계 서술문 빌더 피드백 (Upstage AI 채점 탑재) =================
-    function updateBuilderPlaceholder(setNum) {
-      const select = document.getElementById(`builderSelect_${setNum}`);
-      const val = select.value;
+      // 세대 분류 피드백
+      feedbackHTML += `<li style="color: var(--color-purple); margin-bottom: 6px;">💡 [세대 분류]: 총 6개 중 ${genCorrectCount}개 세대 매칭 완료.</li>`;
       
-      const bubble = document.getElementById(`hintBubble3_${setNum}`);
-      const btn = document.getElementById(`hintBtn3_${setNum}`);
+      feedbackHTML += `</ul><p style="margin-top: 14px; color: var(--text-secondary); font-size:0.85rem;"><strong>💡 다정함 조치:</strong> 100점을 다 채우지 못하더라도, 오답 풀이 해설을 참고하여 언제든지 자유롭게 2단계로 진행해 배움을 이어갈 수 있습니다! 🌿</p>`;
 
-      // 힌트 텍스트 및 버튼 초기화
-      bubble.classList.remove("active");
-      bubble.textContent = val ? "💡 힌트 보기를 누르면 힌트 예시가 열립니다." : "사건을 먼저 위에서 선택해 주세요.";
-      btn.textContent = "💡 정말 어려워요! 힌트 예시 보기 (최종 점수 -5점 감점)";
-      btn.disabled = false;
-      btn.style.opacity = "1";
-      hintsUsedStep3[setNum] = false;
+      // 모달에 피드백 띄우기
+      openWorksheetModal(feedbackHTML, true, "2단계(4세대인권 제안)로 가기 👉");
     }
 
-    async function evaluateStep3() {
-      const events = [];
-      const conditions = [];
-      const rights = [];
+    // ================= 2단계 고차사고력 전이과제 (Solar AI 채점) =================
+    async function evaluateStep2() {
+      const ref4th = document.getElementById("reflection4thGen").value.trim();
 
-      for (let i = 1; i <= 3; i++) {
-        const e = document.getElementById(`builderSelect_${i}`).value;
-        const c = document.getElementById(`builderCondition_${i}`).value.trim();
-        const r = document.getElementById(`builderRight_${i}`).value.trim();
-
-        if (!e || !c || !r) {
-          alert(`사건 분석 ${i}번 블록의 빈칸을 모두 채워 주세요! ✍️`);
-          return false;
-        }
-        events.push(e);
-        conditions.push(c);
-        rights.push(r);
+      if (!ref4th || ref4th.length < 15) {
+        alert("제안하고 싶은 4세대 인권과 타당한 근거를 최소 15자 이상 구체적으로 적어주세요! ✍️");
+        return;
       }
 
-      if (events[0] === events[1] || events[1] === events[2] || events[0] === events[2]) {
-        alert("사건 분석 1, 2, 3의 사건들을 서로 다른 문서로 선택해 주세요! 다양한 사례를 서술해야 학습 성장이 일어납니다. 🌸");
-        return false;
-      }
+      showLoadingModal("AI 보조교사 박병준 봇이 학생이 제안한 4세대 인권의 논리성과 시사 가치를 분석 중입니다... 🤖");
 
-      // AI 로딩 오버레이 띄우기
-      showLoadingModal("AI 보조교사 박병준 봇이 학생이 구성한 3가지 역사적 인과 관계를 분석 중입니다... 🤖");
-
-      // Upstage Solar API 활용한 실시간 채점 요청
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -1421,17 +1127,14 @@
             messages: [
               {
                 role: "system",
-                content: "당신은 고등학교 통합사회 '인권 보장과 헌법' 단원을 지도하는 다정하고 매우 전문적인 AI 보조교사 박병준 봇입니다. 학생이 역사적 사건의 시대적 사회 발생 조건(배경)과 그 결과 획득된 인권 가치를 논리적인 인과관계 문장으로 올바르게 연결하여 서술했는지 친절하고 논리적으로 분석해 줍니다."
+                content: "당신은 고등학교 통합사회 '인권 보장과 헌법' 단원을 지도하는 매우 다정하고 격려 중심의 AI 보조교사 박병준 봇입니다. 학생은 고등학생이므로, 학생이 제안한 4세대 인권과 근거가 완벽하지 않더라도 창의적인 의도가 돋보인다면 매우 허용적(허용적 채점 방식)으로 칭찬해 주고 지지하며, 배움을 심화할 수 있는 핵심 질문 한 가지를 던져서 격려해 주세요. 날카로운 빨간 펜 지적은 전면 삼가해 주십시오."
               },
               {
                 role: "user",
-                content: `학생이 작성한 3가지 인과 문장은 다음과 같습니다.
-1. [사건: ${events[0]}]은/는 [사회 조건: ${conditions[0]}] 때문에 일어났고, 그 결과 [권리: ${rights[0]}]이/가 확립되었다.
-2. [사건: ${events[1]}]은/는 [사회 조건: ${conditions[1]}] 때문에 일어났고, 그 결과 [권리: ${rights[1]}]이/가 확립되었다.
-3. [사건: ${events[2]}]은/는 [사회 조건: ${conditions[2]}] 때문에 일어났고, 그 결과 [권리: ${rights[2]}]이/가 확립되었다.
+                content: `학생이 제안한 4세대 인권 내용은 다음과 같습니다:
+- [제안 명칭 및 정당성 근거]: ${ref4th}
 
-위 3가지 문장에 대해 역사적 팩트 오류나 권리 매칭의 어색함이 있는지 대조 분석하고, 피드백을 건네주세요. (대헌장=1세대자유권, 시민혁명=자유/참정권, 차티스트=참정권, 바이마르=2세대사회권, 세계인권선언=3세대연대/보편권, 국제인권규약=연대/구속력).
-반드시 따뜻한 격려 조치와 함께 꼭 줄글 3~4줄 이내로 매우 핵심만 요약해서 한글로 조언해 주세요.`
+위 내용을 허용적으로 채점하여 칭찬하고, 따뜻하게 격려하는 줄글 피드백을 한글로 3줄 이내로 핵심 요약해서 반환해 주세요.`
               }
             ]
           })
@@ -1441,58 +1144,38 @@
         if (resData.success) {
           const aiResponse = resData.message.content;
           const feedbackHTML = `
-            <h4>🤖 AI 보조교사 박병준 봇의 문장 분석</h4>
+            <h4>🤖 AI 보조교사 박병준 봇의 허용적 평가</h4>
             <p style="background: rgba(184, 150, 219, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-purple); font-size: 0.92rem; white-space: pre-wrap;">${aiResponse}</p>
-            <p style="margin-top: 10px; font-weight: bold; color: var(--color-mint);">🌿 3단계 분석 과제가 AI 평가를 정상적으로 통과했습니다!</p>
+            <p style="margin-top: 10px; font-weight: bold; color: var(--color-mint);">🌿 4세대 인권 전이 과제 평가를 정상적으로 완수했습니다! 다음 단계를 진행해 주세요.</p>
           `;
-          openWorksheetModal(feedbackHTML, true, "4단계(메타성찰)로 가기 👉");
+          openWorksheetModal(feedbackHTML, true, "3단계(메타성찰)로 가기 👉");
         } else {
           throw new Error(resData.message);
         }
       } catch (err) {
         console.error("AI grading failed:", err);
-        // 실패 시 로컬 피드백 백업 작동
         const fallbackHTML = `
-          <h4>🔍 3단계 서술형 분석 피드백 (로컬 보조 장치)</h4>
-          <p>• 분석 1 (${events[0]}): "${conditions[0]} ➔ ${rights[0]}"<br>
-          • 분석 2 (${events[1]}): "${conditions[1]} ➔ ${rights[1]}"<br>
-          • 분석 3 (${events[2]}): "${conditions[2]} ➔ ${rights[2]}"</p>
-          <p style="color: var(--color-purple); font-weight:700;">역사적 조건과 획득된 핵심 권리 간의 인과관계 서술을 정상적으로 수집 완료했습니다. 4단계에서 배움 성찰을 마무리해 주세요! 🌿</p>
+          <h4>🔍 2단계 과제 등록 안내 (로컬 백업)</h4>
+          <p>• 제안 내용: "${ref4th}"</p>
+          <p style="color: var(--color-purple); font-weight:700;">작성하신 소중한 배움 제안 내용이 안전하게 수집 완료되었습니다. 3단계 성찰로 이동해 주세요! 🌿</p>
         `;
-        openWorksheetModal(fallbackHTML, true, "4단계(메타성찰)로 가기 👉");
+        openWorksheetModal(fallbackHTML, true, "3단계(메타성찰)로 가기 👉");
       }
-      return true;
     }
 
-    // ================= 4단계 고차사고력 성찰 및 최종 전송 (Upstage AI 성찰 탑재) =================
-    async function evaluateStep4() {
-      const ref4th = document.getElementById("reflection4thGen").value.trim();
+    // ================= 3단계 학습과정 메타성찰 및 최종 제출 =================
+    async function evaluateStep3() {
       const refSelf = document.getElementById("reflectionSelf").value.trim();
 
-      if (!ref4th || !refSelf) {
-        alert("Q1과 Q2의 성찰 서술을 정성껏 채워 주세요! ✍️ 고차적 고민의 흔적은 생기부 기록의 기초가 됩니다.");
-        return false;
+      if (!refSelf || refSelf.length < 15) {
+        alert("오늘 탐구에 대한 본인의 메타인지적 공부 보완책 성찰 저널을 최소 15자 이상 적어주세요! ✍️");
+        return;
       }
 
-      showLoadingModal("AI 튜터가 학생의 4세대 인권 제안과 메타인지 성찰 내용을 조율 및 검토 중입니다... 🤖");
+      showLoadingModal("AI 메타인지 코치가 학생의 학업 취약점 보완 학습 전략을 조율 및 분석 중입니다... 🤖");
 
-      const events = [
-        document.getElementById("builderSelect_1").value,
-        document.getElementById("builderSelect_2").value,
-        document.getElementById("builderSelect_3").value
-      ];
-      const conditions = [
-        document.getElementById("builderCondition_1").value.trim(),
-        document.getElementById("builderCondition_2").value.trim(),
-        document.getElementById("builderCondition_3").value.trim()
-      ];
-      const rights = [
-        document.getElementById("builderRight_1").value.trim(),
-        document.getElementById("builderRight_2").value.trim(),
-        document.getElementById("builderRight_3").value.trim()
-      ];
+      const ref4th = document.getElementById("reflection4thGen").value.trim();
 
-      // Upstage Solar API 활용한 4단계 학습 성찰 피드백
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -1501,16 +1184,14 @@
             messages: [
               {
                 role: "system",
-                content: "당신은 고등학교 통합사회 AI 메타인지 코치입니다. 학생이 제안한 현대적 4세대 인권의 창의성과, 오늘 본인의 학습 과정 중 까다로웠던 점을 보완하기 위해 스스로 처방한 메타인지 학습 전략에 대해 친절하게 칭찬과 핵심 꿀팁을 조언해 줍니다."
+                content: "당신은 고등학교 통합사회 AI 메타인지 코치입니다. 학생이 스스로 고백한 학업적 취약점과 이를 타개하기 위해 수립한 공부 보완책(메타인지 인지 및 보정)을 따뜻하게 공감해 주고, 고등학생 수준에 맞는 실천 팁을 다정하게 조언해 줍니다."
               },
               {
                 role: "user",
-                content: `학생이 작성한 성찰 답변은 다음과 같습니다:
-- [Q1. 내가 제안한 4세대 인권 및 근거]: ${ref4th}
-- [Q2. 가장 모호했던 부분 및 앞으로 나의 메타인지 공부 전략 보완책]: ${refSelf}
+                content: `학생이 작성한 메타인지 성찰 답변은 다음과 같습니다:
+- [모호했던 점 및 처방 전략]: ${refSelf}
 
-학생의 4세대 인권에 담긴 현대 시사 가치를 공감/지지해 주고, 학생이 고백한 학업적 취약점에 대한 공부 처방 전략(메타인지)을 격려해 주세요.
-반드시 줄글로 3~4줄 이내로 매우 핵심만 요약해서 따뜻하게 한국어로 조언해 주세요.`
+이 내용을 따뜻하고 허용적으로 검토하여 격려해 주는 피드백을 한글로 3줄 이내로 조언해 주세요.`
               }
             ]
           })
@@ -1522,66 +1203,51 @@
           const feedbackHTML = `
             <h4>🤖 AI 메타인지 코치 피드백</h4>
             <p style="background: rgba(43, 138, 98, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-mint); font-size: 0.92rem; white-space: pre-wrap;">${aiResponse}</p>
-            <p style="margin-top: 10px; font-weight: bold; color: var(--color-pink);">🎉 모든 인권 역사 탐구를 안전하게 수료했습니다! 고생하셨습니다.</p>
+            <p style="margin-top: 10px; font-weight: bold; color: var(--color-pink);">🎉 모든 인권 역사 탐구를 마쳤습니다! 참 잘하셨습니다.</p>
           `;
           
-          // 최종 구글 시트 전송 실행
-          await submitFinalWorksheet(events, conditions, rights, ref4th, refSelf);
-          
+          await submitFinalWorksheet(ref4th, refSelf);
           openWorksheetModal(feedbackHTML, true, "대시보드로 돌아가기 🎉");
         } else {
           throw new Error(resData.message);
         }
       } catch (err) {
         console.error("AI reflection grading failed:", err);
-        // 실패 시 로컬 피드백 백업 작동
         const fallbackHTML = `
-          <h4>🎉 4단계 탐구 완료! (로컬 백업 안내)</h4>
+          <h4>🎉 3단계 학습 완료! (로컬 백업 완료)</h4>
           <p>• <strong>제안한 4세대 인권:</strong> ${ref4th}</p>
           <p>• <strong>수립한 메타인지 학습전략:</strong> ${refSelf}</p>
-          <p style="color: var(--color-mint); font-weight:700;">학습 성찰 결과 제출이 완료되었습니다. 대시보드로 돌아가 도달도를 확인해 보세요! 🌿</p>
+          <p style="color: var(--color-mint); font-weight:700;">학습 성찰 결과 제출이 완료되었습니다. 대시보드로 돌아갑니다! 🌿</p>
         `;
-        await submitFinalWorksheet(events, conditions, rights, ref4th, refSelf);
+        await submitFinalWorksheet(ref4th, refSelf);
         openWorksheetModal(fallbackHTML, true, "대시보드로 돌아가기 🎉");
       }
-      return true;
     }
 
-    // ================= 4단계 연동 최종 제출 API 송신 =================
-    async function submitFinalWorksheet(events, conditions, rights, ref4th, refSelf) {
+    // ================= 최종 제출 API 송신 =================
+    async function submitFinalWorksheet(ref4th, refSelf) {
       const studentId = localStorage.getItem("sociallms_student_id");
       const savedProfile = localStorage.getItem("sociallms_profile");
       if (!studentId || !savedProfile) return;
 
       const profile = JSON.parse(savedProfile);
 
-      // 감점 총합 계산
-      let penalty = 0;
-      const step3HintsList = [];
-      for (let i = 1; i <= 3; i++) {
-        if (hintsUsedStep3[i]) {
-          penalty += 5;
-          step3HintsList.push(events[i-1] || `사건${i}`);
-        }
-      }
-      const step4HintsList = [];
-      if (hintsUsedStep4.q1) { penalty += 10; step4HintsList.push("Q1_4세대인권"); }
-      if (hintsUsedStep4.q2) { penalty += 10; step4HintsList.push("Q2_학습성찰"); }
-
-      // 1단계 정오 점수 계산
+      // 1단계 점수 동적 재산출
       let matchCorrectCount = 0;
       for (let condId in correctMatches) {
         if (userMatches[condId] === correctMatches[condId]) matchCorrectCount++;
       }
-      // 2단계 정렬 점수 계산
-      let sortCorrectCount = 0;
+      let sortCorrect = true;
+      let genCorrectCount = 0;
       sortCards.forEach((card, index) => {
-        if (card.id === correctSortOrder[index]) sortCorrectCount++;
+        if (card.id !== correctSortOrder[index]) sortCorrect = false;
+        if (card.correctGens.includes(card.gen)) genCorrectCount++;
       });
 
-      // 최종 스코어 산출 (정답 기반 점수에 힌트 감점 차감 적용)
-      const baseScore = Math.round((matchCorrectCount / 6) * 60 + (sortCorrectCount / 6) * 40);
-      const finalScore = Math.max(0, baseScore - penalty);
+      const matchScore = matchCorrectCount * 10;
+      const sortScore = sortCorrect ? 20 : 0;
+      const genScore = Math.round((genCorrectCount / 6) * 20);
+      const finalScore = matchScore + sortScore + genScore;
 
       const payload = {
         action: "submit",
@@ -1589,22 +1255,13 @@
         studentName: profile.name,
         activityId: "c10101_worksheet",
         activityTitle: "인권 역사와 3세대 변화 연표 🏛️",
-        score: `${finalScore}점 (감점 -${penalty}점)`,
+        score: `${finalScore}점`,
         result: JSON.stringify({
-          "분석사건1": events[0],
-          "분석조건1": conditions[0],
-          "분석권리1": rights[0],
-          "분석사건2": events[1],
-          "분석조건2": conditions[1],
-          "분석권리2": rights[1],
-          "분석사건3": events[2],
-          "분석조건3": conditions[2],
-          "분석권리3": rights[2],
+          "매칭정답수": `${matchCorrectCount}개 / 6개`,
+          "연대기정렬성공": sortCorrect ? "성공" : "실패",
+          "세대매칭정답수": `${genCorrectCount}개 / 6개`,
           "Q1_4세대인권상상": ref4th,
-          "Q2_학습과정성찰": refSelf,
-          "힌트사용_3단계": step3HintsList.join(", ") || "없음",
-          "힌트사용_4단계": step4HintsList.join(", ") || "없음",
-          "힌트감점총액": penalty
+          "Q2_학습과정성찰": refSelf
         })
       };
 
@@ -1616,20 +1273,14 @@
         });
         const resData = await res.json();
         if (resData.success) {
-          // 로컬 진행도 업데이트
           const localProgress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
           localProgress["c10101_worksheet"] = "completed";
           localStorage.setItem("sociallms_progress", JSON.stringify(localProgress));
 
-          // 💡 학생의 구체적 학습 수행 텍스트 데이터를 로컬스토리지에 보관 (대시보드 AI 조언 결합용)
           localStorage.setItem("sociallms_worksheet_result_c10101", JSON.stringify({
-            events: events,
-            conditions: conditions,
-            rights: rights,
             ref4th: ref4th,
             refSelf: refSelf
           }));
-          
           localStorage.setItem("sociallms_score_c10101", finalScore);
         }
       } catch (e) {
@@ -1641,7 +1292,7 @@
     function navigateStep(direction) {
       const nextStep = currentStep + direction;
 
-      if (nextStep >= 1 && nextStep <= 4) {
+      if (nextStep >= 1 && nextStep <= 3) {
         document.getElementById(`step${currentStep}`).classList.remove("active");
         document.getElementById(`step${nextStep}`).classList.add("active");
         currentStep = nextStep;
@@ -1649,17 +1300,13 @@
         const btnPrev = document.getElementById("btnPrev");
         const btnNext = document.getElementById("btnNext");
 
+        btnPrev.style.display = currentStep > 1 ? "block" : "none";
+
         if (currentStep === 1) {
-          btnPrev.style.display = "none";
           btnNext.textContent = "1단계 채점하기 🔍";
         } else if (currentStep === 2) {
-          btnPrev.style.display = "block";
           btnNext.textContent = "2단계 채점하기 🔍";
         } else if (currentStep === 3) {
-          btnPrev.style.display = "block";
-          btnNext.textContent = "3단계 채점하기 🔍";
-        } else if (currentStep === 4) {
-          btnPrev.style.display = "block";
           btnNext.textContent = "최종 제출하고 마치기 🎉";
         }
       }
@@ -1672,8 +1319,6 @@
         evaluateStep2();
       } else if (currentStep === 3) {
         evaluateStep3();
-      } else if (currentStep === 4) {
-        evaluateStep4();
       }
     }
   </script>
