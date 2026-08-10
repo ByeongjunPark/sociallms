@@ -226,7 +226,7 @@ async function handleLogin() {
       localStorage.setItem("sociallms_profile", JSON.stringify(data.student));
       
       alert(`로그인 성공! 반가워요, ${data.student.name} 학생 🌸`);
-      checkLoginState();
+      location.reload();
     } else {
       alert(data.message || "로그인에 실패했습니다.");
     }
@@ -1127,17 +1127,8 @@ async function handleTeacherLogin() {
 
   // 교사 모드 활성화 및 세션 세팅
   localStorage.setItem("sociallms_role", "teacher");
-  
-  const authSec = document.getElementById("authSection");
-  const dashboard = document.getElementById("mainDashboard");
-  const tDashboard = document.getElementById("teacherDashboard");
-
-  if (authSec) authSec.style.display = "none";
-  if (dashboard) dashboard.style.display = "none";
-  if (tDashboard) tDashboard.style.display = "block";
-
   passwordInput.value = ""; // 비밀번호 필드 클리어
-  await loadTeacherData();
+  location.reload();
 }
 
 // 교사용 원격 통합 데이터 로드
@@ -1169,8 +1160,10 @@ async function loadTeacherData() {
       // 학번 숫자 기준 순차 정렬
       state.allStudents = data.students.sort((a, b) => parseInt(a["학번 (StudentID)"]) - parseInt(b["학번 (StudentID)"]));
       
-      // 초기에는 학년 전체 필터 적용
       filterTeacherClass();
+      
+      // 교사용 맵핑 핀 데이터 리로드
+      refreshTeacherMapPins();
     } else {
       throw new Error(data.message);
     }
@@ -1214,6 +1207,10 @@ function filterTeacherClass() {
   // 만약 통계 탭이 열려있다면 차트도 실시간 갱신
   if (state.currentTeacherTab === "stats") {
     renderTeacherCharts();
+  } else if (state.currentTeacherTab === "tasks") {
+    renderTasksSection();
+  } else if (state.currentTeacherTab === "map") {
+    drawTeacherPinsOnMap(val);
   }
 }
 
@@ -1392,6 +1389,12 @@ function switchTeacherTab(tab) {
   } else if (tab === "stats") {
     document.getElementById("tSection_stats").style.display = "block";
     renderTeacherCharts(); // 통계 탭 열릴 때 차트 즉시 드로잉 📊
+  } else if (tab === "tasks") {
+    document.getElementById("tSection_tasks").style.display = "block";
+    renderTasksSection();
+  } else if (tab === "map") {
+    document.getElementById("tSection_map").style.display = "block";
+    initTeacherMap();
   }
 }
 
@@ -2263,3 +2266,302 @@ const DIAGNOSTIC_QUESTIONS_DB = {
     explanation: "환율이 오르면(원화 가치 하락) 1달러를 송금하기 위해 더 많은 원화(1,200원 ➔ 1,400원)가 필요하므로 유학생 자녀를 둔 한국 부모의 송금 부담이 커집니다."
   }
 };
+
+// =========================================================================
+// 📝 교사 대시보드 과업별 관제 및 맵핑 시각화 연동 추가
+// =========================================================================
+
+state.currentTeacherTask = "c10101";
+let teacherMapInstance = null;
+let teacherMarkerGroup = null;
+let teacherPinsData = [];
+
+function renderTasksSection() {
+  const section = document.getElementById("tSection_tasks");
+  if (!section) return;
+  
+  const students = state.filteredStudents || [];
+  const currentTask = state.currentTeacherTask || "c10101";
+  
+  let totalCount = students.length;
+  let submitCount = 0;
+  let scoresSum = 0;
+  
+  students.forEach(s => {
+    const detailsKey = currentTask === "c10101" 
+      ? "인권 역사와 3세대 변화 연표 🏛️_details" 
+      : "현대 인권 맵핑 및 성찰_details";
+    const isSubmitted = s.activities && s.activities[detailsKey];
+    if (isSubmitted) {
+      submitCount++;
+      const scoreStr = s.activities[currentTask === "c10101" ? "인권 역사와 3세대 변화 연표 🏛️" : "현대 인권 맵핑 및 성찰"];
+      const scoreVal = parseInt(scoreStr) || 100;
+      scoresSum += scoreVal;
+    }
+  });
+  
+  const submitRate = totalCount > 0 ? ((submitCount / totalCount) * 100).toFixed(1) : 0;
+  const avgScore = submitCount > 0 ? (scoresSum / submitCount).toFixed(1) : 0;
+  
+  let tableRows = "";
+  if (students.length === 0) {
+    tableRows = `
+      <tr>
+        <td colspan="10" style="text-align: center; padding: 30px; font-weight: 700; color: var(--text-secondary);">
+          선택된 학급의 학생 정보가 없습니다. 🥺
+        </td>
+      </tr>
+    `;
+  } else {
+    tableRows = students.map(s => {
+      const sId = String(s["학번 (StudentID)"]);
+      const sName = s["이름 (StudentName)"] || "이름미정";
+      const gradeText = sId.length === 4 ? `${sId.substring(0, 1)}학년 ${parseInt(sId.substring(1, 2))}반 ${parseInt(sId.substring(2, 4))}번` : sId;
+      
+      const detailsKey = currentTask === "c10101" 
+        ? "인권 역사와 3세대 변화 연표 🏛️_details" 
+        : "현대 인권 맵핑 및 성찰_details";
+      const details = s.activities && s.activities[detailsKey];
+      
+      if (!details) {
+        return `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText}</td>
+            <td style="padding: 14px 8px; font-weight: 600;">${sName}</td>
+            <td style="padding: 14px 8px;"><span style="background: rgba(201, 42, 42, 0.08); color: #c92a2a; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.75rem;">미제출 ❌</span></td>
+            <td colspan="${currentTask === 'c10101' ? 7 : 5}" style="padding: 14px 8px; text-align: center; color: var(--text-secondary); font-style: italic;">과제를 아직 제출하지 않았습니다.</td>
+          </tr>
+        `;
+      }
+      
+      const submitTimeRaw = details["등록시간 (Timestamp)"] || details["제출시간 (Timestamp)"] || "";
+      const submitTime = submitTimeRaw ? new Date(submitTimeRaw).toLocaleString() : "시간 미상";
+      
+      if (currentTask === "c10101") {
+        const matchCnt = details["매칭정답수"] || "미기입";
+        const isSorted = details["연대기정렬성공"] || "실패";
+        const genCnt = details["세대매칭정답수"] || "미기입";
+        const ref4th = details["Q1_4세대인권상상"] || "미기입";
+        const refSelf = details["Q2_학습과정성찰"] || "미기입";
+        const score = s.activities["인권 역사와 3세대 변화 연표 🏛️"] || "0점";
+        
+        return `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText}</td>
+            <td style="padding: 14px 8px; font-weight: 600;">${sName}</td>
+            <td style="padding: 14px 8px;"><span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.75rem;">제출완료 🌿</span></td>
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--color-purple);">${score}</td>
+            <td style="padding: 14px 8px;">${matchCnt}</td>
+            <td style="padding: 14px 8px; font-weight: 700; color: ${isSorted === '성공' ? '#2b8a3e' : '#c92a2a'};">${isSorted}</td>
+            <td style="padding: 14px 8px;">${genCnt}</td>
+            <td style="padding: 14px 8px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ref4th}">${ref4th}</td>
+            <td style="padding: 14px 8px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${refSelf}">${refSelf}</td>
+            <td style="padding: 14px 8px; font-size: 0.75rem; color: var(--text-secondary);">${submitTime}</td>
+          </tr>
+        `;
+      } else {
+        const quizRes = details["형성평가퀴즈"] || "미기입";
+        const pinCnt = details["등록한핀개수"] || "0개";
+        const essayText = details["시민참여성찰답변"] || "답변 없음";
+        const score = s.activities["현대 인권 맵핑 및 성찰"] || "100점";
+        
+        return `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText}</td>
+            <td style="padding: 14px 8px; font-weight: 600;">${sName}</td>
+            <td style="padding: 14px 8px;"><span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.75rem;">제출완료 🌿</span></td>
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--color-purple);">${score}</td>
+            <td style="padding: 14px 8px;">${quizRes}</td>
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--color-purple);">${pinCnt}</td>
+            <td style="padding: 14px 8px; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${essayText}">${essayText}</td>
+            <td style="padding: 14px 8px; font-size: 0.75rem; color: var(--text-secondary);">${submitTime}</td>
+          </tr>
+        `;
+      }
+    }).join("");
+  }
+  
+  const taskTitle = currentTask === "c10101" ? "🏛️ 과업 1: 인권 역사 연표 & 3세대 변화" : "🗺️ 과업 2: 현대 인권 커뮤니티 맵핑 및 성찰";
+  const headerCols = currentTask === "c10101" 
+    ? `
+      <th style="padding: 12px 8px; width: 12%;">학번</th>
+      <th style="padding: 12px 8px; width: 8%;">이름</th>
+      <th style="padding: 12px 8px; width: 10%;">상태</th>
+      <th style="padding: 12px 8px; width: 8%;">점수</th>
+      <th style="padding: 12px 8px; width: 10%;">매칭 정답수</th>
+      <th style="padding: 12px 8px; width: 10%;">연대기 정렬</th>
+      <th style="padding: 12px 8px; width: 10%;">세대 정답수</th>
+      <th style="padding: 12px 8px; width: 12%;">4세대 상상</th>
+      <th style="padding: 12px 8px; width: 12%;">배움성찰</th>
+      <th style="padding: 12px 8px; width: 8%;">제출시간</th>
+    `
+    : `
+      <th style="padding: 12px 8px; width: 15%;">학번</th>
+      <th style="padding: 12px 8px; width: 10%;">이름</th>
+      <th style="padding: 12px 8px; width: 12%;">상태</th>
+      <th style="padding: 12px 8px; width: 10%;">점수</th>
+      <th style="padding: 12px 8px; width: 15%;">형성평가</th>
+      <th style="padding: 12px 8px; width: 10%;">등록 핀</th>
+      <th style="padding: 12px 8px; width: 18%;">시민 성찰 답변</th>
+      <th style="padding: 12px 8px; width: 10%;">제출시간</th>
+    `;
+  
+  section.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+      <!-- 과업 선택 및 요약 카드 -->
+      <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; border-bottom: 1.5px solid var(--border-glass); padding-bottom: 14px;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin: 0;">📝 과업별 실시간 수행 및 정오답 분석</h3>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary);">과업 필터:</span>
+            <select id="teacherTaskSelect" onchange="changeTeacherTask(this.value)" style="font-family: var(--font-family-body); font-weight: 700; font-size: 0.85rem; padding: 6px 12px; border-radius: 10px; border: 1.5px solid var(--border-glass); background: var(--bg-card); color: var(--text-primary); outline: none; cursor: pointer;">
+              <option value="c10101" ${currentTask === "c10101" ? "selected" : ""}>🏛️ 과업 1: 인권 역사 연표 & 3세대 변화</option>
+              <option value="c10201" ${currentTask === "c10201" ? "selected" : ""}>🗺️ 과업 2: 현대 인권 커뮤니티 맵핑 및 성찰</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- 요약 지표 그리드 -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+          <div style="background: rgba(184, 150, 219, 0.06); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid rgba(184, 150, 219, 0.1);">
+            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 700;">학급 정원</span>
+            <h4 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 800; color: var(--text-primary);">${totalCount}명</h4>
+          </div>
+          <div style="background: rgba(43, 138, 62, 0.06); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid rgba(43, 138, 62, 0.1);">
+            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 700;">제출 학생</span>
+            <h4 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 800; color: #2b8a3e;">${submitCount}명</h4>
+          </div>
+          <div style="background: rgba(201, 42, 42, 0.06); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid rgba(201, 42, 42, 0.1);">
+            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 700;">미제출 학생</span>
+            <h4 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 800; color: #c92a2a;">${totalCount - submitCount}명</h4>
+          </div>
+          <div style="background: rgba(240, 140, 0, 0.06); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid rgba(240, 140, 0, 0.1);">
+            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 700;">제출율</span>
+            <h4 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 800; color: #f08c00;">${submitRate}%</h4>
+          </div>
+          ${currentTask === "c10101" ? `
+          <div style="background: rgba(79, 158, 245, 0.06); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid rgba(79, 158, 245, 0.1);">
+            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 700;">과제 평균 점수</span>
+            <h4 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 800; color: #4f9ef5;">${avgScore}점</h4>
+          </div>
+          ` : ""}
+        </div>
+      </div>
+      
+      <!-- 상세 학생 목록 -->
+      <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass); overflow-x: auto;">
+        <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-primary); margin: 0 0 16px 0;">
+          📋 학생별 상세 제출 현황 (${taskTitle})
+        </h4>
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid rgba(0,0,0,0.06); color: var(--text-secondary); font-weight: 700; background: rgba(0,0,0,0.01);">
+              ${headerCols}
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function changeTeacherTask(taskVal) {
+  state.currentTeacherTask = taskVal;
+  renderTasksSection();
+}
+
+async function refreshTeacherMapPins() {
+  const select = document.getElementById("teacherClassSelect");
+  const classVal = select ? select.value : "all";
+  
+  try {
+    const response = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "getMappingPins",
+        studentId: "teacher",
+        studentName: "교사"
+      })
+    });
+    
+    const data = await response.json();
+    if (data.success && data.pins) {
+      teacherPinsData = data.pins;
+      drawTeacherPinsOnMap(classVal);
+    }
+  } catch (e) {
+    console.error("Failed to load map pins in teacher dashboard", e);
+  }
+}
+
+function initTeacherMap() {
+  const mapDiv = document.getElementById("teacherMap");
+  if (!mapDiv) return;
+  
+  if (teacherMapInstance) {
+    setTimeout(() => {
+      teacherMapInstance.invalidateSize();
+    }, 100);
+    return;
+  }
+  
+  teacherMapInstance = L.map('teacherMap').setView([35.228, 128.681], 13);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(teacherMapInstance);
+  
+  teacherMarkerGroup = L.layerGroup().addTo(teacherMapInstance);
+  
+  refreshTeacherMapPins();
+}
+
+function drawTeacherPinsOnMap(classFilter) {
+  if (!teacherMarkerGroup || !teacherMapInstance) return;
+  teacherMarkerGroup.clearLayers();
+  
+  let matchCount = 0;
+  
+  teacherPinsData.forEach(pin => {
+    if (classFilter !== "all" && String(pin.gradeClass) !== String(classFilter)) {
+      return;
+    }
+    
+    const lat = parseFloat(pin.lat);
+    const lng = parseFloat(pin.lng);
+    if (isNaN(lat) || isNaN(lng)) return;
+    
+    matchCount++;
+    const marker = L.marker([lat, lng]);
+    
+    const popupContent = `
+      <div style="font-size: 0.85rem; width: 220px; line-height: 1.5;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="rights-badge ${pin.rightsType}" style="padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; color: white; background: var(--color-purple);">${pin.rightsType}</span>
+          <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">${pin.studentName} (${pin.gradeClass ? pin.gradeClass.substring(1) + '반' : ''})</span>
+        </div>
+        <h5 style="margin: 4px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">📍 ${pin.placeName}</h5>
+        <p style="margin: 6px 0; color: var(--text-secondary); font-size: 0.82rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 6px;">
+          <strong>현황:</strong> ${pin.desc}
+        </p>
+        <p style="margin: 4px 0 0 0; color: var(--color-purple); font-size: 0.82rem; font-weight: 700;">
+          <strong>💡 개선안:</strong> ${pin.idea}
+        </p>
+      </div>
+    `;
+    
+    marker.bindPopup(popupContent);
+    teacherMarkerGroup.addLayer(marker);
+  });
+  
+  const mapCounter = document.getElementById("teacherMapPinCount");
+  if (mapCounter) {
+    mapCounter.textContent = matchCount;
+  }
+}
+

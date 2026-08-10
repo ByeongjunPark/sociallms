@@ -660,7 +660,8 @@
           <!-- 학급 필터 제어 바 -->
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
             <span style="font-size: 0.82rem; color: var(--text-secondary);">💡 지도 위 등록된 핀을 클릭하면 학생들의 개선 아이디어를 볼 수 있습니다.</span>
-            <div style="display: flex; gap: 6px;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button type="button" class="filter-chip" onclick="refreshMappingPins()" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 8px; background: rgba(184, 150, 219, 0.15); color: var(--color-purple); font-weight: 700; border: 1.5px solid rgba(184, 150, 219, 0.3); display: flex; align-items: center; gap: 4px;">🔄 동기화</button>
               <button type="button" id="btnFilterAllPins" onclick="togglePinFilter('all')" class="filter-chip active" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 8px;">🏫 학교 전체 핀</button>
               <button type="button" id="btnFilterClassPins" onclick="togglePinFilter('class')" class="filter-chip" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 8px;">👥 우리 반 핀만</button>
             </div>

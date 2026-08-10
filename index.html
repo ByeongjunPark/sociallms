@@ -7,6 +7,9 @@
   <meta name="description" content="고등학교 통합사회 7개 성취기준에 맞춤화된 인터랙티브 배움 대시보드">
   <!-- Chart.js CDN 탑재 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <!-- 🗺️ Leaflet.js 라이브러리 로드 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="stylesheet" href="css/style.css">
   <style>
     /* 로그인 & 회원가입 전용 스타일 추가 */
@@ -144,6 +147,26 @@
       0%, 100% { transform: scale(0.6); opacity: 0.5; }
       50% { transform: scale(1.2); opacity: 1; }
     }
+    /* 🗺️ 교사용 지도 및 핀 스타일 정의 */
+    #teacherMap {
+      height: 480px;
+      border-radius: 20px;
+      z-index: 10;
+      border: 1.5px solid var(--border-glass);
+      box-shadow: var(--shadow-normal);
+    }
+    .rights-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+    }
+    .rights-badge.환경권 { background: #2b8a3e; }
+    .rights-badge.안전권 { background: #e03131; }
+    .rights-badge.주거권 { background: #f08c00; }
+    .rights-badge.디지털 { background: #1971c2; }
   </style>
 </head>
 <body>
@@ -781,6 +804,8 @@
           <button id="tTabBtn_list" type="button" class="filter-chip active" onclick="switchTeacherTab('list')">👥 학생 목록 & 진도</button>
           <button id="tTabBtn_group" type="button" class="filter-chip" onclick="switchTeacherTab('group')">🤖 AI 스마트 모둠 편성</button>
           <button id="tTabBtn_stats" type="button" class="filter-chip" onclick="switchTeacherTab('stats')">📊 종합 성향 및 학업 통계</button>
+          <button id="tTabBtn_tasks" type="button" class="filter-chip" onclick="switchTeacherTab('tasks')">📝 과업별 제출 & 정오답</button>
+          <button id="tTabBtn_map" type="button" class="filter-chip" onclick="switchTeacherTab('map')">🗺️ 학급 커뮤니티 맵핑</button>
         </div>
       </div>
 
@@ -969,6 +994,26 @@
               </div>
             </div>
           </div>
+      </section>
+
+      <!-- [교사 탭 4] 과업별 제출 및 정오답 현황 -->
+      <section id="tSection_tasks" class="teacher-tab-section" style="display: none;">
+        <!-- JS로 동적 렌더링 예정 -->
+      </section>
+
+      <!-- [교사 탭 5] 학급 커뮤니티 맵핑 현황 -->
+      <section id="tSection_map" class="teacher-tab-section" style="display: none;">
+        <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <span>🗺️ 학급 커뮤니티 맵핑 관제 실시간 지도</span>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 8px;">
+              선택 학급 총 등록 핀: <strong id="teacherMapPinCount" style="color: var(--color-purple);">0</strong>개
+            </span>
+          </h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 20px;">
+            학생들이 📍2단계 커뮤니티 맵핑 활동에서 등록한 실시간 장소 침해 현황 및 개선 아이디어가 지도에 표출됩니다.
+          </p>
+          <div id="teacherMap"></div>
         </div>
       </section>
     </div>
