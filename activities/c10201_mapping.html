@@ -439,7 +439,7 @@
           <div class="quiz-card" id="quizCard_2">
             <h4 class="quiz-title">Q2. 쾌적하고 안정적인 주거 환경에서 인간다운 주거 생활을 영위할 권리를 뜻하며, 우리 헌법 제35조 3항에서 국가는 주택 개발 정책 등을 통해 모든 국민의 이 권리를 위해 노력해야 한다고 규정한 현대적 인권은 무엇인가? (초성 힌트: ㅈㄱㄱ)</h4>
             <div class="quiz-options" style="gap:0;">
-              <input type="text" id="quizInput_2" class="reflection-textarea" style="min-height: 48px; font-weight:700; background:rgba(255,255,255,0.7); border:1.5px solid rgba(0,0,0,0.05); border-radius:12px; padding:12px 16px; outline:none;" placeholder="정답을 한글로 입력해 주세요. (예: 주거권)" oninput="state.quizAnswers.q2 = this.value">
+              <input type="text" id="quizInput_2" class="reflection-textarea" style="min-height: 48px; font-weight:700; background:rgba(255,255,255,0.7); border:1.5px solid rgba(0,0,0,0.05); border-radius:12px; padding:12px 16px; outline:none;" placeholder="정답을 한글로 입력해 주세요. (예: 주거권)" oninput="mappingState.quizAnswers.q2 = this.value">
             </div>
             <div class="quiz-feedback" id="quizFeedback_2"></div>
           </div>
@@ -448,7 +448,7 @@
           <div class="quiz-card" id="quizCard_3">
             <h4 class="quiz-title">Q3. 생명과 안녕을 위협하는 각종 위험(재해, 전염병 등)으로부터 안전할 권리를 뜻하며, 국가는 재해 예방 및 안전 신문고, 긴급 재난 문자 운영 등을 통해 국민을 보호할 헌법적 의무를 지는 권리는 무엇인지 선택하세요.</h4>
             <div class="quiz-options" style="gap:0;">
-              <select id="quizSelect_3" onchange="state.quizAnswers.q3 = this.value" style="width:100%; padding:14px; border-radius:14px; border:1.5px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.7); font-family:var(--font-family-body); font-size:0.9rem; font-weight:600; color:var(--text-primary); outline:none;">
+              <select id="quizSelect_3" onchange="mappingState.quizAnswers.q3 = this.value" style="width:100%; padding:14px; border-radius:14px; border:1.5px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.7); font-family:var(--font-family-body); font-size:0.9rem; font-weight:600; color:var(--text-primary); outline:none;">
                 <option value="">[ 권리 종류를 선택해 주세요 ]</option>
                 <option value="주거권">🏠 주거권</option>
                 <option value="환경권">🌿 환경권</option>
@@ -623,7 +623,7 @@
     const ACTIVITY_ID = "c10201_mapping";
     
     // 로컬 상태 변수
-    const state = {
+    const mappingState = {
       student: { studentId: "", gradeClass: "", name: "", emoji: "👧" },
       currentStep: 1,
       quizAnswers: { q1: "", q2: "", q3: "", q4: "", q5: "" },
@@ -665,18 +665,24 @@
 
       if (savedProfile) {
         const parsed = JSON.parse(savedProfile);
-        state.student = {
-          studentId: parsed["학번 (StudentID)"] || parsed.studentId || "",
-          name: parsed["이름 (StudentName)"] || parsed.name || "학생",
+        mappingState.student = {
+          studentId: parsed["학번 (StudentID)"] || parsed.studentId || parsed.student_id || "",
+          name: parsed["이름 (StudentName)"] || parsed.name || parsed.studentName || "학생",
           emoji: parsed["캐릭터 (Emoji)"] || parsed.emoji || "👧",
           gradeClass: parsed.gradeClass || ""
         };
+        
+        // 학번 백업 복구
+        if (!mappingState.student.studentId) {
+          mappingState.student.studentId = localStorage.getItem("sociallms_student_id") || "";
+        }
+        
         // gradeClass가 없고 studentId가 4자리라면 학반 추출
-        if (!state.student.gradeClass && state.student.studentId.length === 4) {
-          state.student.gradeClass = state.student.studentId.substring(0, 2);
+        if (!mappingState.student.gradeClass && mappingState.student.studentId.length === 4) {
+          mappingState.student.gradeClass = mappingState.student.studentId.substring(0, 2);
         }
 
-        badge.textContent = `${state.student.emoji} ${state.student.gradeClass ? state.student.gradeClass.substring(0,1) + '학년 ' + parseInt(state.student.gradeClass.substring(1)) + '반 ' : ''}${state.student.name} 학생`;
+        badge.textContent = `${mappingState.student.emoji} ${mappingState.student.gradeClass ? mappingState.student.gradeClass.substring(0,1) + '학년 ' + parseInt(mappingState.student.gradeClass.substring(1)) + '반 ' : ''}${mappingState.student.name} 학생`;
         document.getElementById("step_login_card").style.display = "none";
       } else {
         // 비로그인 사용자 폼 노출
@@ -687,7 +693,7 @@
 
     // 퀴즈 라디오 클릭 헬퍼
     function selectQuizOption(qNumber, optionVal, element) {
-      if (state.quizGraded) return; // 이미 채점 완료면 잠금
+      if (mappingState.quizGraded) return; // 이미 채점 완료면 잠금
 
       // 동일 문항의 다른 카드 라벨 클래스 지우기
       const cards = element.parentNode.querySelectorAll(".quiz-option-label");
@@ -698,12 +704,12 @@
       const radio = element.querySelector(".quiz-option-input");
       if (radio) radio.checked = true;
 
-      state.quizAnswers[`q${qNumber}`] = optionVal;
+      mappingState.quizAnswers[`q${qNumber}`] = optionVal;
     }
 
     // 1단계 형성평가 제출 채점
     function gradeStep1Quiz() {
-      if (!state.quizAnswers.q1 || !state.quizAnswers.q2 || !state.quizAnswers.q3 || !state.quizAnswers.q4 || !state.quizAnswers.q5) {
+      if (!mappingState.quizAnswers.q1 || !mappingState.quizAnswers.q2 || !mappingState.quizAnswers.q3 || !mappingState.quizAnswers.q4 || !mappingState.quizAnswers.q5) {
         alert("아직 풀지 않은 문제가 있습니다. 5문항을 모두 선택해 주세요! 📝");
         return;
       }
@@ -712,7 +718,7 @@
       
       // 개별 문항 채점 피드백 렌더링
       for (let i = 1; i <= 5; i++) {
-        const selected = state.quizAnswers[`q${i}`];
+        const selected = mappingState.quizAnswers[`q${i}`];
         const feedbackBox = document.getElementById(`quizFeedback_${i}`);
         const card = document.getElementById(`quizCard_${i}`);
         let isCorrect = false;
@@ -776,7 +782,7 @@
         feedbackBox.style.display = "block";
       }
       
-      state.quizGraded = true;
+      mappingState.quizGraded = true;
 
       if (score === 100) {
         alert("🎉 100점 만점 정답입니다! 2단계 커뮤니티 맵핑(인권 실천) 과제가 해금되었습니다. 하단 [다음으로] 단추를 눌러주세요!");
@@ -804,7 +810,7 @@
     async function navigateStep(direction) {
       if (direction === 1) {
         // 비로그인 사용자 입력 밸리데이션
-        if (!state.student.studentId || !state.student.name) {
+        if (!mappingState.student.studentId || !mappingState.student.name) {
           const classVal = document.getElementById("inputGradeClass").value;
           const idVal = document.getElementById("inputStudentId").value.trim();
           const nameVal = document.getElementById("inputStudentName").value.trim();
@@ -818,7 +824,7 @@
             return;
           }
 
-          state.student = {
+          mappingState.student = {
             gradeClass: classVal,
             studentId: idVal,
             name: nameVal,
@@ -826,38 +832,38 @@
           };
           
           // 임시 세션 장착
-          localStorage.setItem("sociallms_profile", JSON.stringify(state.student));
+          localStorage.setItem("sociallms_profile", JSON.stringify(mappingState.student));
           localStorage.setItem("sociallms_student_id", idVal);
           loadUserProfile();
         }
 
         // 스텝별 검증
-        if (state.currentStep === 1) {
+        if (mappingState.currentStep === 1) {
           // 퀴즈 채점 완료 확인
-          if (!state.quizGraded) {
+          if (!mappingState.quizGraded) {
             alert("형성평가 제출 및 채점하기 단추를 눌러 먼저 채점을 완료해 주세요! 📝");
             return;
           }
-        } else if (state.currentStep === 2) {
+        } else if (mappingState.currentStep === 2) {
           // 맵핑 핀 3개 체크
-          if (state.myPinsCount < 3) {
-            alert(`📍 현재 꽂으신 핀은 ${state.myPinsCount}개입니다. 우리 지역 인권 관심 마커 핀을 3개 이상 등록하셔야 다음 단계로 가실 수 있습니다!`);
+          if (mappingState.myPinsCount < 3) {
+            alert(`📍 현재 꽂으신 핀은 ${mappingState.myPinsCount}개입니다. 우리 지역 인권 관심 마커 핀을 3개 이상 등록하셔야 다음 단계로 가실 수 있습니다!`);
             return;
           }
         }
       }
 
       // 단계 전환
-      document.getElementById(`step_${state.currentStep}`).classList.remove("active");
-      document.getElementById(`stepIndicator_${state.currentStep}`).classList.remove("active");
+      document.getElementById(`step_${mappingState.currentStep}`).classList.remove("active");
+      document.getElementById(`stepIndicator_${mappingState.currentStep}`).classList.remove("active");
       if (direction === 1) {
-        document.getElementById(`stepIndicator_${state.currentStep}`).classList.add("completed");
+        document.getElementById(`stepIndicator_${mappingState.currentStep}`).classList.add("completed");
       }
 
-      state.currentStep += direction;
+      mappingState.currentStep += direction;
 
-      document.getElementById(`step_${state.currentStep}`).classList.add("active");
-      document.getElementById(`stepIndicator_${state.currentStep}`).classList.add("active");
+      document.getElementById(`step_${mappingState.currentStep}`).classList.add("active");
+      document.getElementById(`stepIndicator_${mappingState.currentStep}`).classList.add("active");
 
       // 헤더 카운터 동기화
       updatePinCounterText();
@@ -866,49 +872,49 @@
       const btnPrev = document.getElementById("btnPrev");
       const btnNext = document.getElementById("btnNext");
 
-      btnPrev.style.display = state.currentStep > 1 ? "block" : "none";
+      btnPrev.style.display = mappingState.currentStep > 1 ? "block" : "none";
 
-      if (state.currentStep === 2) {
+      if (mappingState.currentStep === 2) {
         btnNext.textContent = "성찰 저널로 이동 ➡️";
         // 지도 초기화 기동 (지연 렌더링)
         setTimeout(() => {
           initLeafletMap();
         }, 100);
-      } else if (state.currentStep === 3) {
+      } else if (mappingState.currentStep === 3) {
         btnNext.textContent = "과제 최종 제출하기 🚀";
       } else {
         btnNext.textContent = "다음으로 ✨";
       }
 
       // 최종 제출 처리
-      if (state.currentStep === 4) {
-        state.currentStep = 3; // 복구
+      if (mappingState.currentStep === 4) {
+        mappingState.currentStep = 3; // 복구
         await submitFinalWorksheet();
       }
     }
 
     // 📍 Leaflet 지도 초기화 로직
     function initLeafletMap() {
-      if (state.map) {
+      if (mappingState.map) {
         // 이미 렌더링되어 있으면 지도 리사이즈 동기화 후 복귀
-        state.map.invalidateSize();
+        mappingState.map.invalidateSize();
         return;
       }
 
       // 지도 기본 뷰포트 설정 (학교 근처 또는 대략적인 중심점 설정 - 서울시청 부근을 기본으로 하되 줌)
-      state.map = L.map("map").setView([37.5665, 126.9780], 14);
+      mappingState.map = L.map("map").setView([37.5665, 126.9780], 14);
 
       // OpenStreetMap 타일 레이어 탑재
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(state.map);
+      }).addTo(mappingState.map);
 
       // 마커 그룹 객체 신설
-      state.markerGroup = L.layerGroup().addTo(state.map);
+      mappingState.markerGroup = L.layerGroup().addTo(mappingState.map);
 
       // 지도 클릭 이벤트 리스너 바인딩
-      state.map.on("click", (e) => {
+      mappingState.map.on("click", (e) => {
         onMapClick(e);
       });
 
@@ -921,17 +927,17 @@
       const lat = e.latlng.lat;
       const lng = e.latlng.lng;
 
-      state.selectedLat = lat;
-      state.selectedLng = lng;
+      mappingState.selectedLat = lat;
+      mappingState.selectedLng = lng;
 
       // 임시 배치 마커 표시
-      if (state.tempMarker) {
-        state.map.removeLayer(state.tempMarker);
+      if (mappingState.tempMarker) {
+        mappingState.map.removeLayer(mappingState.tempMarker);
       }
 
-      state.tempMarker = L.marker([lat, lng], {
+      mappingState.tempMarker = L.marker([lat, lng], {
         draggable: false
-      }).addTo(state.map);
+      }).addTo(mappingState.map);
 
       // 등록 폼 펼치기 및 위경도 값 삽입
       document.getElementById("pinRegistrationForm").style.display = "block";
@@ -946,20 +952,20 @@
     // 핀 폼 닫기
     function closePinForm() {
       document.getElementById("pinRegistrationForm").style.display = "none";
-      if (state.tempMarker) {
-        state.map.removeLayer(state.tempMarker);
-        state.tempMarker = null;
+      if (mappingState.tempMarker) {
+        mappingState.map.removeLayer(mappingState.tempMarker);
+        mappingState.tempMarker = null;
       }
-      state.selectedLat = null;
-      state.selectedLng = null;
+      mappingState.selectedLat = null;
+      mappingState.selectedLng = null;
     }
 
     // 핀 카운터 문구 업데이트
     function updatePinCounterText() {
-      const text = `📍 등록된 핀: ${state.myPinsCount} / 3개`;
+      const text = `📍 등록된 핀: ${mappingState.myPinsCount} / 3개`;
       document.getElementById("pinCounterBadge").textContent = text;
       const s2Counter = document.getElementById("step2Counter");
-      if (s2Counter) s2Counter.textContent = `등록 현황: ${state.myPinsCount} / 3개`;
+      if (s2Counter) s2Counter.textContent = `등록 현황: ${mappingState.myPinsCount} / 3개`;
     }
 
     // 개별 핀 저장 및 실시간 등록 전송
@@ -976,12 +982,12 @@
 
       const payload = {
         action: "saveMappingPin",
-        studentId: state.student.studentId,
-        studentName: state.student.name,
-        gradeClass: state.student.gradeClass,
+        studentId: mappingState.student.studentId,
+        studentName: mappingState.student.name,
+        gradeClass: mappingState.student.gradeClass,
         placeName,
-        lat: state.selectedLat,
-        lng: state.selectedLng,
+        lat: mappingState.selectedLat,
+        lng: mappingState.selectedLng,
         rightsType,
         desc,
         idea
@@ -998,7 +1004,7 @@
         if (data.success) {
           alert(data.message);
           
-          state.myPinsCount++;
+          mappingState.myPinsCount++;
           updatePinCounterText();
 
           // 입력 폼 비우기 및 닫기
@@ -1017,7 +1023,7 @@
         alert("서버 연결에 실패하여 핀을 등록하지 못했습니다. 오프라인 모드로 추가합니다.");
         
         // 오프라인 로컬 가상 마크
-        state.myPinsCount++;
+        mappingState.myPinsCount++;
         updatePinCounterText();
         closePinForm();
       }
@@ -1025,12 +1031,12 @@
 
     // 전체 마커 새로고침 긁어오기 (GAS getMappingPins 연계)
     async function refreshMappingPins() {
-      if (!state.map) return;
+      if (!mappingState.map) return;
 
       const payload = {
         action: "getMappingPins",
-        studentId: state.student.studentId, // 브릿지 유효성 통과용 가짜/진짜 데이터 결합
-        studentName: state.student.name
+        studentId: mappingState.student.studentId, // 브릿지 유효성 통과용 가짜/진짜 데이터 결합
+        studentName: mappingState.student.name
       };
 
       try {
@@ -1042,11 +1048,11 @@
 
         const data = await response.json();
         if (data.success && data.pins) {
-          state.allPins = data.pins;
+          mappingState.allPins = data.pins;
           
           // 내 마커 개수 동적 재산출
-          const myPins = data.pins.filter(p => String(p.studentId) === String(state.student.studentId));
-          state.myPinsCount = myPins.length;
+          const myPins = data.pins.filter(p => String(p.studentId) === String(mappingState.student.studentId));
+          mappingState.myPinsCount = myPins.length;
           updatePinCounterText();
 
           // 마커 다시 그리기
@@ -1059,7 +1065,7 @@
 
     // 학급 필터 제어
     function togglePinFilter(filterType) {
-      state.currentFilter = filterType;
+      mappingState.currentFilter = filterType;
       
       const btnAll = document.getElementById("btnFilterAllPins");
       const btnClass = document.getElementById("btnFilterClassPins");
@@ -1077,16 +1083,16 @@
 
     // 지도 상에 필터링된 마커 그리기
     function drawPinsOnMap() {
-      if (!state.markerGroup) return;
+      if (!mappingState.markerGroup) return;
 
       // 기존 핀 지우기
-      state.markerGroup.clearLayers();
+      mappingState.markerGroup.clearLayers();
 
-      const filterClass = state.student.gradeClass;
+      const filterClass = mappingState.student.gradeClass;
 
       // 핀들을 순회하여 조건 만족 시 마커 추가
-      state.allPins.forEach(pin => {
-        if (state.currentFilter === "class" && String(pin.gradeClass) !== String(filterClass)) {
+      mappingState.allPins.forEach(pin => {
+        if (mappingState.currentFilter === "class" && String(pin.gradeClass) !== String(filterClass)) {
           // 우리 반 필터인데 반이 일치하지 않으면 패스
           return;
         }
@@ -1116,7 +1122,7 @@
         `;
 
         marker.bindPopup(popupContent);
-        state.markerGroup.addLayer(marker);
+        mappingState.markerGroup.addLayer(marker);
       });
     }
 
@@ -1135,15 +1141,15 @@
 
       // 최종 제출용 패키지 조립
       const resultObj = {
-        "형성평가퀴즈": `Q1:${state.quizAnswers.q1}, Q2:${state.quizAnswers.q2}, Q3:${state.quizAnswers.q3}, Q4:${state.quizAnswers.q4}, Q5:${state.quizAnswers.q5}`,
-        "등록한핀개수": `${state.myPinsCount}개`,
+        "형성평가퀴즈": `Q1:${mappingState.quizAnswers.q1}, Q2:${mappingState.quizAnswers.q2}, Q3:${mappingState.quizAnswers.q3}, Q4:${mappingState.quizAnswers.q4}, Q5:${mappingState.quizAnswers.q5}`,
+        "등록한핀개수": `${mappingState.myPinsCount}개`,
         "시민참여성찰답변": refText
       };
 
       const payload = {
         action: "submit",
-        studentId: state.student.studentId,
-        studentName: state.student.name,
+        studentId: mappingState.student.studentId,
+        studentName: mappingState.student.name,
         activityTitle: "현대 인권 맵핑 및 성찰",
         score: "100", // 1단계 형성평가 100점 클리어 전제
         result: JSON.stringify(resultObj)
