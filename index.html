@@ -819,12 +819,10 @@
           <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
             <thead>
               <tr style="border-bottom: 2px solid rgba(0,0,0,0.06); color: var(--text-secondary); font-weight: 700;">
-                <th style="padding: 12px 8px; width: 15%;">학번</th>
-                <th style="padding: 12px 8px; width: 15%;">이름</th>
-                <th style="padding: 12px 8px; width: 10%;">캐릭터</th>
-                <th style="padding: 12px 8px; width: 25%;">관심 진로</th>
-                <th style="padding: 12px 8px; width: 15%;">1단원 연표 점수</th>
-                <th style="padding: 12px 8px; width: 15%;">현대 인권 맵핑</th>
+                <th style="padding: 12px 8px; width: 20%;">학번</th>
+                <th style="padding: 12px 8px; width: 20%;">이름</th>
+                <th style="padding: 12px 8px; width: 15%;">캐릭터</th>
+                <th style="padding: 12px 8px; width: 30%;">관심 진로</th>
                 <th style="padding: 12px 8px; text-align: center; width: 15%;">가입 진단정보</th>
               </tr>
             </thead>
@@ -1005,7 +1003,10 @@
       <section id="tSection_map" class="teacher-tab-section" style="display: none;">
         <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
           <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-            <span>🗺️ 학급 커뮤니티 맵핑 관제 실시간 지도</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span>🗺️ 학급 커뮤니티 맵핑 관제 실시간 지도</span>
+              <span id="teacherMapStatus" style="font-size: 0.8rem; font-weight: 700; color: var(--color-purple);"></span>
+            </span>
             <span style="font-size: 0.85rem; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 8px;">
               선택 학급 총 등록 핀: <strong id="teacherMapPinCount" style="color: var(--color-purple);">0</strong>개
             </span>

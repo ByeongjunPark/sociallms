@@ -1247,30 +1247,12 @@ function renderTeacherStudentsTable() {
     // 진로 희망
     const career = s["Q1_희망진로"] || "미정";
 
-    // 1단원 성취도 점수 매칭
-    const actScore = s.activities && s.activities["인권 역사와 3세대 변화 연표 🏛️"];
-    let scoreBadge = `<span style="background: rgba(201, 42, 42, 0.08); color: #c92a2a; padding: 4px 10px; border-radius: 8px; font-weight: 700;">미제출 ❌</span>`;
-    
-    if (actScore !== undefined) {
-      scoreBadge = `<span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700;">제출 (${actScore})</span>`;
-    }
-
-    // 💡 현대 인권 맵핑 과제 점수 매칭
-    const mapScore = s.activities && s.activities["현대 인권 맵핑 및 성찰"];
-    let mapScoreBadge = `<span style="background: rgba(201, 42, 42, 0.08); color: #c92a2a; padding: 4px 10px; border-radius: 8px; font-weight: 700;">미제출 ❌</span>`;
-    
-    if (mapScore !== undefined) {
-      mapScoreBadge = `<span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700;">제출 (${mapScore})</span>`;
-    }
-
     return `
       <tr style="border-bottom: 1px solid rgba(0,0,0,0.04); transition: background 0.2s;">
         <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText} <span style="font-size:0.75rem; color:var(--text-secondary);">(${sId})</span></td>
         <td style="padding: 14px 8px; font-weight: 600;">${sName}</td>
         <td style="padding: 14px 8px; font-size: 1.15rem;">${sEmoji}</td>
         <td style="padding: 14px 8px; color: var(--text-secondary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width: 180px;" title="${career}">${career}</td>
-        <td style="padding: 14px 8px;">${scoreBadge}</td>
-        <td style="padding: 14px 8px;">${mapScoreBadge}</td>
         <td style="padding: 14px 8px; text-align: center;">
           <button type="button" class="gen-btn" style="padding: 4px 10px; font-size:0.75rem; border-color: var(--color-purple); color: var(--color-purple);" onclick="showStudentDetailModal('${sId}')">상세조회 🔍</button>
         </td>
@@ -2287,6 +2269,16 @@ function renderTasksSection() {
   let submitCount = 0;
   let scoresSum = 0;
   
+  // 통계용 변수
+  let timelineSortSuccess = 0;
+  let eventMatchSum = 0;
+  let genMatchSum = 0;
+  
+  let qCorrects = [0, 0, 0, 0, 0];
+  let qTotals = [0, 0, 0, 0, 0];
+  
+  let subjectiveAnswers = [];
+  
   students.forEach(s => {
     const detailsKey = currentTask === "c10101" 
       ? "인권 역사와 3세대 변화 연표 🏛️_details" 
@@ -2297,11 +2289,269 @@ function renderTasksSection() {
       const scoreStr = s.activities[currentTask === "c10101" ? "인권 역사와 3세대 변화 연표 🏛️" : "현대 인권 맵핑 및 성찰"];
       const scoreVal = parseInt(scoreStr) || 100;
       scoresSum += scoreVal;
+      
+      const sId = String(s["학번 (StudentID)"]);
+      const sName = s["이름 (StudentName)"] || "이름미정";
+      const gradeText = sId.length === 4 ? `${sId.substring(0, 1)}학년 ${parseInt(sId.substring(1, 2))}반 ${parseInt(sId.substring(2, 4))}번` : sId;
+      const details = s.activities[detailsKey];
+      
+      if (currentTask === "c10101") {
+        const isSorted = details["연대기정렬성공"] === "성공";
+        if (isSorted) timelineSortSuccess++;
+        
+        const matchCnt = parseInt(details["매칭정답수"]) || 0;
+        eventMatchSum += matchCnt;
+        
+        const genCnt = parseInt(details["세대매칭정답수"]) || 0;
+        genMatchSum += genCnt;
+        
+        subjectiveAnswers.push({
+          gradeText,
+          sName,
+          ref1: details["Q1_4세대인권상상"] || "미입력",
+          ref2: details["Q2_학습과정성찰"] || "미입력"
+        });
+      } else {
+        const quizRes = details["형성평가퀴즈"] || "";
+        const parts = quizRes.split(",");
+        parts.forEach((p, idx) => {
+          const trimmed = p.trim();
+          if (trimmed.startsWith("Q") && idx < 5) {
+            qTotals[idx]++;
+            if (trimmed.endsWith(":O")) {
+              qCorrects[idx]++;
+            }
+          }
+        });
+        
+        subjectiveAnswers.push({
+          gradeText,
+          sName,
+          ref1: details["시민참여성찰답변"] || "답변 없음",
+          ref2: `📍 등록 핀 수: ${details["등록한핀개수"] || "0개"}`
+        });
+      }
     }
   });
   
   const submitRate = totalCount > 0 ? ((submitCount / totalCount) * 100).toFixed(1) : 0;
   const avgScore = submitCount > 0 ? (scoresSum / submitCount).toFixed(1) : 0;
+  
+  // 🗺️ 현대 인권 핀 유형별 분포 통계 (교사 지도 데이터 연동)
+  let rightsDistribution = {};
+  const select = document.getElementById("teacherClassSelect");
+  const classVal = select ? select.value : "all";
+  let totalPinsCount = 0;
+  
+  if (teacherPinsData && teacherPinsData.length > 0) {
+    teacherPinsData.forEach(pin => {
+      if (classVal !== "all" && String(pin.gradeClass) !== String(classVal)) {
+        return;
+      }
+      totalPinsCount++;
+      const rType = pin.rightsType || "기타";
+      rightsDistribution[rType] = (rightsDistribution[rType] || 0) + 1;
+    });
+  }
+  
+  // 1. [과업 1] 통계 대시보드 마크업
+  let statsDashboardHtml = "";
+  if (currentTask === "c10101") {
+    const sortSuccessRate = submitCount > 0 ? ((timelineSortSuccess / submitCount) * 100).toFixed(1) : 0;
+    const avgEventMatch = submitCount > 0 ? (eventMatchSum / submitCount).toFixed(1) : 0;
+    const avgGenMatch = submitCount > 0 ? (genMatchSum / submitCount).toFixed(1) : 0;
+    
+    statsDashboardHtml = `
+      <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+        <h4 style="font-size: 1rem; font-weight: 800; color: var(--color-purple); margin: 0 0 16px 0;">📊 🏛️ 과업 1 학급 정오답 분석 통계</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          <!-- 연대기 최종 정렬 성공률 -->
+          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">연대기 최종 정렬 성공률</span>
+              <strong style="font-size: 0.9rem; color: var(--color-purple);">${sortSuccessRate}%</strong>
+            </div>
+            <div style="height: 12px; background: rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden;">
+              <div style="height: 100%; width: ${sortSuccessRate}%; background: linear-gradient(90deg, var(--color-purple-soft), var(--color-purple)); border-radius: 6px; transition: width 0.5s;"></div>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--text-secondary); display:block; margin-top:6px;">제출 학생 ${submitCount}명 중 ${timelineSortSuccess}명 성공</span>
+          </div>
+          
+          <!-- 역사적 사건 매칭 평균 -->
+          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">역사적 사건 카드 매칭 평균</span>
+              <strong style="font-size: 0.9rem; color: var(--color-pink);">${avgEventMatch} / 5개 (${(avgEventMatch / 5 * 100).toFixed(1)}%)</strong>
+            </div>
+            <div style="height: 12px; background: rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden;">
+              <div style="height: 100%; width: ${(avgEventMatch / 5 * 100)}%; background: linear-gradient(90deg, var(--color-pink-soft), var(--color-pink)); border-radius: 6px; transition: width 0.5s;"></div>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--text-secondary); display:block; margin-top:6px;">1단계: 서구 근대 시민 혁명 시기별 주요 인권 선언 매칭</span>
+          </div>
+
+          <!-- 1~3세대 인권 특징 매칭 평균 -->
+          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">1~3세대 인권 특징 매칭 평균</span>
+              <strong style="font-size: 0.9rem; color: #4f9ef5;">${avgGenMatch} / 5개 (${(avgGenMatch / 5 * 100).toFixed(1)}%)</strong>
+            </div>
+            <div style="height: 12px; background: rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden;">
+              <div style="height: 100%; width: ${(avgGenMatch / 5 * 100)}%; background: linear-gradient(90deg, #a5d8ff, #4f9ef5); border-radius: 6px; transition: width 0.5s;"></div>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--text-secondary); display:block; margin-top:6px;">3단계: 자유권·참정권·사회권·연대권 매칭</span>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    // 2. [과업 2] 통계 대시보드 마크업
+    const qRates = qCorrects.map((correct, idx) => {
+      const total = qTotals[idx] || 1;
+      return ((correct / total) * 100).toFixed(1);
+    });
+    
+    // 인권 유형 분포 차트용 HTML 구성
+    let distRowsHtml = "";
+    const distKeys = Object.keys(rightsDistribution);
+    if (distKeys.length === 0) {
+      distRowsHtml = `<div style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; padding: 20px;">등록된 핀 정보가 없습니다.</div>`;
+    } else {
+      distRowsHtml = distKeys.map(key => {
+        const count = rightsDistribution[key];
+        const pct = totalPinsCount > 0 ? ((count / totalPinsCount) * 100).toFixed(1) : 0;
+        
+        let badgeColor = "var(--color-purple)";
+        if (key === "환경권") badgeColor = "#2b8a3e";
+        else if (key === "안전권") badgeColor = "#e03131";
+        else if (key === "주거권") badgeColor = "#f08c00";
+        else if (key === "디지털") badgeColor = "#1971c2";
+        
+        return `
+          <div style="margin-bottom: 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px; font-size: 0.8rem;">
+              <span class="rights-badge" style="background: ${badgeColor}; padding: 2px 6px; border-radius: 4px; color: white; font-weight:700;">${key}</span>
+              <strong style="color: var(--text-primary); font-size: 0.82rem;">${count}개 (${pct}%)</strong>
+            </div>
+            <div style="height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden;">
+              <div style="height: 100%; width: ${pct}%; background: ${badgeColor}; border-radius: 4px;"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+    
+    statsDashboardHtml = `
+      <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+        <h4 style="font-size: 1rem; font-weight: 800; color: var(--color-purple); margin: 0 0 16px 0;">📊 🗺️ 과업 2 학급 형성평가 & 맵핑 침해유형 분석</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          <!-- 형성평가 문항별 정답률 -->
+          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);">
+            <h5 style="margin: 0 0 14px 0; font-size: 0.88rem; font-weight:800; color: var(--text-primary); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 6px;">📝 형성평가 (Q1~Q5) 문항별 정답률</h5>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
+                  <span>Q1. 인권의 정의와 천부인권 (기본)</span>
+                  <strong>${qRates[0]}%</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
+                  <div style="height:100%; width: ${qRates[0]}%; background: #2b8a3e;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
+                  <span>Q2. 인권 보장 역사의 순서 (역사)</span>
+                  <strong>${qRates[1]}%</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
+                  <div style="height:100%; width: ${qRates[1]}%; background: #4f9ef5;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
+                  <span>Q3. 대한민국 헌법의 기본권 체계 (헌법)</span>
+                  <strong>${qRates[2]}%</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
+                  <div style="height:100%; width: ${qRates[2]}%; background: #f08c00;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
+                  <span>Q4. 기본권 제한 조건과 국가 한계 (제한)</span>
+                  <strong>${qRates[3]}%</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
+                  <div style="height:100%; width: ${qRates[3]}%; background: #e03131;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
+                  <span>Q5. 사회적 약자 소외 구역 참여 (실천)</span>
+                  <strong>${qRates[4]}%</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
+                  <div style="height:100%; width: ${qRates[4]}%; background: var(--color-purple);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 침해 현황 인권 유형별 분포 -->
+          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);">
+            <h5 style="margin: 0 0 14px 0; font-size: 0.88rem; font-weight:800; color: var(--text-primary); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 6px;">🗺️ 등록된 지역 침해 핀 인권 유형 분포</h5>
+            <div style="max-height: 160px; overflow-y:auto; padding-right: 4px;">
+              ${distRowsHtml}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // 3. 주관식 답변 성과물 공유 보드 마크업
+  let subjectiveBoardHtml = "";
+  if (subjectiveAnswers.length === 0) {
+    subjectiveBoardHtml = `
+      <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass); text-align: center; color: var(--text-secondary);">
+        💡 제출된 주관식 성찰 답변이 없습니다.
+      </div>
+    `;
+  } else {
+    const cardTitle = currentTask === "c10101" 
+      ? "💡 학급 4세대 신규 인권 상상 제안 및 학습 과정 성찰 저널" 
+      : "💡 학급 주거·안전·환경/소외 구역 시민 참여 성찰 저널 모음";
+      
+    const answerCards = subjectiveAnswers.map(ans => {
+      const field1Title = currentTask === "c10101" ? "🏛️ 내가 상상하는 4세대 인권 제안" : "📝 시민 참여 성찰 저널 기록";
+      const field2Title = currentTask === "c10101" ? "🌱 학습 과정에 대한 메타인지 성찰" : "📍 활동 요약";
+      
+      return `
+        <div style="background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.05); padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 6px;">
+            <strong style="font-size:0.85rem; color: var(--color-purple);">${ans.sName} <span style="font-size:0.72rem; color:var(--text-secondary); font-weight: normal;">(${ans.gradeText})</span></strong>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; font-weight:700; color: var(--text-secondary); display:block; margin-bottom: 2px;">${field1Title}:</span>
+            <p style="margin: 0; font-size: 0.8rem; color: var(--text-primary); line-height: 1.45; word-break: break-all;">${ans.ref1}</p>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; font-weight:700; color: var(--text-secondary); display:block; margin-bottom: 2px;">${field2Title}:</span>
+            <p style="margin: 0; font-size: 0.8rem; color: var(--color-purple); line-height: 1.45; word-break: break-all;">${ans.ref2}</p>
+          </div>
+        </div>
+      `;
+    }).join("");
+    
+    subjectiveBoardHtml = `
+      <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+        <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-primary); margin: 0 0 16px 0;">${cardTitle}</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; max-height: 380px; overflow-y: auto; padding-right: 6px;">
+          ${answerCards}
+        </div>
+      </div>
+    `;
+  }
   
   let tableRows = "";
   if (students.length === 0) {
@@ -2448,6 +2698,12 @@ function renderTasksSection() {
         </div>
       </div>
       
+      <!-- 학급 전체 정오답/통계 분석 대시보드 (신설) -->
+      ${statsDashboardHtml}
+
+      <!-- 주관식 성찰 모음 보드 (신설) -->
+      ${subjectiveBoardHtml}
+
       <!-- 상세 학생 목록 -->
       <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass); overflow-x: auto;">
         <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-primary); margin: 0 0 16px 0;">
@@ -2476,6 +2732,8 @@ function changeTeacherTask(taskVal) {
 async function refreshTeacherMapPins() {
   const select = document.getElementById("teacherClassSelect");
   const classVal = select ? select.value : "all";
+  const statusEl = document.getElementById("teacherMapStatus");
+  if (statusEl) statusEl.textContent = "동기화 중... 🔄";
   
   try {
     const response = await fetch("/api/auth", {
@@ -2492,9 +2750,13 @@ async function refreshTeacherMapPins() {
     if (data.success && data.pins) {
       teacherPinsData = data.pins;
       drawTeacherPinsOnMap(classVal);
+      if (statusEl) statusEl.textContent = `완료 (${data.pins.length}개) ✅`;
+    } else {
+      if (statusEl) statusEl.textContent = `❌ 실패: ${data.message || '응답 오류'}`;
     }
   } catch (e) {
     console.error("Failed to load map pins in teacher dashboard", e);
+    if (statusEl) statusEl.textContent = `❌ 에러: ${e.message}`;
   }
 }
 

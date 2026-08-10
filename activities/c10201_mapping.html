@@ -662,6 +662,7 @@
             <span style="font-size: 0.82rem; color: var(--text-secondary);">💡 지도 위 등록된 핀을 클릭하면 학생들의 개선 아이디어를 볼 수 있습니다.</span>
             <div style="display: flex; gap: 6px; align-items: center;">
               <button type="button" class="filter-chip" onclick="refreshMappingPins()" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 8px; background: rgba(184, 150, 219, 0.15); color: var(--color-purple); font-weight: 700; border: 1.5px solid rgba(184, 150, 219, 0.3); display: flex; align-items: center; gap: 4px;">🔄 동기화</button>
+              <span id="studentMapStatus" style="font-size: 0.72rem; font-weight: 700; color: var(--color-purple); margin-right: 4px;"></span>
               <button type="button" id="btnFilterAllPins" onclick="togglePinFilter('all')" class="filter-chip active" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 8px;">🏫 학교 전체 핀</button>
               <button type="button" id="btnFilterClassPins" onclick="togglePinFilter('class')" class="filter-chip" style="font-size: 0.72rem; padding: 4px 10px; border-radius: 8px;">👥 우리 반 핀만</button>
             </div>
@@ -1393,6 +1394,9 @@
     async function refreshMappingPins() {
       if (!mappingState.map) return;
 
+      const statusEl = document.getElementById("studentMapStatus");
+      if (statusEl) statusEl.textContent = "동기화 중... 🔄";
+
       const payload = {
         action: "getMappingPins",
         studentId: mappingState.student.studentId, // 브릿지 유효성 통과용 가짜/진짜 데이터 결합
@@ -1417,9 +1421,13 @@
 
           // 마커 다시 그리기
           drawPinsOnMap();
+          if (statusEl) statusEl.textContent = `완료 (${data.pins.length}개) ✅`;
+        } else {
+          if (statusEl) statusEl.textContent = `❌ 실패: ${data.message || '응답 오류'}`;
         }
       } catch (err) {
         console.error("Fetch pins failed:", err);
+        if (statusEl) statusEl.textContent = `❌ 에러: ${err.message}`;
       }
     }
 
