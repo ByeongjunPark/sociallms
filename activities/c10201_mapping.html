@@ -618,7 +618,7 @@
               <strong>우리 주권자 시민들은 공동체에 어떠한 행동으로 참여해야 할까요?</strong>
             </p>
             
-            <textarea id="reflectionContent" rows="6" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6;" placeholder="이전 단계의 맵핑 활동 경험을 연계하여, 주거·안전·환경권 보장을 위한 국가의 책임과 시민 참여 방안에 대해 나의 생각을 조리 있게 4~5줄 이상 서술해 주세요. (최소 50글자 필수)"></textarea>
+            <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6;" placeholder="이전 단계의 맵핑 활동 경험을 연계하여, 주거·안전·환경권 보장을 위한 국가의 책임과 시민 참여 방안에 대해 나의 생각을 조리 있게 4~5줄 이상 서술해 주세요. (최소 50글자 필수)"></textarea>
           </div>
         </div>
 
@@ -667,8 +667,122 @@
       // 프로필 동기화
       loadUserProfile();
 
+      // 이전 작업 내역 복구
+      restoreDraft();
+
       // 지도 초기화는 2단계로 진입할 때 지연 렌더링 기동
     });
+
+    // =============================================
+    // 📦 작업 자동 저장 / 복구 (로컬스토리지 기반)
+    // =============================================
+    const DRAFT_KEY = "sociallms_draft_c10201";
+
+    function saveDraft() {
+      const reflText = document.getElementById("reflectionContent");
+      const draft = {
+        quizAnswers: mappingState.quizAnswers,
+        quizGraded: mappingState.quizGraded,
+        currentStep: mappingState.currentStep,
+        myPinsCount: mappingState.myPinsCount,
+        reflectionContent: reflText ? reflText.value : ""
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+
+    function restoreDraft() {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+
+      let draft;
+      try { draft = JSON.parse(raw); } catch(e) { return; }
+
+      // 퀴즈 답안 복구
+      if (draft.quizAnswers) {
+        mappingState.quizAnswers = { ...mappingState.quizAnswers, ...draft.quizAnswers };
+
+        // Q1 라디오 복구
+        if (draft.quizAnswers.q1) {
+          const inp = document.querySelector(`input[name="q1"][value="${draft.quizAnswers.q1}"]`);
+          if (inp) {
+            inp.checked = true;
+            inp.closest(".quiz-option-label") && inp.closest(".quiz-option-label").classList.add("selected");
+          }
+        }
+        // Q2 텍스트 복구
+        if (draft.quizAnswers.q2) {
+          const inp2 = document.getElementById("quizInput_2");
+          if (inp2) inp2.value = draft.quizAnswers.q2;
+        }
+        // Q3 드롭다운 복구
+        if (draft.quizAnswers.q3) {
+          const sel3 = document.getElementById("quizSelect_3");
+          if (sel3) sel3.value = draft.quizAnswers.q3;
+        }
+        // Q4 라디오 복구
+        if (draft.quizAnswers.q4) {
+          const inp4 = document.querySelector(`input[name="q4"][value="${draft.quizAnswers.q4}"]`);
+          if (inp4) {
+            inp4.checked = true;
+            inp4.closest(".quiz-option-label") && inp4.closest(".quiz-option-label").classList.add("selected");
+          }
+        }
+        // Q5 라디오 복구
+        if (draft.quizAnswers.q5) {
+          const inp5 = document.querySelector(`input[name="q5"][value="${draft.quizAnswers.q5}"]`);
+          if (inp5) {
+            inp5.checked = true;
+            inp5.closest(".quiz-option-label") && inp5.closest(".quiz-option-label").classList.add("selected");
+          }
+        }
+      }
+
+      // 채점 상태 복구 (채점 완료 시 피드백 재렌더링)
+      if (draft.quizGraded) {
+        mappingState.quizGraded = true;
+        gradeStep1Quiz(true); // silent 모드로 채점 재실행
+      }
+
+      // 핀 카운트 복구
+      if (draft.myPinsCount) {
+        mappingState.myPinsCount = draft.myPinsCount;
+        updatePinCounterText();
+      }
+
+      // 성찰 텍스트 복구
+      if (draft.reflectionContent) {
+        const reflText = document.getElementById("reflectionContent");
+        if (reflText) reflText.value = draft.reflectionContent;
+      }
+
+      // 단계 복구 (2단계 이상인 경우 해당 단계로 점프)
+      if (draft.currentStep && draft.currentStep > 1) {
+        jumpToStep(draft.currentStep);
+      }
+    }
+
+    // 단계 직접 점프 (복구용, 검증 없이)
+    function jumpToStep(targetStep) {
+      if (targetStep < 1 || targetStep > 3) return;
+      document.getElementById(`step_${mappingState.currentStep}`).classList.remove("active");
+      document.getElementById(`stepIndicator_${mappingState.currentStep}`).classList.remove("active");
+      for (let s = 1; s < targetStep; s++) {
+        document.getElementById(`stepIndicator_${s}`) && document.getElementById(`stepIndicator_${s}`).classList.add("completed");
+      }
+      mappingState.currentStep = targetStep;
+      document.getElementById(`step_${targetStep}`).classList.add("active");
+      document.getElementById(`stepIndicator_${targetStep}`).classList.add("active");
+
+      const btnPrev = document.getElementById("btnPrev");
+      const btnNext = document.getElementById("btnNext");
+      btnPrev.style.display = targetStep > 1 ? "block" : "none";
+      if (targetStep === 2) {
+        btnNext.textContent = "성찰 저널로 이동 ➡️";
+        setTimeout(() => initLeafletMap(), 200);
+      } else if (targetStep === 3) {
+        btnNext.textContent = "과제 최종 제출하기 🚀";
+      }
+    }
 
     // 프로필 세션 로드
     function loadUserProfile() {
@@ -717,11 +831,13 @@
       if (radio) radio.checked = true;
 
       mappingState.quizAnswers[`q${qNumber}`] = optionVal;
+      saveDraft(); // 선택 즉시 자동 저장
     }
 
     // 1단계 형성평가 제출 채점
-    function gradeStep1Quiz() {
-      if (!mappingState.quizAnswers.q1 || !mappingState.quizAnswers.q2 || !mappingState.quizAnswers.q3 || !mappingState.quizAnswers.q4 || !mappingState.quizAnswers.q5) {
+    function gradeStep1Quiz(silentMode = false) {
+      // silent 복구 모드에서는 미완료 검사 건너뜀
+      if (!silentMode && (!mappingState.quizAnswers.q1 || !mappingState.quizAnswers.q2 || !mappingState.quizAnswers.q3 || !mappingState.quizAnswers.q4 || !mappingState.quizAnswers.q5)) {
         alert("아직 풀지 않은 문제가 있습니다. 5문항을 모두 선택해 주세요! 📝");
         return;
       }
@@ -795,6 +911,9 @@
       }
       
       mappingState.quizGraded = true;
+      saveDraft(); // 채점 완료 상태 저장
+
+      if (silentMode) return; // 복구 호출 시에는 알림 생략
 
       if (score === 100) {
         alert("🎉 100점 만점 정답입니다! 2단계 커뮤니티 맵핑(인권 실천) 과제가 해금되었습니다. 하단 [다음으로] 단추를 눌러주세요!");
@@ -897,6 +1016,9 @@
       } else {
         btnNext.textContent = "다음으로 ✨";
       }
+
+      // 단계 이동 시 자동 저장
+      saveDraft();
 
       // 최종 제출 처리
       if (mappingState.currentStep === 4) {
@@ -1047,6 +1169,7 @@
           
           mappingState.myPinsCount++;
           updatePinCounterText();
+          saveDraft(); // 핀 등록 수 자동 저장
 
           // 입력 폼 비우기 및 닫기
           document.getElementById("pinPlaceName").value = "";
@@ -1066,6 +1189,7 @@
         // 오프라인 로컬 가상 마크
         mappingState.myPinsCount++;
         updatePinCounterText();
+        saveDraft(); // 오프라인 핀 수 저장
         closePinForm();
       }
     }
@@ -1209,6 +1333,7 @@
           const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
           progress[ACTIVITY_ID] = "completed";
           localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+          localStorage.removeItem(DRAFT_KEY); // 임시 저장 삭제
 
           alert("축하합니다! 현대 사회의 다양한 인권 단원 과제 제출이 완료되었습니다! 🌿 참 잘했어요!");
           window.location.href = "../index.html";
@@ -1222,6 +1347,7 @@
         const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
         progress[ACTIVITY_ID] = "completed";
         localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+        localStorage.removeItem(DRAFT_KEY); // 임시 저장 삭제
         window.location.href = "../index.html";
       }
     }
