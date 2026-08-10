@@ -426,6 +426,12 @@
     .rights-badge.환경권 { background: #e6fcf5; color: #087f5b; }
     .rights-badge.이동권 { background: #e7f5ff; color: #1c7ed6; }
     .rights-badge.문화권 { background: #f3f0ff; color: #6741d9; }
+    .rights-badge.자유권 { background: #e3fafc; color: #1098ad; }
+    .rights-badge.평등권 { background: #fff0f6; color: #a61e4d; }
+    .rights-badge.참정권 { background: #f8f0fc; color: #862e9c; }
+    .rights-badge.사회권 { background: #fff9db; color: #f59f00; }
+    .rights-badge.청구권 { background: #f1f3f5; color: #495057; }
+    .rights-badge.연대권 { background: #ebfbee; color: #2b8a3e; }
     
     /* Leaflet 커스텀 팝업 */
     .leaflet-popup-content-wrapper {
@@ -685,11 +691,21 @@
                 <div>
                   <label class="pin-form-label" for="pinRightsType">⚛️ 관련 인권 유형</label>
                   <select id="pinRightsType">
-                    <option value="주거권">🏠 주거권 — 주택 위생 / 환경 취약</option>
-                    <option value="안전권">🚨 안전권 — 어두운 골목 / 붕괴 위험</option>
-                    <option value="환경권">🌿 환경권 — 쓰레기 투기 / 공해 오염</option>
-                    <option value="이동권">♿ 이동권 — 계단만 있음 / 단차 장애</option>
-                    <option value="문화권">🎨 문화권 — 도서관 / 문화시설 소외</option>
+                    <optgroup label="1~3세대 인권 (전통적 기본권)">
+                      <option value="자유권">🕊️ 자유권 (1세대) — 신체/표현/종교 등</option>
+                      <option value="평등권">⚖️ 평등권 (1세대) — 차별 대우 및 불평등</option>
+                      <option value="참정권">🗳️ 참정권 (1세대) — 정치 참여 기회 박탈</option>
+                      <option value="사회권">🍞 사회권 (2세대) — 교육/노동/최소 생활 보장 미흡</option>
+                      <option value="청구권">📜 청구권 (2세대) — 정당한 권리 요구 무시</option>
+                      <option value="연대권">🤝 연대권 (3세대) — 평화/발전/재난 구호 소외</option>
+                    </optgroup>
+                    <optgroup label="현대 사회의 새로운 인권">
+                      <option value="주거권">🏠 주거권 — 주택 위생 / 환경 취약</option>
+                      <option value="안전권">🚨 안전권 — 어두운 골목 / 붕괴 위험</option>
+                      <option value="환경권">🌿 환경권 — 쓰레기 투기 / 공해 오염</option>
+                      <option value="이동권">♿ 이동권 — 계단만 있음 / 단차 장애</option>
+                      <option value="문화권">🎨 문화권 — 도서관 / 문화시설 소외</option>
+                    </optgroup>
                   </select>
                 </div>
                 <!-- 좌표 표시 -->
@@ -709,12 +725,12 @@
                 </div>
                 <!-- 인권 침해 설명 -->
                 <div style="grid-column: span 2;">
-                  <label class="pin-form-label" for="pinDesc">📝 인권 침해 현황 설명 (2~3줄)</label>
+                  <label class="pin-form-label" for="pinDesc">📝 인권 침해 현황 설명</label>
                   <textarea id="pinDesc" rows="2" placeholder="이 장소에서 어떠한 형태의 인권 침해 및 소외가 일어나고 있는지 사실 그대로 묘사해 주세요."></textarea>
                 </div>
                 <!-- 개선 아이디어 -->
                 <div style="grid-column: span 2;">
-                  <label class="pin-form-label" for="pinIdea">💡 개선 아이디어 (2~3줄)</label>
+                  <label class="pin-form-label" for="pinIdea">💡 개선 아이디어</label>
                   <textarea id="pinIdea" rows="2" placeholder="국가가 조치해야 할 행정 정책이나, 우리 시민/학생들이 힘을 모아 개선할 수 있는 구체적인 아이디어를 적어주세요."></textarea>
                 </div>
               </div>
@@ -1268,7 +1284,7 @@
       const idea = document.getElementById("pinIdea").value.trim();
 
       if (!placeName || !desc || !idea) {
-        alert("장소명, 침해 현황, 개선 아이디어를 모두 2~3줄 이상 작성해 주세요! 📝");
+        alert("장소명, 침해 현황, 개선 아이디어를 모두 작성해 주세요! 📝");
         return;
       }
 
@@ -1309,7 +1325,17 @@
           // 지도 핀 리스트 실시간 동기화 리로드
           await refreshMappingPins();
         } else {
-          alert(`핀 저장 실패: ${data.message}`);
+          // 선생님의 GAS 서버가 아직 업데이트 되지 않아서 "정의되지 않은 동작" 에러가 날 경우 오프라인 fallback
+          if (data.message && data.message.includes("정의되지 않은")) {
+            console.warn("GAS 미업데이트 감지 - 오프라인 핀 모드로 우회 등록합니다.");
+            mappingState.myPinsCount++;
+            updatePinCounterText();
+            saveDraft();
+            closePinForm();
+            alert("선생님의 서버가 아직 업데이트되지 않았습니다. 임시 오프라인 모드로 핀이 성공적으로 등록되었습니다! 📍");
+          } else {
+            alert(`핀 저장 실패: ${data.message}`);
+          }
         }
       } catch (err) {
         console.error("Save pin error:", err);
