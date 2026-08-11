@@ -693,27 +693,70 @@ function updateProfileUI() {
     if (nameDisplay) nameDisplay.textContent = formattedName;
     if (welcomeName) welcomeName.textContent = state.student.name;
     
-    // 📊 대시보드 상단 나의 Baseline 프로필 데이터 매핑
+    // 📊 대시보드 상단 나의 Baseline 프로필 데이터 매핑 (진단평가 오답 문항 값 오버랩 엄격 차단)
+    const isDiagnosticValue = (val) => {
+      if (!val) return false;
+      const s = String(val).trim();
+      return /^[①②③④]/.test(s) || s.includes("(오답") || s.includes("(정답");
+    };
+
+    const getExactProfileVal = (exactKey, patternList, defaultVal) => {
+      // 1. 정확한 키 우선 매칭 (단, 진단평가 오답 문자열은 배제)
+      if (studentData[exactKey] !== undefined && studentData[exactKey] !== null) {
+        const val = String(studentData[exactKey]).trim();
+        if (val !== "" && !isDiagnosticValue(val)) {
+          return val;
+        }
+      }
+      // 2. Q10~Q23 진단평가 객관식 문항 키 제외 및 정교한 패턴 탐색
+      for (let k in studentData) {
+        const cleanK = String(k).trim();
+        if (/^Q1[0-9]/.test(cleanK) || /^Q2[0-9]/.test(cleanK)) continue; // Q10, Q11 등 진단문항 제외
+
+        for (let pat of patternList) {
+          if (cleanK === pat || cleanK.includes(pat)) {
+            const candidate = studentData[k];
+            if (candidate !== undefined && candidate !== null) {
+              const val = String(candidate).trim();
+              if (val !== "" && !isDiagnosticValue(val)) {
+                return val;
+              }
+            }
+          }
+        }
+      }
+      return defaultVal;
+    };
+
+    const careerVal = getExactProfileVal("Q1_희망진로", ["Q1_희망진로", "희망진로", "진로"], "진로 미정");
     if (myCareerTag) {
-      myCareerTag.textContent = studentData["Q1_희망진로"] || studentData["Q1_희망진로선택"] || "경영/경제 (미정)";
+      myCareerTag.textContent = careerVal;
     }
     
     if (myTraitsCloud) {
       myTraitsCloud.innerHTML = "";
-      const traitsStr = studentData["Q3_나의특징"] || studentData["Q3_특징"] || "분석적인, 창의적인";
-      const traitsArr = traitsStr.split(",").map(t => t.trim());
-      traitsArr.forEach(trait => {
-        if (trait) {
-          const badge = document.createElement("span");
-          badge.style.cssText = "background: rgba(184, 150, 219, 0.15); color: var(--color-purple); padding: 3px 8px; border-radius: 8px; font-weight: 700; font-size: 0.72rem;";
-          badge.textContent = trait;
-          myTraitsCloud.appendChild(badge);
-        }
-      });
+      const traitsStr = getExactProfileVal("Q3_나의특징", ["Q3_나의특징", "나의특징", "특징"], "");
+      if (traitsStr) {
+        const traitsArr = traitsStr.split(",").map(t => t.trim());
+        traitsArr.forEach(trait => {
+          if (trait) {
+            const badge = document.createElement("span");
+            badge.style.cssText = "background: rgba(184, 150, 219, 0.15); color: var(--color-purple); padding: 3px 8px; border-radius: 8px; font-weight: 700; font-size: 0.72rem;";
+            badge.textContent = trait;
+            myTraitsCloud.appendChild(badge);
+          }
+        });
+      } else {
+        const badge = document.createElement("span");
+        badge.style.cssText = "background: rgba(0,0,0,0.04); color: var(--text-secondary); padding: 3px 8px; border-radius: 8px; font-weight: 600; font-size: 0.72rem;";
+        badge.textContent = "특징 미설정";
+        myTraitsCloud.appendChild(badge);
+      }
     }
     
+    const taskVal = getExactProfileVal("Q5_자신있는과제", ["Q5_자신있는과제", "자신있는과제", "강점과제"], "과제선호 미설정");
     if (myTaskTag) {
-      myTaskTag.textContent = studentData["Q5_자신있는과제"] || studentData["Q5_과제유형"] || "보고서 작성";
+      myTaskTag.textContent = taskVal;
     }
   } else {
     if (nameDisplay) nameDisplay.textContent = "로그아웃";
@@ -745,8 +788,12 @@ async function loadProgressFromServer() {
       CURRICULUM_DATA.forEach(standard => {
         standard.activities.forEach(act => {
           const matchedTabName = Object.keys(serverProgress).find(tabName => {
-            const cleanTab = tabName.replace(/\s+/g, '');
-            const cleanTitle = act.title.replace(/\s+/g, '');
+            const cleanTab = tabName.replace(/\s+/g, '').replace(/🏛️|🗺️|🏛|🗺/g, '');
+            const cleanTitle = act.title.replace(/\s+/g, '').replace(/🏛️|🗺️|🏛|🗺/g, '');
+
+            if (act.id === "c10101_worksheet" && (cleanTab.includes("연표") || cleanTab.includes("3세대"))) return true;
+            if (act.id === "c10201_mapping" && (cleanTab.includes("맵핑") || cleanTab.includes("현대인권"))) return true;
+
             return cleanTitle.includes(cleanTab) || cleanTab.includes(cleanTitle);
           });
           
@@ -1474,6 +1521,84 @@ function renderTeacherCharts() {
   }
 
   // -------------------------------------------------------------
+  // [신규 차트 2-B: AI 경험 & 습관 분석 (Q6, Q7, Q8)]
+  // -------------------------------------------------------------
+  if (teacherCharts.aiExp) teacherCharts.aiExp.destroy();
+  if (teacherCharts.taskPref) teacherCharts.taskPref.destroy();
+
+  const aiExpCounts = {};
+  students.forEach(s => {
+    const exp = s["Q6_AI경험"] || s["Q6_AI활용경험"] || "기본 사용";
+    exp.split(",").forEach(item => {
+      const k = item.trim();
+      if (k) aiExpCounts[k] = (aiExpCounts[k] || 0) + 1;
+    });
+  });
+
+  const ctxAiExp = document.getElementById("chartAiExperience");
+  if (ctxAiExp) {
+    teacherCharts.aiExp = new Chart(ctxAiExp, {
+      type: "bar",
+      data: {
+        labels: Object.keys(aiExpCounts),
+        datasets: [{
+          label: "학생 수",
+          data: Object.values(aiExpCounts),
+          backgroundColor: "rgba(102, 217, 232, 0.65)",
+          borderColor: "var(--color-mint)",
+          borderWidth: 1.5,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { ticks: { stepSize: 1 } } }
+      }
+    });
+  }
+
+  // -------------------------------------------------------------
+  // [신규 차트 2-C: 모둠 선호 역할 & 자신있는 과제 분석 (Q4, Q5)]
+  // -------------------------------------------------------------
+  const roleCounts = {};
+  students.forEach(s => {
+    const r = s["Q4_모둠역할선호"] || s["Q4_역할선호"] || "기획/참여";
+    r.split(",").forEach(item => {
+      const k = item.trim();
+      if (k) roleCounts[k] = (roleCounts[k] || 0) + 1;
+    });
+  });
+
+  const ctxTaskPref = document.getElementById("chartTaskPreference");
+  if (ctxTaskPref) {
+    teacherCharts.taskPref = new Chart(ctxTaskPref, {
+      type: "pie",
+      data: {
+        labels: Object.keys(roleCounts),
+        datasets: [{
+          data: Object.values(roleCounts),
+          backgroundColor: [
+            "rgba(255, 133, 162, 0.75)",
+            "rgba(184, 150, 219, 0.75)",
+            "rgba(102, 217, 232, 0.75)",
+            "rgba(255, 192, 120, 0.75)",
+            "rgba(142, 209, 252, 0.75)"
+          ],
+          borderColor: "var(--bg-card)",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "right" } }
+      }
+    });
+  }
+
+  // -------------------------------------------------------------
   // [차트 3: 진단평가 오답률 리포트 (Q10, Q11, Q12, Q13, Q16, Q17, Q18, Q19)]
   // -------------------------------------------------------------
   const questions = [
@@ -1799,7 +1924,7 @@ async function runAiGrouping() {
             <div class="loading-dot"></div>
             <div class="loading-dot"></div>
           </div>
-          <span>Upstage AI가 ${classText} 학생들의 이질적 성향과 상호보완적 역할을 분석하여 최적의 모둠(학번+이름 포함)을 구성 중입니다... 💡</span>
+          <span>Upstage AI가 ${classText} 학생 전체(${students.length}명)의 이질적 성향과 상호보완적 역할을 분석하여 최적의 모둠을 구성 중입니다... 💡</span>
         </div>
       </div>
     `;
@@ -1807,8 +1932,9 @@ async function runAiGrouping() {
 
   // 1. 프롬프트 조립용 학생 데이터 정제 (학번을 명시적으로 주입)
   const studentsProfileList = students.map((s, idx) => {
-    const sId = String(s["학번 (StudentID)"]);
-    return `${idx + 1}. 학번: ${sId} | 이름: ${s["이름 (StudentName)"]} | 진로: ${s["Q1_희망진로"] || "미정"} | 선호역할: ${s["Q4_모둠역할선호"] || "기획/참여"} | 성향: ${s["Q3_나의특징"] || "분석적인"} | 특기과제: ${s["Q5_자신있는과제"] || "자료조사"}`;
+    const sId = String(s["학번 (StudentID)"] || s["학번"] || "");
+    const sName = String(s["이름 (StudentName)"] || s["이름"] || "");
+    return `${idx + 1}. 학번: ${sId} | 이름: ${sName} | 희망진로: ${s["Q1_희망진로"] || "미정"} | 선호역할: ${s["Q4_모둠역할선호"] || "기획/참여"} | 성향: ${s["Q3_나의특징"] || "분석적인"} | 특기과제: ${s["Q5_자신있는과제"] || "자료조사"}`;
   }).join("\n");
 
   const prompt = `
@@ -2276,6 +2402,13 @@ function renderTasksSection() {
   
   let qCorrects = [0, 0, 0, 0, 0];
   let qTotals = [0, 0, 0, 0, 0];
+  let qChoiceCounts = [
+    { "①": 0, "②": 0, "③": 0, "④": 0 },
+    { "주거권": 0, "기타": 0 },
+    { "안전권": 0, "기타": 0 },
+    { "①": 0, "②": 0, "③": 0, "④": 0 },
+    { "①": 0, "②": 0, "③": 0, "④": 0 }
+  ];
   
   let subjectiveAnswers = [];
   
@@ -2318,8 +2451,28 @@ function renderTasksSection() {
           const trimmed = p.trim();
           if (trimmed.startsWith("Q") && idx < 5) {
             qTotals[idx]++;
-            if (trimmed.endsWith(":O")) {
+            if (trimmed.includes("(O)") || trimmed.endsWith(":O")) {
               qCorrects[idx]++;
+            }
+            
+            // 선택지 파싱
+            const valMatch = trimmed.match(/Q\d+:([^(\s,]+)/);
+            if (valMatch && valMatch[1]) {
+              const choice = valMatch[1].trim();
+              if (idx === 0 || idx === 3 || idx === 4) {
+                if (["①", "②", "③", "④"].includes(choice)) {
+                  qChoiceCounts[idx][choice] = (qChoiceCounts[idx][choice] || 0) + 1;
+                } else if (choice.includes("①")) qChoiceCounts[idx]["①"]++;
+                else if (choice.includes("②")) qChoiceCounts[idx]["②"]++;
+                else if (choice.includes("③")) qChoiceCounts[idx]["③"]++;
+                else if (choice.includes("④")) qChoiceCounts[idx]["④"]++;
+              } else {
+                if (choice === "주거권" || choice === "주거" || choice === "안전권") {
+                  qChoiceCounts[idx][choice] = (qChoiceCounts[idx][choice] || 0) + 1;
+                } else {
+                  qChoiceCounts[idx]["기타"] = (qChoiceCounts[idx]["기타"] || 0) + 1;
+                }
+              }
             }
           }
         });
@@ -2444,56 +2597,68 @@ function renderTasksSection() {
       <div class="card" style="padding: 24px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
         <h4 style="font-size: 1rem; font-weight: 800; color: var(--color-purple); margin: 0 0 16px 0;">📊 🗺️ 과업 2 학급 형성평가 & 맵핑 침해유형 분석</h4>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
-          <!-- 형성평가 문항별 정답률 -->
-          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);">
-            <h5 style="margin: 0 0 14px 0; font-size: 0.88rem; font-weight:800; color: var(--text-primary); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 6px;">📝 형성평가 (Q1~Q5) 문항별 정답률</h5>
+          <!-- 형성평가 문항별 선택지 득표율 & 정오답 분석 -->
+          <div style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04); grid-column: span 2;">
+            <h5 style="margin: 0 0 14px 0; font-size: 0.88rem; font-weight:800; color: var(--text-primary); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 6px;">📝 형성평가 (Q1~Q5) 문항별 선택지(①~④) 득표율 & 정오답 상세 분석</h5>
             
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
-                  <span>Q1. 인권의 정의와 천부인권 (기본)</span>
-                  <strong>${qRates[0]}%</strong>
-                </div>
-                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
-                  <div style="height:100%; width: ${qRates[0]}%; background: #2b8a3e;"></div>
-                </div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
-                  <span>Q2. 인권 보장 역사의 순서 (역사)</span>
-                  <strong>${qRates[1]}%</strong>
-                </div>
-                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
-                  <div style="height:100%; width: ${qRates[1]}%; background: #4f9ef5;"></div>
-                </div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
-                  <span>Q3. 대한민국 헌법의 기본권 체계 (헌법)</span>
-                  <strong>${qRates[2]}%</strong>
-                </div>
-                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
-                  <div style="height:100%; width: ${qRates[2]}%; background: #f08c00;"></div>
-                </div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
-                  <span>Q4. 기본권 제한 조건과 국가 한계 (제한)</span>
-                  <strong>${qRates[3]}%</strong>
-                </div>
-                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
-                  <div style="height:100%; width: ${qRates[3]}%; background: #e03131;"></div>
-                </div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">
-                  <span>Q5. 사회적 약자 소외 구역 참여 (실천)</span>
-                  <strong>${qRates[4]}%</strong>
-                </div>
-                <div style="height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; overflow:hidden;">
-                  <div style="height:100%; width: ${qRates[4]}%; background: var(--color-purple);"></div>
-                </div>
-              </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+              ${(() => {
+                const qQuestionsInfo = [
+                  { title: "Q1. 인권의 정의와 천부인권성", correct: "③" },
+                  { title: "Q2. 쾌적한 주거권과 주거의 안정", correct: "주거권" },
+                  { title: "Q3. 안전하게 살 권리(안전권)", correct: "안전권" },
+                  { title: "Q4. 노동3권과 근로 기준 보장", correct: "④" },
+                  { title: "Q5. 디지털 잊힐 권리(정보인권)", correct: "①" }
+                ];
+
+                return qQuestionsInfo.map((q, idx) => {
+                  const total = qTotals[idx] || 0;
+                  const correct = qCorrects[idx] || 0;
+                  const rate = total > 0 ? ((correct / total) * 100).toFixed(1) : 0;
+                  const optCounts = qChoiceCounts[idx] || {};
+
+                  let optGrid = "";
+                  if (idx === 0 || idx === 3 || idx === 4) {
+                    const choices = ["①", "②", "③", "④"];
+                    optGrid = choices.map(c => {
+                      const cCnt = optCounts[c] || 0;
+                      const cPct = total > 0 ? ((cCnt / total) * 100).toFixed(0) : 0;
+                      const isAns = c === q.correct;
+                      return `
+                        <div style="background: ${isAns ? 'rgba(43, 138, 98, 0.12)' : 'rgba(0,0,0,0.03)'}; padding: 6px 8px; border-radius: 8px; text-align: center; border: ${isAns ? '1.5px solid var(--color-mint)' : '1px solid transparent'};">
+                          <div style="font-weight: 700; font-size:0.78rem; color: ${isAns ? 'var(--color-mint)' : 'var(--text-primary)'};">${c} ${isAns ? '⭕' : ''}</div>
+                          <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top:2px;">${cCnt}명 (${cPct}%)</div>
+                        </div>
+                      `;
+                    }).join("");
+                  } else {
+                    const correctCnt = optCounts[q.correct] || 0;
+                    const otherCnt = total > correctCnt ? total - correctCnt : 0;
+                    optGrid = `
+                      <div style="background: rgba(43, 138, 98, 0.12); padding: 6px 8px; border-radius: 8px; text-align: center; border: 1.5px solid var(--color-mint); grid-column: span 2;">
+                        <div style="font-weight: 700; font-size:0.78rem; color: var(--color-mint);">정답("${q.correct}") ⭕</div>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top:2px;">${correctCnt}명 (${total > 0 ? (correctCnt/total*100).toFixed(0) : 0}%)</div>
+                      </div>
+                      <div style="background: rgba(201,42,42,0.08); padding: 6px 8px; border-radius: 8px; text-align: center; border: 1px solid rgba(201,42,42,0.2); grid-column: span 2;">
+                        <div style="font-weight: 700; font-size:0.78rem; color: #c92a2a;">오답(기타) ❌</div>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top:2px;">${otherCnt}명 (${total > 0 ? (otherCnt/total*100).toFixed(0) : 0}%)</div>
+                      </div>
+                    `;
+                  }
+
+                  return `
+                    <div style="background: rgba(255,255,255,0.7); padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.05);">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:0.8rem;">
+                        <span style="font-weight:700; color:var(--text-primary);">${q.title}</span>
+                        <span style="font-weight:800; color:${rate >= 80 ? 'var(--color-mint)' : rate >= 50 ? 'var(--color-purple)' : '#c92a2a'};">${rate}% (${correct}/${total}명)</span>
+                      </div>
+                      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                        ${optGrid}
+                      </div>
+                    </div>
+                  `;
+                }).join("");
+              })()}
             </div>
           </div>
           
@@ -2825,5 +2990,246 @@ function drawTeacherPinsOnMap(classFilter) {
   if (mapCounter) {
     mapCounter.textContent = matchCount;
   }
+}
+
+// 📋 학생 사전 진단평가(1·3단원 Q10~Q21) 점수 리포트 및 오답노트 모달
+function openDiagnosticReportModal() {
+  const modal = document.getElementById("diagnosticReportModal");
+  const modalBody = document.getElementById("diagnosticReportModalBody");
+  if (!modal || !modalBody) return;
+
+  const savedProfile = localStorage.getItem("sociallms_profile");
+  let studentData = {};
+  if (savedProfile) {
+    try { studentData = JSON.parse(savedProfile); } catch(e){}
+  }
+
+  const sName = state.student.name || studentData.name || "학생";
+
+  const questions = [
+    {
+      id: "Q10",
+      title: "Q10. 일상생활의 기본권 보장 사례와 기본권 종류 매칭",
+      correct: "①",
+      key: "Q10_기본권매칭",
+      type: "choice",
+      options: {
+        "①": "① 참정권 - 만 18세 이상이면 선거에 참여할 수 있는 권리",
+        "②": "② 자유권 - 복지나 교육 시설 제공을 요구하는 권리",
+        "③": "③ 평등권 - 재판을 신청해 청구하는 권리",
+        "④": "④ 사회권 - 내 의지에 따라 행동하고 표현할 수 있는 권리"
+      },
+      explanation: "참정권은 국민이 선거 등을 통해 국가 정치 과정에 직접 또는 간접적으로 참여할 수 있는 권리입니다."
+    },
+    {
+      id: "Q11",
+      title: "Q11. 헌법상 기본권을 제한할 수 있는 정당한 목적이 아닌 것",
+      correct: "④",
+      key: "Q11_기본권제한목적",
+      type: "choice",
+      options: {
+        "①": "① 국가 안전 보장",
+        "②": "② 사회 질서 유지",
+        "③": "③ 공공복리 증진",
+        "④": "④ 특정 종교와 사상의 강제 전파"
+      },
+      explanation: "헌법 제37조 제2항에 따라 기본권은 국가안전보장, 질서유지, 공공복리를 위해서만 법률로 제한할 수 있습니다."
+    },
+    {
+      id: "Q12",
+      title: "Q12. 알바 청소년의 법적 노동 권리와 근로 기준",
+      correct: "④",
+      key: "Q12_청소년근로권",
+      type: "choice",
+      options: {
+        "①": "① 최저임금보다 적어도 합의하면 유효하다",
+        "②": "② 부모 동의 없으면 독자적 임금 청구 불가하다",
+        "③": "③ 근로계약서는 사업주만 보관한다",
+        "④": "④ 주 15시간 이상 일하는 근로자는 유급 휴일(주휴 수당)을 청구할 권리가 생긴다"
+      },
+      explanation: "주 15시간 이상 근무 시 청소년 근로자도 유급휴일(주휴수당)을 지급받을 정당한 법적 권리가 있습니다."
+    },
+    {
+      id: "Q13",
+      title: "Q13. 인권 침해 시 도움을 받을 수 있는 국가 기관과 구제 방법",
+      correct: "①",
+      key: "Q13_인권구제기관",
+      type: "choice",
+      options: {
+        "①": "① 국가인권위원회 - 침해당한 인권 사례를 조사하여 시정 권고를 내린다",
+        "②": "② 법원 - 직접 현장 수사",
+        "③": "③ 경찰서 - 헌법 합치 심판",
+        "④": "④ 헌법재판소 - 개인 간 돈 관계 대행"
+      },
+      explanation: "국가인권위원회는 인권 침해 및 차별 행위를 조사하여 구제 조치 및 시정 권고를 내리는 독립 국가기관입니다."
+    },
+    {
+      id: "Q14",
+      title: "💬 Q14. [생각 토론] 인권 보편주의와 문화 상대주의에 대한 내 생각",
+      key: "Q14_인권보편성토론",
+      type: "essay"
+    },
+    {
+      id: "Q15",
+      title: "💬 Q15. [생각 토론] 모두의 위생/안전과 개인의 기본권 충돌 시 내 의견",
+      key: "Q15_자유vs안전토론",
+      type: "essay"
+    },
+    {
+      id: "Q16",
+      title: "Q16. 경제생활에서 자원을 포기하고 선택하는 '합리적 선택'의 기준",
+      correct: "②",
+      key: "Q16_합리적선택",
+      type: "choice",
+      options: {
+        "①": "① 기회비용을 계산하지 않고 구매",
+        "②": "② 선택을 통해 얻는 편익(이익)이 포기해야 하는 가치(기회비용)보다 클 때 선택한다",
+        "③": "③ 오로지 가장 저렴한 물품만 구매",
+        "④": "④ 소비 활동 중단"
+      },
+      explanation: "합리적 선택이란 순편익(편익 - 기회비용)이 0보다 큰(편익 > 기회비용) 선택을 의미합니다."
+    },
+    {
+      id: "Q17",
+      title: "Q17. 시장에서 상품 가격이 결정되고 변동하는 기본 원리",
+      correct: "①",
+      key: "Q17_시장가격결정",
+      type: "choice",
+      options: {
+        "①": "① 공급량에 비해 구매하려는 수요량이 많아지면 시장 가격이 상승한다",
+        "②": "② 공급 과잉 시 가격 폭등",
+        "③": "③ 담합이나 관보 고시로만 유지",
+        "④": "④ 가격 상승 시 수요량 증가"
+      },
+      explanation: "수요가 공급을 초월하면 초과 수요(희소성 증가)가 발생하여 시장 가격이 상승합니다."
+    },
+    {
+      id: "Q18",
+      title: "Q18. 자산 관리를 위한 은행 예적금과 주식의 특성 비교",
+      correct: "③",
+      key: "Q18_예적금vs주식",
+      type: "choice",
+      options: {
+        "①": "① 예적금이 위험 크고 기대수익 높음",
+        "②": "② 주식은 예금자보호법 전액 보호",
+        "③": "③ 예적금은 원금이 안전하게 지켜지는 편이지만 기대 수익(이자)이 주식 대비 상대적으로 낮다",
+        "④": "④ 매일 원금 전액 소멸"
+      },
+      explanation: "예적금은 저위험·저수익 자산이며, 주식은 고위험·고수익 자산입니다."
+    },
+    {
+      id: "Q19",
+      title: "Q19. '환율' 상승 시(원화 가치 하락) 우리 일상에 미치는 영향",
+      correct: "①",
+      key: "Q19_환율상승영향",
+      type: "choice",
+      options: {
+        "①": "① 해외 유학생 자녀에게 달러 송금 시 학부모의 환전비 부담이 늘어난다",
+        "②": "② 원화 수입 기업 단가 부담 완화",
+        "③": "③ 외국인 관광객 부담 가중",
+        "④": "④ 한국인 여행객 경비 절감"
+      },
+      explanation: "환율이 상승하면 1달러를 구매하는 데 더 많은 원화가 필요하므로 달러 송금 부담이 늘어납니다."
+    },
+    {
+      id: "Q20",
+      title: "💬 Q20. [생각 토론] 시장의 '자율'성과 정부의 '개입' 규제 중 지지 입장",
+      key: "Q20_자율vs개입규제토론",
+      type: "essay"
+    },
+    {
+      id: "Q21",
+      title: "💬 Q21. [생각 토론] 자산 관리 시 최우선 고려 가치",
+      key: "Q21_자산관리우선가치토론",
+      type: "essay"
+    }
+  ];
+
+  const getStudentDiagnosticAns = (qKey, qId) => {
+    if (studentData[qKey] !== undefined && studentData[qKey] !== null && String(studentData[qKey]).trim() !== "") {
+      return String(studentData[qKey]).trim();
+    }
+    for (let k in studentData) {
+      const cleanK = String(k).trim();
+      if (cleanK === qKey || cleanK.startsWith(qId + "_") || cleanK === qId) {
+        if (studentData[k] !== undefined && studentData[k] !== null && String(studentData[k]).trim() !== "") {
+          return String(studentData[k]).trim();
+        }
+      }
+    }
+    return "";
+  };
+
+  let correctCount = 0;
+  let totalChoice = 0;
+  let htmlCards = "";
+
+  questions.forEach(q => {
+    let userAns = getStudentDiagnosticAns(q.key, q.id);
+    userAns = String(userAns).trim();
+
+    if (q.type === "choice") {
+      totalChoice++;
+      const isCorrect = userAns.startsWith(q.correct) || userAns.includes(q.correct);
+      if (isCorrect) correctCount++;
+
+      const statusBadge = isCorrect 
+        ? `<span style="background: rgba(43, 138, 98, 0.15); color: var(--color-mint); padding: 4px 10px; border-radius: 8px; font-weight: 800;">⭕ 정답</span>`
+        : `<span style="background: rgba(201, 42, 42, 0.15); color: #c92a2a; padding: 4px 10px; border-radius: 8px; font-weight: 800;">❌ 오답노트</span>`;
+
+      htmlCards += `
+        <div style="background: rgba(255,255,255,0.6); border: 1.5px solid ${isCorrect ? 'var(--color-mint)' : 'rgba(201,42,42,0.3)'}; border-radius: 18px; padding: 18px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">${q.title}</h5>
+            ${statusBadge}
+          </div>
+          <div style="font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">
+            • <strong>내가 제출한 답:</strong> <span style="color: ${isCorrect ? 'var(--color-mint)' : '#c92a2a'}; font-weight: 700;">${userAns || '미선택'}</span>
+          </div>
+          <div style="font-size: 0.88rem; color: var(--color-purple); font-weight: 700; margin-bottom: 8px;">
+            • <strong>정답 선택지:</strong> ${q.options[q.correct]}
+          </div>
+          <div style="font-size: 0.83rem; background: rgba(184, 150, 219, 0.08); padding: 10px 14px; border-radius: 10px; border-left: 3px solid var(--color-purple); color: var(--text-secondary);">
+            💡 <strong>핵심 해설:</strong> ${q.explanation}
+          </div>
+        </div>
+      `;
+    } else {
+      htmlCards += `
+        <div style="background: rgba(255,255,255,0.6); border: 1.5px solid var(--color-purple-soft); border-radius: 18px; padding: 18px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--color-purple);">${q.title}</h5>
+            <span style="background: rgba(184, 150, 219, 0.15); color: var(--color-purple); padding: 4px 10px; border-radius: 8px; font-weight: 800;">💬 서술/토론</span>
+          </div>
+          <div style="font-size: 0.88rem; color: var(--text-primary);">
+            • <strong>내가 작성한 토론/서술 답변:</strong> <span style="font-weight: 700;">${userAns || '미작성'}</span>
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  const finalScore = Math.round((correctCount / totalChoice) * 100);
+
+  const headerHTML = `
+    <div style="text-align: center; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 16px; margin-bottom: 20px;">
+      <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--color-purple); margin-bottom: 6px;">
+        📋 ${sName} 학생의 1·3단원 사전 진단평가 채점 리포트 & 오답노트
+      </h3>
+      <div style="display: flex; justify-content: center; gap: 16px; margin-top: 10px;">
+        <div style="background: linear-gradient(135deg, var(--color-pink-soft) 0%, rgba(184,150,219,0.3) 100%); padding: 10px 20px; border-radius: 16px; font-weight: 800; color: var(--color-purple); font-size: 1.1rem;">
+          객관식 채점 점수: ${finalScore}점 (${correctCount} / ${totalChoice}개 정답)
+        </div>
+      </div>
+    </div>
+  `;
+
+  modalBody.innerHTML = headerHTML + htmlCards;
+  modal.classList.add("active");
+}
+
+function closeDiagnosticReportModal() {
+  const modal = document.getElementById("diagnosticReportModal");
+  if (modal) modal.classList.remove("active");
 }
 

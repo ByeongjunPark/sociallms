@@ -735,6 +735,9 @@
             <button type="button" class="gen-btn" onclick="consultAiLearningStrategy()" style="width: 100%; margin-top: 6px; background: linear-gradient(135deg, var(--color-pink-soft) 0%, rgba(184, 150, 219, 0.2) 100%); color: var(--color-pink); border-color: var(--color-pink-soft); font-weight: 700; font-size: 0.8rem; padding: 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
               💡 나의 학습방법 AI에게 조언받기
             </button>
+            <button type="button" class="gen-btn" onclick="openDiagnosticReportModal()" style="width: 100%; margin-top: 6px; background: linear-gradient(135deg, rgba(184, 150, 219, 0.2) 0%, var(--color-blue-soft) 100%); color: var(--color-purple); border-color: var(--color-purple-soft); font-weight: 700; font-size: 0.8rem; padding: 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+              📋 1·3단원 사전 진단평가 결과 & 오답노트
+            </button>
           </div>
         </div>
 
@@ -746,6 +749,39 @@
           <div id="studentStandardsProgress" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem; overflow-y: auto; max-height: 180px; flex: 1;">
             <!-- JS로 동적으로 성취기준별 완료/진행중 뱃지를 그림 -->
           </div>
+        </div>
+      </section>
+
+      <!-- 🌟 [학생 전용] 사전 진단평가 결과/오답노트 & AI 메타인지 공부법 전용 대형 액션 카드 바 -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; margin-bottom: 24px;">
+        <!-- 1. 사전 진단평가 채점 리포트 & 오답노트 카드 -->
+        <div class="card" style="padding: 20px 24px; border-radius: 22px; background: linear-gradient(135deg, rgba(184, 150, 219, 0.15) 0%, rgba(102, 217, 232, 0.15) 100%); border: 1.5px solid var(--color-purple-soft); display: flex; justify-content: space-between; align-items: center; gap: 16px; box-shadow: 0 6px 16px rgba(0,0,0,0.03);">
+          <div>
+            <h4 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 800; color: var(--color-purple); display: flex; align-items: center; gap: 6px;">
+              📋 1·3단원 사전 진단평가 결과 & 오답노트
+            </h4>
+            <p style="margin: 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+              가입 시 제출한 12개 문항 채점 점수, ⭕/❌ 오답노트, 정답 해설 및 서술 답변 100% 열람
+            </p>
+          </div>
+          <button type="button" class="gen-btn" onclick="openDiagnosticReportModal()" style="white-space: nowrap; background: var(--color-purple); color: white; border: none; font-weight: 800; font-size: 0.85rem; padding: 12px 20px; border-radius: 16px; cursor: pointer; box-shadow: 0 4px 14px rgba(184, 150, 219, 0.45); transition: transform 0.2s;">
+            결과 & 오답보기 🔍
+          </button>
+        </div>
+
+        <!-- 2. AI 메타인지 맞춤 학습 전략 처방 카드 -->
+        <div class="card" style="padding: 20px 24px; border-radius: 22px; background: linear-gradient(135deg, rgba(255, 133, 162, 0.15) 0%, rgba(255, 192, 120, 0.15) 100%); border: 1.5px solid var(--color-pink-soft); display: flex; justify-content: space-between; align-items: center; gap: 16px; box-shadow: 0 6px 16px rgba(0,0,0,0.03);">
+          <div>
+            <h4 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 800; color: var(--color-pink); display: flex; align-items: center; gap: 6px;">
+              💡 AI 메타인지 공부법 맞춤 조언
+            </h4>
+            <p style="margin: 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+              나의 관심 진로, 인지 성향 및 실제 수행 점수를 기반으로 한 AI 메타인지 학습 처방
+            </p>
+          </div>
+          <button type="button" class="gen-btn" onclick="consultAiLearningStrategy()" style="white-space: nowrap; background: var(--color-pink); color: white; border: none; font-weight: 800; font-size: 0.85rem; padding: 12px 20px; border-radius: 16px; cursor: pointer; box-shadow: 0 4px 14px rgba(255, 133, 162, 0.45); transition: transform 0.2s;">
+            AI 조언받기 🤖
+          </button>
         </div>
       </section>
 
@@ -864,7 +900,21 @@
             <div style="flex:1; position:relative; width:100%; height:80%;"><canvas id="chartTraits"></canvas></div>
           </div>
         </div>
-        <!-- 3. 진단평가 문항 오답률 통계 -->
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 24px;">
+          <!-- 3. AI 활용 경험 및 습관 분석 -->
+          <div class="card" style="padding: 24px; border-radius: 24px; height: 380px; display:flex; flex-direction:column; justify-content:space-between; background: var(--bg-card); border: 1px solid var(--border-glass);">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-left: 4px solid var(--color-mint); padding-left: 8px; margin-bottom: 12px;">🤖 AI 도구 활용 경험 & 학습 습관 (Q6~Q8)</h4>
+            <div style="flex:1; position:relative; width:100%; height:80%;"><canvas id="chartAiExperience"></canvas></div>
+          </div>
+          <!-- 4. 모둠 선호 역할 & 자신 있는 과제 분석 -->
+          <div class="card" style="padding: 24px; border-radius: 24px; height: 380px; display:flex; flex-direction:column; justify-content:space-between; background: var(--bg-card); border: 1px solid var(--border-glass);">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-left: 4px solid var(--color-pink); padding-left: 8px; margin-bottom: 12px;">🎯 모둠 선호 역할 & 자신있는 과제 (Q4~Q5)</h4>
+            <div style="flex:1; position:relative; width:100%; height:80%;"><canvas id="chartTaskPreference"></canvas></div>
+          </div>
+        </div>
+
+        <!-- 5. 진단평가 문항 오답률 통계 -->
         <div class="card" style="padding: 24px; border-radius: 24px; height: 420px; display:flex; flex-direction:column; justify-content:space-between; background: var(--bg-card); border: 1px solid var(--border-glass); margin-bottom: 24px;">
           <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-left: 4px solid var(--color-mint); padding-left: 8px; margin-bottom: 12px;">📊 기초 학업 진단평가 오답률 통계 (문항별 백분율)</h4>
           <div style="flex:1; position:relative; width:100%; height:85%;"><canvas id="chartDiagnostic"></canvas></div>
@@ -893,12 +943,22 @@
             <strong style="color: #c92a2a;">🛡️ 개인정보 안심 가드레일 작동 중:</strong> 학생들의 실명이나 민감한 개인 신상 비밀(싸움, 지병, 가계 곤란, 사생활 등)은 AI 가드에 의해 자동으로 필터링 및 소거된 뒤 종합 트렌드만 분석됩니다.
           </p>
           
-          <button type="button" class="modal-btn primary" id="btnSummarizeTeacherOpinions" onclick="summarizeTeacherOpinions()" style="background: var(--color-purple); font-size: 0.9rem; padding: 10px 22px; margin-bottom: 16px;">
-            🤖 학급 의견 AI 안전 요약 구동
-          </button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 16px;">
+            <button type="button" class="modal-btn primary" id="btnSummarizeTeacherOpinions" onclick="summarizeTeacherOpinions()" style="background: var(--color-purple); font-size: 0.9rem; padding: 10px 22px;">
+              🤖 학급 의견 AI 안전 요약 구동
+            </button>
+            <button type="button" class="modal-btn secondary" id="btnToggleRawOpinions" onclick="toggleTeacherRawOpinions()" style="font-size: 0.88rem; padding: 10px 18px; background: rgba(0,0,0,0.04); color: var(--text-primary); border-radius: 12px; font-weight:700;">
+              📜 학생 작성 원본(Q22/Q23) 전체 보기
+            </button>
+          </div>
 
           <div id="teacherOpinionSummaryBox" style="background: rgba(184, 150, 219, 0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(184, 150, 219, 0.15); min-height: 80px; font-size: 0.9rem; line-height: 1.65; color: var(--text-primary); white-space: pre-wrap;">
             <span style="color: var(--text-secondary);">[AI 요약 구동] 버튼을 누르시면 안전 분석 요약문이 생성됩니다. 🌿</span>
+          </div>
+
+          <!-- Q22/Q23 원본 답변 열람 영역 -->
+          <div id="teacherRawOpinionsBox" style="display: none; margin-top: 16px; background: var(--bg-card); padding: 20px; border-radius: 20px; border: 1.5px solid var(--color-purple-soft); max-height: 360px; overflow-y: auto; font-size: 0.88rem;">
+            <!-- JS로 동적 생성 -->
           </div>
 
           <!-- 🎨 실시간 워드클라우드 영역 추가 -->
@@ -1043,6 +1103,19 @@
       </div>
       <div class="modal-actions">
         <button type="button" class="modal-btn primary" onclick="closeDashboardAiModal()">조언 확인 완료 🌿</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 학생 사전 진단평가 결과 & 오답노트 모달 -->
+  <div id="diagnosticReportModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 720px; width: 92%;">
+      <button type="button" class="modal-close-btn" onclick="closeDiagnosticReportModal()">&times;</button>
+      <div id="diagnosticReportModalBody" class="modal-feedback-body" style="max-height: 540px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6;">
+        <!-- JS로 진단평가 채점 점수, 정답/오답 뱃지 및 해설 카드 렌더링 -->
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn primary" onclick="closeDiagnosticReportModal()" style="background: var(--color-purple);">오답노트 확인 완료 🌸</button>
       </div>
     </div>
   </div>

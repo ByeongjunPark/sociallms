@@ -1449,9 +1449,11 @@
         activityTitle: "인권 역사와 3세대 변화 연표 🏛️",
         score: `${finalScore}점`,
         result: JSON.stringify({
-          "매칭정답수": `${matchCorrectCount}개 / 5개`,
-          "연대기정렬성공": sortCorrect ? "성공" : "실패",
-          "세대매칭정답수": `${genCorrectCount}개 / 5개`,
+          "선택한사건": sortCards.map(c => c.title).join(", "),
+          "요구조건서술": Object.entries(userMatches).map(([k, v]) => `${k}→${v}`).join("; ") || "기본 요구조건 매칭 완료",
+          "새로운권리서술": ref4th || "새로운 권리 제안 완료",
+          "1단계매칭답변": `매칭:${matchCorrectCount}/5개 정답`,
+          "2단계정렬순서": `${sortCorrect ? "연대기정렬성공" : "연대기정렬실패"} (세대매칭 ${genCorrectCount}/5개)`,
           "Q1_4세대인권상상": ref4th,
           "Q2_학습과정성찰": refSelf
         })

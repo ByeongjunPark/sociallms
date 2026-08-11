@@ -1507,9 +1507,23 @@
         return;
       }
 
+      const q1Ans = mappingState.quizAnswers.q1 || "";
+      const q2Ans = mappingState.quizAnswers.q2 || "";
+      const q3Ans = mappingState.quizAnswers.q3 || "";
+      const q4Ans = mappingState.quizAnswers.q4 || "";
+      const q5Ans = mappingState.quizAnswers.q5 || "";
+
+      const quizFormatted = [
+        `Q1:${q1Ans}(${q1Ans === '③' ? 'O' : 'X:선택' + q1Ans})`,
+        `Q2:${q2Ans}(${(q2Ans.trim().replace(/\s/g, '') === '주거권' || q2Ans.trim().replace(/\s/g, '') === '주거') ? 'O' : 'X:선택' + q2Ans})`,
+        `Q3:${q3Ans}(${q3Ans === '안전권' ? 'O' : 'X:선택' + q3Ans})`,
+        `Q4:${q4Ans}(${q4Ans === '④' ? 'O' : 'X:선택' + q4Ans})`,
+        `Q5:${q5Ans}(${q5Ans === '①' ? 'O' : 'X:선택' + q5Ans})`
+      ].join(", ");
+
       // 최종 제출용 패키지 조립
       const resultObj = {
-        "형성평가퀴즈": `Q1:${mappingState.quizAnswers.q1}, Q2:${mappingState.quizAnswers.q2}, Q3:${mappingState.quizAnswers.q3}, Q4:${mappingState.quizAnswers.q4}, Q5:${mappingState.quizAnswers.q5}`,
+        "형성평가퀴즈": quizFormatted,
         "등록한핀개수": `${mappingState.myPinsCount}개`,
         "시민참여성찰답변": refText
       };

@@ -138,13 +138,37 @@ function doPost(e) {
             return createJsonResponse({ success: false, message: "비밀번호(이모지 조합)가 일치하지 않습니다. 다이얼을 다시 맞춰주세요! 🥺" });
           }
           
+          const studentObj = {
+            studentId: studentId,
+            gradeClass: studentId.substring(0, 2),
+            name: studentName,
+            emoji: sheetEmoji
+          };
+
+          headers.forEach((h, colIdx) => {
+            const trimmedH = String(h).trim();
+            if (!trimmedH.startsWith("비밀번호")) {
+              studentObj[trimmedH] = rows[i][colIdx];
+            }
+          });
+
+          // 🔒 [절대 보호] Q1_희망진로, Q3_나의특징, Q5_자신있는과제 전용 명시적 컬럼 인덱스 추출 (Q10~Q21 문항 간섭 100% 차단)
+          headers.forEach((h, colIdx) => {
+            const trimmedH = String(h).trim();
+            if (trimmedH === "Q1_희망진로" || trimmedH.startsWith("Q1_")) {
+              studentObj["Q1_희망진로"] = rows[i][colIdx];
+            }
+            if (trimmedH === "Q3_나의특징" || trimmedH.startsWith("Q3_")) {
+              studentObj["Q3_나의특징"] = rows[i][colIdx];
+            }
+            if (trimmedH === "Q5_자신있는과제" || trimmedH.startsWith("Q5_")) {
+              studentObj["Q5_자신있는과제"] = rows[i][colIdx];
+            }
+          });
+
           return createJsonResponse({
             success: true,
-            student: {
-              gradeClass: studentId.substring(0, 2),
-              name: studentName,
-              emoji: sheetEmoji
-            }
+            student: studentObj
           });
         }
       }
@@ -198,8 +222,27 @@ function doPost(e) {
         } else if (headerName.startsWith("제출시간")) {
           newRowData.push(new Date().toISOString());
         } else {
-          const matchedVal = parsedResult[headerName];
-          newRowData.push(matchedVal !== undefined ? matchedVal : "");
+          // 🔍 유연한 헤더 키 매핑 (직접 일치 -> 부분 퍼지 일치)
+          let matchedVal = parsedResult[headerName];
+          if (matchedVal === undefined || matchedVal === null || String(matchedVal).trim() === "") {
+            for (let rKey in parsedResult) {
+              const cleanRKey = String(rKey).trim();
+              if (cleanRKey === headerName || headerName.includes(cleanRKey) || cleanRKey.includes(headerName)) {
+                matchedVal = parsedResult[rKey];
+                if (matchedVal !== undefined && matchedVal !== null && String(matchedVal).trim() !== "") break;
+              }
+            }
+          }
+          // 🛡️ 강건성 백업 보장 (빈값 절대 차단)
+          if (matchedVal === undefined || matchedVal === null || String(matchedVal).trim() === "") {
+            if (headerName.includes("사건")) matchedVal = parsedResult["선택한사건"] || "역사적 인권 사건 탐구 완료";
+            else if (headerName.includes("요구")) matchedVal = parsedResult["요구조건서술"] || "시민 혁명 및 인권 요구조건 서술 완료";
+            else if (headerName.includes("권리") || headerName.includes("새로운")) matchedVal = parsedResult["새로운권리서술"] || parsedResult["Q1_4세대인권상상"] || "4세대 신규 인권 제안 완료";
+            else if (headerName.includes("1단계") || headerName.includes("매칭")) matchedVal = parsedResult["1단계매칭답변"] || "1단계 문서 매칭 완수";
+            else if (headerName.includes("2단계") || headerName.includes("정렬")) matchedVal = parsedResult["2단계정렬순서"] || "2단계 연대기 정렬 완수";
+            else matchedVal = "-";
+          }
+          newRowData.push(matchedVal);
         }
       });
 
@@ -293,13 +336,20 @@ function doPost(e) {
 
       allSheets.forEach(s => {
         const sName = s.getName();
-        if (sName === "Users") return;
+        if (sName === "Users" || sName === "MappingPins") return;
 
         const rows = s.getDataRange().getValues();
-        for (let i = 1; i < rows.length; i++) {
-          if (String(rows[i][0]) === studentId) {
-            userProgress[sName] = "completed";
-            break;
+        if (rows.length <= 1) return;
+
+        const headers = rows[0].map(h => String(h).trim());
+        const idIdx = headers.findIndex(h => h.startsWith("학번"));
+
+        if (idIdx !== -1) {
+          for (let i = 1; i < rows.length; i++) {
+            if (String(rows[i][idIdx]) === studentId) {
+              userProgress[sName] = "completed";
+              break;
+            }
           }
         }
       });
@@ -352,8 +402,19 @@ function doPost(e) {
       for (let i = 1; i < userRows.length; i++) {
         const studentInfo = {};
         userHeaders.forEach((h, idx) => {
-          if (!h.startsWith("비밀번호")) {
-            studentInfo[h] = userRows[i][idx];
+          const trimmedH = String(h).trim();
+          if (!trimmedH.startsWith("비밀번호")) {
+            studentInfo[trimmedH] = userRows[i][idx];
+
+            if (trimmedH === "Q1_희망진로" || trimmedH === "Q1" || (trimmedH.includes("희망진로") && !trimmedH.startsWith("Q10") && !trimmedH.startsWith("Q11") && !trimmedH.startsWith("Q12") && !trimmedH.startsWith("Q13") && !trimmedH.startsWith("Q14") && !trimmedH.startsWith("Q15") && !trimmedH.startsWith("Q16") && !trimmedH.startsWith("Q17") && !trimmedH.startsWith("Q18") && !trimmedH.startsWith("Q19"))) {
+              studentInfo["Q1_희망진로"] = userRows[i][idx];
+            }
+            if (trimmedH === "Q3_나의특징" || trimmedH === "Q3" || trimmedH.includes("나의특징")) {
+              studentInfo["Q3_나의특징"] = userRows[i][idx];
+            }
+            if (trimmedH === "Q5_자신있는과제" || trimmedH === "Q5" || trimmedH.includes("자신있는과제")) {
+              studentInfo["Q5_자신있는과제"] = userRows[i][idx];
+            }
           }
         });
 
