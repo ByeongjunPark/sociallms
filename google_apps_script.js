@@ -150,9 +150,7 @@ function doPost(e) {
 
           headers.forEach((h, colIdx) => {
             const trimmedH = String(h).trim();
-            if (!trimmedH.startsWith("비밀번호")) {
-              studentObj[trimmedH] = rows[i][colIdx];
-            }
+            studentObj[trimmedH] = rows[i][colIdx];
           });
 
           // 🔒 [절대 보호] Q1_희망진로, Q3_나의특징, Q5_자신있는과제 전용 명시적 컬럼 인덱스 추출 (Q10~Q21 문항 간섭 100% 차단)
@@ -491,18 +489,16 @@ function doPost(e) {
         const studentInfo = {};
         userHeaders.forEach((h, idx) => {
           const trimmedH = String(h).trim();
-          if (!trimmedH.startsWith("비밀번호")) {
-            studentInfo[trimmedH] = userRows[i][idx];
+          studentInfo[trimmedH] = userRows[i][idx];
 
-            if (trimmedH === "Q1_희망진로" || trimmedH === "Q1" || (trimmedH.includes("희망진로") && !trimmedH.startsWith("Q10") && !trimmedH.startsWith("Q11") && !trimmedH.startsWith("Q12") && !trimmedH.startsWith("Q13") && !trimmedH.startsWith("Q14") && !trimmedH.startsWith("Q15") && !trimmedH.startsWith("Q16") && !trimmedH.startsWith("Q17") && !trimmedH.startsWith("Q18") && !trimmedH.startsWith("Q19"))) {
-              studentInfo["Q1_희망진로"] = userRows[i][idx];
-            }
-            if (trimmedH === "Q3_나의특징" || trimmedH === "Q3" || trimmedH.includes("나의특징")) {
-              studentInfo["Q3_나의특징"] = userRows[i][idx];
-            }
-            if (trimmedH === "Q5_자신있는과제" || trimmedH === "Q5" || trimmedH.includes("자신있는과제")) {
-              studentInfo["Q5_자신있는과제"] = userRows[i][idx];
-            }
+          if (trimmedH === "Q1_희망진로" || trimmedH === "Q1" || (trimmedH.includes("희망진로") && !trimmedH.startsWith("Q10") && !trimmedH.startsWith("Q11") && !trimmedH.startsWith("Q12") && !trimmedH.startsWith("Q13") && !trimmedH.startsWith("Q14") && !trimmedH.startsWith("Q15") && !trimmedH.startsWith("Q16") && !trimmedH.startsWith("Q17") && !trimmedH.startsWith("Q18") && !trimmedH.startsWith("Q19"))) {
+            studentInfo["Q1_희망진로"] = userRows[i][idx];
+          }
+          if (trimmedH === "Q3_나의특징" || trimmedH === "Q3" || trimmedH.includes("나의특징")) {
+            studentInfo["Q3_나의특징"] = userRows[i][idx];
+          }
+          if (trimmedH === "Q5_자신있는과제" || trimmedH === "Q5" || trimmedH.includes("자신있는과제")) {
+            studentInfo["Q5_자신있는과제"] = userRows[i][idx];
           }
         });
 
