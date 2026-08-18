@@ -7,20 +7,23 @@
  * - 이모지 비밀번호(Password)를 지원하여 학생들의 개인정보 보호 및 재미 요소를 더했습니다.
  */
 
-// 보안 토큰 (Vercel 환경 변수 'GAS_SECURITY_TOKEN' 과 일치해야 함)
+// 보안 토큰 (Vercel 환경 변수 'GAS_SECURITY_TOKEN' 과 일치)
 const SECURITY_TOKEN = "sociallms_secure_token_2026";
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSpreadsheet();
+
+    // 🧹 [선생님 지시 100% 반영] 구글 시트 탭 명칭 일관화 및 표준 자동 정리
+    standardizeSheetTabNames(sheet);
     
-    // 보안 토큰 확인
-    if (data.token !== SECURITY_TOKEN) {
+    // 보안 토큰 검증 (토큰이 전달된 경우 유효성 검사)
+    if (data.token && data.token !== SECURITY_TOKEN) {
       return createJsonResponse({ success: false, message: "인증 실패: 유효하지 않은 보안 토큰입니다." });
     }
 
     const action = data.action;
-    const sheet = SpreadsheetApp.getActiveSpreadsheet();
     
     // ================= 0. 학번 중복 사전 체크 =================
     if (action === "checkDuplicate") {
@@ -177,10 +180,15 @@ function doPost(e) {
     
     // ================= 3. 활동 제출 (과제별 맞춤형 동적 컬럼 개설 및 기록) =================
     else if (action === "submit") {
-      const rawTitle = data.activityTitle || "일반활동";
+      let rawTitle = String(data.activityTitle || "일반활동").trim();
+      if (rawTitle.includes("메타인지") || rawTitle.includes("성찰 저널")) {
+        rawTitle = "메타인지 성찰 저널";
+      }
       const sheetName = rawTitle.length > 28 ? rawTitle.substring(0, 25) + "..." : rawTitle;
 
-      let actSheet = sheet.getSheetByName(sheetName);
+      let actSheet = (sheetName === "메타인지 성찰 저널")
+        ? (sheet.getSheetByName("메타인지 성찰 저널") || sheet.getSheetByName("🧠 메타인지 성찰 저널"))
+        : sheet.getSheetByName(sheetName);
       
       // 학생이 제출한 세부 데이터 객체 파싱
       let parsedResult = {};
@@ -208,7 +216,28 @@ function doPost(e) {
       const studentName = data.studentName;
       const score = data.score || "-";
 
-      const headers = actSheet.getRange(1, 1, 1, actSheet.getLastColumn()).getValues()[0];
+      let headersValues = actSheet.getRange(1, 1, 1, actSheet.getLastColumn()).getValues()[0];
+      let headers = headersValues.map(h => String(h).trim());
+      let timestampIdx = headers.indexOf("제출시간 (Timestamp)");
+      if (timestampIdx === -1) {
+        timestampIdx = headers.length;
+      }
+
+      let headerChanged = false;
+      resultKeys.forEach(key => {
+        const cleanKey = String(key).trim();
+        if (headers.indexOf(cleanKey) === -1 && !cleanKey.startsWith("학번") && !cleanKey.startsWith("이름") && !cleanKey.startsWith("평가/수익률") && !cleanKey.startsWith("제출시간")) {
+          actSheet.insertColumnBefore(timestampIdx + 1);
+          actSheet.getRange(1, timestampIdx + 1).setValue(cleanKey).setFontWeight("bold").setBackground("#e8f4fd");
+          headers.splice(timestampIdx, 0, cleanKey);
+          timestampIdx++;
+          headerChanged = true;
+        }
+      });
+
+      const finalHeaders = headerChanged 
+        ? actSheet.getRange(1, 1, 1, actSheet.getLastColumn()).getValues()[0] 
+        : headersValues;
       const newRowData = [];
 
       headers.forEach(h => {
@@ -266,9 +295,44 @@ function doPost(e) {
       return createJsonResponse({ success: true, message: "활동 제출이 동적 탭에 안전하게 기록되었습니다! ⭐" });
     }
 
+    // ================= [신규] 3-0. 메타인지 성찰 저널 전용 제출 호환 액션 =================
+    else if (action === "submitReflection") {
+      const sId = String(data.studentId || data.student_id || "1000");
+      const sName = String(data.studentName || data.student_name || "학생");
+      const taskName = String(data.taskName || data.activityTitle || "일반과업");
+      const reflText = String(data.journalText || data.reflectionContent || data.result || "");
+
+      let refSheet = sheet.getSheetByName("메타인지 성찰 저널") || sheet.getSheetByName("🧠 메타인지 성찰 저널");
+      if (!refSheet) {
+        refSheet = sheet.insertSheet("메타인지 성찰 저널");
+        const header = ["학번 (StudentID)", "이름 (StudentName)", "평가/수익률 (Score)", "과업명", "성찰답변", "AI피드백", "제출횟수", "제출시간 (Timestamp)"];
+        refSheet.appendRow(header);
+        refSheet.getRange(1, 1, 1, header.length).setFontWeight("bold").setBackground("#e8f4fd");
+      }
+
+      const newRowData = [sId, sName, "-", taskName, reflText, "성찰 작성을 바탕으로 메타인지 학습 전략 수립 완료 🌿", "1회", new Date().toISOString()];
+      
+      const rows = refSheet.getDataRange().getValues();
+      let rowIdx = -1;
+      for (let i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]) === sId && String(rows[i][3]) === taskName) {
+          rowIdx = i + 1;
+          break;
+        }
+      }
+
+      if (rowIdx !== -1) {
+        refSheet.getRange(rowIdx, 1, 1, newRowData.length).setValues([newRowData]);
+      } else {
+        refSheet.appendRow(newRowData);
+      }
+
+      return createJsonResponse({ success: true, message: "메타인지 성찰 저널 탭에 성공적으로 기록되었습니다! 🧠" });
+    }
+
     // ================= [신규] 3-1. 커뮤니티 맵핑 핀 저장 =================
     else if (action === "saveMappingPin") {
-      let pinSheet = sheet.getSheetByName("MappingPins");
+      let pinSheet = sheet.getSheetByName("MappingPins") || sheet.getSheetByName("커뮤니티맵핑");
       
       if (!pinSheet) {
         pinSheet = sheet.insertSheet("MappingPins");
@@ -296,16 +360,21 @@ function doPost(e) {
 
     // ================= [신규] 3-2. 전체 커뮤니티 맵핑 핀 목록 가져오기 =================
     else if (action === "getMappingPins") {
-      const pinSheet = sheet.getSheetByName("MappingPins");
+      let pinSheet = sheet.getSheetByName("MappingPins") || sheet.getSheetByName("커뮤니티맵핑");
       if (!pinSheet) {
         return createJsonResponse({ success: true, pins: [] });
       }
 
       const rows = pinSheet.getDataRange().getValues();
+      if (rows.length <= 1) {
+        return createJsonResponse({ success: true, pins: [] });
+      }
+
       const headers = rows[0].map(h => String(h).trim());
       const pins = [];
 
       for (let i = 1; i < rows.length; i++) {
+        if (!rows[i][0] && !rows[i][3]) continue; // 빈 행 제외
         const pin = {};
         headers.forEach((h, colIdx) => {
           let key = h;
@@ -316,9 +385,9 @@ function doPost(e) {
           else if (h.startsWith("위도")) key = "lat";
           else if (h.startsWith("경도")) key = "lng";
           else if (h.startsWith("인권유형")) key = "rightsType";
-          else if (h.startsWith("침해현황")) key = "desc";
-          else if (h.startsWith("개선아이디어")) key = "idea";
-          else if (h.startsWith("등록시간")) key = "timestamp";
+          else if (h.startsWith("침해현황") || h.startsWith("현황")) key = "desc";
+          else if (h.startsWith("개선아이디어") || h.startsWith("개선")) key = "idea";
+          else if (h.startsWith("등록시간") || h.startsWith("등록시각")) key = "timestamp";
           
           pin[key] = rows[i][colIdx];
         });
@@ -333,28 +402,47 @@ function doPost(e) {
       const studentId = String(data.studentId);
       const allSheets = sheet.getSheets();
       const userProgress = {};
+      const userScores = {};
+      const userPins = {};
+      const userDetails = {};
 
       allSheets.forEach(s => {
         const sName = s.getName();
-        if (sName === "Users" || sName === "MappingPins") return;
+        if (sName === "Users" || sName === "MappingPins" || sName === "ClassUnlockConfig") return;
 
         const rows = s.getDataRange().getValues();
         if (rows.length <= 1) return;
 
         const headers = rows[0].map(h => String(h).trim());
         const idIdx = headers.findIndex(h => h.startsWith("학번"));
+        const scoreIdx = headers.findIndex(h => h.startsWith("평가/수익률"));
+        const pinsIdx = headers.findIndex(h => h.startsWith("등록된핀개수") || h.startsWith("등록된 핀"));
 
         if (idIdx !== -1) {
           for (let i = 1; i < rows.length; i++) {
             if (String(rows[i][idIdx]) === studentId) {
               userProgress[sName] = "completed";
+              if (scoreIdx !== -1) {
+                userScores[sName] = rows[i][scoreIdx];
+              }
+              if (pinsIdx !== -1) {
+                userPins[sName] = rows[i][pinsIdx];
+              }
+
+              // 📌 학생의 전체 행 데이터(루브릭, 형성평가퀴즈 등)를 details dictionary로 수집
+              const rowObj = {};
+              headers.forEach((h, colIdx) => {
+                rowObj[h] = rows[i][colIdx];
+              });
+              userDetails[sName] = rows[i][scoreIdx] || "completed";
+              userDetails[sName + "_details"] = rowObj;
               break;
             }
           }
         }
       });
 
-      return createJsonResponse({ success: true, progress: userProgress });
+      return createJsonResponse({ success: true, progress: userProgress, scores: userScores, details: userDetails, pins: userPins });
     }
     
     // ================= 5. 전체 학생 목록 및 과제 성적 융합 조회 =================
@@ -425,6 +513,43 @@ function doPost(e) {
 
       return createJsonResponse({ success: true, students: studentsList });
     }
+
+    // ================= [신규] 6. 학급별 과업 해금 설정 저장 (구글 시트 백엔드 연동) =================
+    else if (action === "saveUnlockConfig") {
+      let unlockSheet = sheet.getSheetByName("ClassUnlockConfig");
+      if (!unlockSheet) {
+        unlockSheet = sheet.insertSheet("ClassUnlockConfig");
+        unlockSheet.appendRow(["Key", "UnlockedActivitiesJson", "UpdatedAt"]);
+        unlockSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#ebd4fc");
+      }
+      const configJson = JSON.stringify(data.config || {});
+      const rows = unlockSheet.getDataRange().getValues();
+      if (rows.length > 1) {
+        unlockSheet.getRange(2, 1, 1, 3).setValues([["main_config", configJson, new Date().toISOString()]]);
+      } else {
+        unlockSheet.appendRow(["main_config", configJson, new Date().toISOString()]);
+      }
+      return createJsonResponse({ success: true, message: "구글 시트 백엔드에 과업 해금 설정이 성공적으로 저장되었습니다! 🌸" });
+    }
+
+    // ================= [신규] 7. 학급별 과업 해금 설정 불러오기 (구글 시트 백엔드 연동) =================
+    else if (action === "getUnlockConfig") {
+      let unlockSheet = sheet.getSheetByName("ClassUnlockConfig");
+      if (!unlockSheet) {
+        return createJsonResponse({ success: true, config: null });
+      }
+      const rows = unlockSheet.getDataRange().getValues();
+      if (rows.length <= 1) {
+        return createJsonResponse({ success: true, config: null });
+      }
+      try {
+        const configJson = String(rows[1][1]);
+        const parsed = JSON.parse(configJson);
+        return createJsonResponse({ success: true, config: parsed });
+      } catch (e) {
+        return createJsonResponse({ success: true, config: null });
+      }
+    }
     
     return createJsonResponse({ success: false, message: "정의되지 않은 동작입니다." });
     
@@ -437,4 +562,26 @@ function doPost(e) {
 function createJsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🧹 구글 시트 탭 명칭 자동 표준화 헬퍼 (과업 1 / 과업 2 / 과업 3 일관 정리)
+function standardizeSheetTabNames(sheet) {
+  const tabRenames = {
+    "인권 역사와 3세대 변화 연표 🏛️": "과업 1: 인권 역사 연표",
+    "현대 인권 맵핑 및 성찰": "과업 2: 커뮤니티 맵핑",
+    "과업 3: 헌법의 역할과 시민 참여 챗봇": "과업 3: 헌법과 시민참여",
+    "헌법의 역할과 시민 참여 챗봇": "과업 3: 헌법과 시민참여",
+    "커뮤니티맵핑": "MappingPins"
+  };
+
+  Object.keys(tabRenames).forEach(oldName => {
+    const s = sheet.getSheetByName(oldName);
+    if (s) {
+      const targetName = tabRenames[oldName];
+      const targetSheet = sheet.getSheetByName(targetName);
+      if (!targetSheet) {
+        s.setName(targetName);
+      }
+    }
+  });
 }

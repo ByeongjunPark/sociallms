@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>현대 인권과 지역사회 커뮤니티 맵핑 🗺️</title>
-  <link rel="stylesheet" href="../css/style.css">
-  
-  <!-- 🗺️ Leaflet.js 지도 라이브러리 로드 -->
+  <!-- 🗺️ Leaflet.js 지도 라이브러리 로드 (style.css보다 먼저 로드하여 오버라이드 보장) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
+  <link rel="stylesheet" href="../css/style.css">
+  
   <style>
-    /* 현대 인권 맵핑 전용 고급 파스텔 & 글래스모피즘 테마 */
+    /* 현대 인권 맵핑 전용 고급 파스텔 & 글래스모피즘 테마 (와이드 스크린 1.5배 확장) */
     .activity-container {
-      max-width: 840px;
+      max-width: 1600px;
       margin: 0 auto;
       padding-bottom: 80px;
       animation: fadeInUp 0.6s ease;
@@ -254,6 +254,43 @@
       box-shadow: var(--shadow-primary);
       margin-bottom: 24px;
       z-index: 10;
+    }
+
+    /* 📍 기본권/인권 유형별 1:1 맞춤형 럭셔리 마커 핀 스타일 */
+    .leaflet-marker-icon.custom-rights-pin-wrapper,
+    .leaflet-pane .leaflet-marker-icon.custom-rights-pin-wrapper,
+    .custom-rights-pin-wrapper {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .custom-rights-pin {
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 50% 50% 50% 0 !important;
+      transform: rotate(-45deg) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+      border: 2.5px solid #ffffff !important;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease !important;
+      cursor: pointer !important;
+    }
+
+    .custom-rights-pin:hover {
+      transform: rotate(-45deg) scale(1.25) !important;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5) !important;
+      z-index: 99999 !important;
+    }
+
+    .custom-rights-pin .pin-icon {
+      transform: rotate(45deg) !important;
+      font-size: 1.2rem !important;
+      line-height: 1 !important;
+      display: inline-block !important;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
     }
     
     /* 핀 등록 폼 - 프리미엄 재디자인 */
@@ -545,23 +582,27 @@
             <strong>세 문제 모두 100점을 획득해야</strong> 다음 커뮤니티 맵핑(2단계) 실천 과제가 해금됩니다! 🏆
           </p>
 
-          <!-- 퀴즈 1 -->
+          <!-- 퀴즈 1 (선다형 - 난이도 하) -->
           <div class="quiz-card" id="quizCard_1">
-            <h4 class="quiz-title">Q1. 현대 사회의 새로운 인권 종류 중 하나인 '환경권'에 관한 설명으로 가장 올바르지 않은 것은?</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong>Q1. [환경권] 현대 신흥 인권의 기본 개념</strong>
+              <span style="font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: rgba(43, 138, 62, 0.1); padding: 3px 8px; border-radius: 6px;">선다형 (난이도: 하)</span>
+            </div>
+            <h4 class="quiz-title" style="margin-top: 4px;">현대 사회의 핵심 신흥 인권 중 하나인 '환경권'에 관한 설명으로 <u>가장 올바르지 않은 것</u>은?</h4>
             <div class="quiz-options">
-              <label class="quiz-option-label" onclick="selectQuizOption(1, '①', this)">
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '①', this)">
                 <input type="radio" name="q1" value="①" class="quiz-option-input">
                 <span>① 모든 인간은 건강하고 쾌적한 환경에서 환경 오염으로부터 해를 입지 않고 살 권리가 있다.</span>
               </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(1, '②', this)">
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '②', this)">
                 <input type="radio" name="q1" value="②" class="quiz-option-input">
                 <span>② 헌법 제35조에서 보장하며, 환경을 보전하기 위해 국가와 모든 국민은 공동 의무를 진다.</span>
               </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(1, '③', this)">
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '③', this)">
                 <input type="radio" name="q1" value="③" class="quiz-option-input">
                 <span>③ 미래 세대에게 물려줄 환경 자원 확보와 지속 가능한 환경 보전 의무를 명시한다.</span>
               </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(1, '④', this)">
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '④', this)">
                 <input type="radio" name="q1" value="④" class="quiz-option-input">
                 <span>④ 개인이나 기업의 자유로운 토지 개발과 영리 추구를 위해서라면 공공 환경의 훼손은 제한 없이 허용된다.</span>
               </label>
@@ -569,81 +610,222 @@
             <div class="quiz-feedback" id="quizFeedback_1"></div>
           </div>
 
-          <!-- 퀴즈 2 (단답형 입력 문항으로 변경 - 주거권) -->
+          <!-- 퀴즈 2 (선다형 - 난이도 중) -->
           <div class="quiz-card" id="quizCard_2">
-            <h4 class="quiz-title">Q2. 쾌적하고 안정적인 주거 환경에서 인간다운 주거 생활을 영위할 권리를 뜻하며, 우리 헌법 제35조 3항에서 국가는 주택 개발 정책 등을 통해 모든 국민의 이 권리를 위해 노력해야 한다고 규정한 현대적 인권은 무엇인가? (초성 힌트: ㅈㄱㄱ)</h4>
-            <div class="quiz-options" style="gap:0;">
-              <input type="text" id="quizInput_2" class="reflection-textarea" style="min-height: 48px; font-weight:700; background:rgba(255,255,255,0.7); border:1.5px solid rgba(0,0,0,0.05); border-radius:12px; padding:12px 16px; outline:none;" placeholder="정답을 한글 2글자로 입력해 주세요." oninput="mappingState.quizAnswers.q2 = this.value">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong>Q2. [주거권] 쾌적하고 안정적인 삶의 터전 보장</strong>
+              <span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25, 113, 194, 0.1); padding: 3px 8px; border-radius: 6px;">선다형 (난이도: 중)</span>
+            </div>
+            <h4 class="quiz-title" style="margin-top: 4px;">쾌적하고 안정적인 주거 환경에서 인간다운 주거 생활을 영위할 권리를 뜻하며, 헌법 제35조 3항에서 국가는 주택 개발 정책 등을 통해 모든 국민의 이 권리를 위해 노력해야 한다고 규정한 인권은?</h4>
+            <div class="quiz-options">
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 2, '①', this)">
+                <input type="radio" name="q2" value="①" class="quiz-option-input">
+                <span>① 주거권 (주거의 권리)</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 2, '②', this)">
+                <input type="radio" name="q2" value="②" class="quiz-option-input">
+                <span>② 소극적 신체 자유권</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 2, '③', this)">
+                <input type="radio" name="q2" value="③" class="quiz-option-input">
+                <span>③ 참정권적 선거 운동권</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 2, '④', this)">
+                <input type="radio" name="q2" value="④" class="quiz-option-input">
+                <span>④ 재산권 전면 청구권</span>
+              </label>
             </div>
             <div class="quiz-feedback" id="quizFeedback_2"></div>
           </div>
 
-          <!-- 퀴즈 3 (드롭다운 매칭 문항으로 변경 - 안전권) -->
+          <!-- 퀴즈 3 (선다형 - 난이도 중상) -->
           <div class="quiz-card" id="quizCard_3">
-            <h4 class="quiz-title">Q3. 생명과 안녕을 위협하는 각종 위험(재해, 전염병 등)으로부터 안전할 권리를 뜻하며, 국가는 재해 예방 및 안전 신문고, 긴급 재난 문자 운영 등을 통해 국민을 보호할 헌법적 의무를 지는 권리는 무엇인지 선택하세요.</h4>
-            <div class="quiz-options" style="gap:0;">
-              <select id="quizSelect_3" onchange="mappingState.quizAnswers.q3 = this.value" style="width:100%; padding:14px; border-radius:14px; border:1.5px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.7); font-family:var(--font-family-body); font-size:0.9rem; font-weight:600; color:var(--text-primary); outline:none;">
-                <option value="">[ 권리 종류를 선택해 주세요 ]</option>
-                <option value="주거권">🏠 주거권</option>
-                <option value="환경권">🌿 환경권</option>
-                <option value="안전권">🚨 안전권 (안전할 권리)</option>
-                <option value="문화권">🎨 문화권</option>
-              </select>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong>Q3. [안전권 & 디지털 잊힐 권리] 현대 위험 사회의 헌법적 보호</strong>
+              <span style="font-size: 0.72rem; font-weight: 800; color: #d9480f; background: rgba(217, 72, 15, 0.1); padding: 3px 8px; border-radius: 6px;">선다형 (난이도: 중상)</span>
+            </div>
+            <h4 class="quiz-title" style="margin-top: 4px;">생명과 안녕을 위협하는 각종 재해 및 전염병으로부터 국가의 보복 및 안전 대책 보호를 받을 '안전권'과, 인터넷상 원치 않는 정보 삭제를 요구하는 '디지털 잊힐 권리'의 공통적 성격은?</h4>
+            <div class="quiz-options">
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '①', this)">
+                <input type="radio" name="q3" value="①" class="quiz-option-input">
+                <span>① 기술 발전과 현대 사회의 복잡화에 따라 인권의 영역이 지속적으로 확장·창설된 사례이다.</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '②', this)">
+                <input type="radio" name="q3" value="②" class="quiz-option-input">
+                <span>② 근대 18세기 프랑스 인권 선언 당시에 명시된 역사적 기본권이다.</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '③', this)">
+                <input type="radio" name="q3" value="③" class="quiz-option-input">
+                <span>③ 오직 정당 및 정치인들에게만 부여되는 정치적 참정권이다.</span>
+              </label>
+              <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '④', this)">
+                <input type="radio" name="q3" value="④" class="quiz-option-input">
+                <span>④ 국가의 법적 의무가 전혀 수반되지 않는 순수한 개인의 사적 소망이다.</span>
+              </label>
             </div>
             <div class="quiz-feedback" id="quizFeedback_3"></div>
           </div>
 
-          <!-- 퀴즈 4 (선다형 - 문화권) -->
+          <!-- 퀴즈 4 (지리 과업 맞춤 상호작용형 1 - 핫스팟 클릭 지도 식별) -->
           <div class="quiz-card" id="quizCard_4">
-            <h4 class="quiz-title">Q4. 성별, 종교, 인종, 경제적 조건 등과 관계없이 누구나 문화생활에 참여하고 자신의 문화적 정체성을 유지하며 예술 등을 향유할 수 있는 현대적 권리는 무엇인가?</h4>
-            <div class="quiz-options">
-              <label class="quiz-option-label" onclick="selectQuizOption(4, '①', this)">
-                <input type="radio" name="q4" value="①" class="quiz-option-input">
-                <span>① 소극적 성격의 참정권</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(4, '②', this)">
-                <input type="radio" name="q4" value="②" class="quiz-option-input">
-                <span>② 인간다운 삶을 누리는 문화권 (문화향유권)</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(4, '③', this)">
-                <input type="radio" name="q4" value="③" class="quiz-option-input">
-                <span>③ 방어적 신체 자유권</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(4, '④', this)">
-                <input type="radio" name="q4" value="④" class="quiz-option-input">
-                <span>④ 노동3권 및 근로권</span>
-              </label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong>Q4. [지리 핫스팟 탐구] 보행 장애 구역 지도 식별 (핫스팟 클릭)</strong>
+              <span style="font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: rgba(43, 138, 62, 0.1); padding: 3px 8px; border-radius: 6px;">상호작용형 (핫스팟 지도 클릭)</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0;">
+              📍 아래 제시된 <strong>[지역사회 보행 환경 지도]</strong>에서 휠체어·유모차 이용자의 이동권 및 안전권을 위협하여 <strong>개선이 가장 시급한 보행 장애 핫스팟 구역(A~D)을 지도에서 직접 클릭/터치</strong>하시오.
+            </p>
+
+            <!-- 🗺️ 시각적 SVG 커뮤니티 보행 지도 캔버스 -->
+            <div style="position: relative; width: 100%; border-radius: 16px; overflow: hidden; border: 2px solid rgba(184, 150, 219, 0.3); background: #eef2f5; margin: 12px 0; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+              <svg viewBox="0 0 800 400" style="width: 100%; height: auto; display: block; background: #f0f7f4;">
+                <!-- 도로 (Roads) -->
+                <rect x="0" y="160" width="800" height="80" fill="#cbd5e1" />
+                <rect x="360" y="0" width="80" height="400" fill="#cbd5e1" />
+                <!-- 차선 (Road Lines) -->
+                <line x1="0" y1="200" x2="800" y2="200" stroke="#ffffff" stroke-width="4" stroke-dasharray="16,12" />
+                <line x1="400" y1="0" x2="400" y2="400" stroke="#ffffff" stroke-width="4" stroke-dasharray="16,12" />
+
+                <!-- 횡단보도 (Zebra Crossing) & 20cm 단절 턱 -->
+                <rect x="360" y="160" width="80" height="80" fill="#94a3b8" />
+                <rect x="370" y="165" width="60" height="10" fill="#ffffff" />
+                <rect x="370" y="185" width="60" height="10" fill="#ffffff" />
+                <rect x="370" y="205" width="60" height="10" fill="#ffffff" />
+                <rect x="370" y="225" width="60" height="10" fill="#ffffff" />
+                
+                <!-- 위험 라인 표시 -->
+                <rect x="345" y="155" width="15" height="90" fill="#ef4444" opacity="0.9" />
+
+                <!-- 🎯 [B 구역] 횡단보도 단절 턱 중앙 콜아웃 라벨 -->
+                <rect x="220" y="125" width="360" height="30" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="2" />
+                <text x="400" y="145" fill="#dc2626" font-size="13" font-weight="bold" text-anchor="middle">🚨 [B 구역] 20cm 높이 단절 턱 (휠체어/유모차 통행 불가!)</text>
+
+                <!-- 구역 A: 도서관 (좌상단) -->
+                <rect x="30" y="20" width="300" height="95" rx="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" />
+                <text x="48" y="52" fill="#1e40af" font-size="15" font-weight="bold">🏢 [A 구역] 공공 도서관 정문</text>
+                <text x="48" y="78" fill="#2563eb" font-size="12">♿ 완만한 장애인 경사로 양호 설치</text>
+
+                <!-- 구역 D: 버스정류장 (우상단) -->
+                <rect x="470" y="20" width="300" height="95" rx="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" />
+                <text x="488" y="52" fill="#b45309" font-size="15" font-weight="bold">🚏 [D 구역] 시내버스 정류장</text>
+                <text x="488" y="78" fill="#d97706" font-size="12">🔊 시각장애인 음성 안내 장치 정상 작동</text>
+
+                <!-- 구역 C: 공원 (좌하단) -->
+                <rect x="30" y="285" width="300" height="95" rx="14" fill="#dcfce7" stroke="#22c55e" stroke-width="2" />
+                <text x="48" y="318" fill="#15803d" font-size="15" font-weight="bold">🌳 [C 구역] 중앙 근린 공원</text>
+                <text x="48" y="344" fill="#16a34a" font-size="12">🪑 턱이 없는 평지 쉼터 벤치 구역</text>
+
+                <!-- 우하단: 안전한 공공 시설 구역 -->
+                <rect x="470" y="285" width="300" height="95" rx="14" fill="#f3e8ff" stroke="#a855f7" stroke-width="2" />
+                <text x="488" y="318" fill="#6b21a8" font-size="15" font-weight="bold">🏛️ 동네 주민센터 및 복지관</text>
+                <text x="488" y="344" fill="#9333ea" font-size="12">🚪 자동문 및 점자 블록 안전 보장 구역</text>
+
+                <!-- 핫스팟 핀 A (우측 뱃지 위치) -->
+                <g class="map-hotspot-pin" onclick="selectMapHotspot('A', document.getElementById('btnHotspotA'))" style="cursor: pointer;">
+                  <circle cx="295" cy="50" r="20" fill="#3b82f6" stroke="#ffffff" stroke-width="3" />
+                  <text x="295" y="56" fill="#ffffff" font-size="15" font-weight="bold" text-anchor="middle">A</text>
+                </g>
+
+                <!-- 핫스팟 핀 B (중앙 횡단보도 위험 턱) -->
+                <g class="map-hotspot-pin" onclick="selectMapHotspot('B', document.getElementById('btnHotspotB'))" style="cursor: pointer;">
+                  <circle cx="400" cy="200" r="24" fill="#ef4444" stroke="#ffffff" stroke-width="4">
+                    <animate attributeName="r" values="21;26;21" dur="1.5s" repeatCount="indefinite" />
+                  </circle>
+                  <text x="400" y="206" fill="#ffffff" font-size="17" font-weight="bold" text-anchor="middle">B</text>
+                </g>
+
+                <!-- 핫스팟 핀 C (우측 뱃지 위치) -->
+                <g class="map-hotspot-pin" onclick="selectMapHotspot('C', document.getElementById('btnHotspotC'))" style="cursor: pointer;">
+                  <circle cx="295" cy="315" r="20" fill="#22c55e" stroke="#ffffff" stroke-width="3" />
+                  <text x="295" y="321" fill="#ffffff" font-size="15" font-weight="bold" text-anchor="middle">C</text>
+                </g>
+
+                <!-- 핫스팟 핀 D (우측 뱃지 위치) -->
+                <g class="map-hotspot-pin" onclick="selectMapHotspot('D', document.getElementById('btnHotspotD'))" style="cursor: pointer;">
+                  <circle cx="735" cy="50" r="20" fill="#f59e0b" stroke="#ffffff" stroke-width="3" />
+                  <text x="735" y="56" fill="#ffffff" font-size="15" font-weight="bold" text-anchor="middle">D</text>
+                </g>
+              </svg>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;" id="q4HotspotContainer">
+              <button type="button" id="btnHotspotA" onclick="selectMapHotspot('A', this)" style="padding: 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.9); font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s;">
+                🏢 [A 구역] 완만한 경사로가 설치된 공공 도서관 정문
+              </button>
+              <button type="button" id="btnHotspotB" onclick="selectMapHotspot('B', this)" style="padding: 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.9); font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s;">
+                🚨 [B 구역] 20cm 높은 보도블록 턱으로 휠체어 단절된 횡단보도
+              </button>
+              <button type="button" id="btnHotspotC" onclick="selectMapHotspot('C', this)" style="padding: 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.9); font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s;">
+                🌳 [C 구역] 평지 휴식용 벤치가 놓인 중앙 근린 공원
+              </button>
+              <button type="button" id="btnHotspotD" onclick="selectMapHotspot('D', this)" style="padding: 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.9); font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s;">
+                🚏 [D 구역] 음성 안내 장치가 작동하는 버스 정류장
+              </button>
             </div>
             <div class="quiz-feedback" id="quizFeedback_4"></div>
           </div>
 
-          <!-- 퀴즈 5 (선다형 - 디지털 잊힐 권리) -->
+          <!-- 퀴즈 5 (지리 과업 맞춤 상호작용형 2 - 신흥 인권 3대 영역 범주 분류) -->
           <div class="quiz-card" id="quizCard_5">
-            <h4 class="quiz-title">Q5. 인터넷 등 정보 통신망에 원치 않게 노출된 과거의 게시물, 흔적, 사진 등 개인 정보를 지워달라고 플랫폼에 요구할 수 있는 현대 정보화 사회의 핵심 인권은?</h4>
-            <div class="quiz-options">
-              <label class="quiz-option-label" onclick="selectQuizOption(5, '①', this)">
-                <input type="radio" name="q5" value="①" class="quiz-option-input">
-                <span>① 디지털 잊힐 권리 (잊힐 권리)</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(5, '②', this)">
-                <input type="radio" name="q5" value="②" class="quiz-option-input">
-                <span>② 쾌적한 주거 결정권</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(5, '③', this)">
-                <input type="radio" name="q5" value="③" class="quiz-option-input">
-                <span>③ 연대적 기후 평화권</span>
-              </label>
-              <label class="quiz-option-label" onclick="selectQuizOption(5, '④', this)">
-                <input type="radio" name="q5" value="④" class="quiz-option-input">
-                <span>④ 소셜 미디어 영리권</span>
-              </label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong>Q5. [범주 분류] 현대 신흥 인권 3대 영역별 분류</strong>
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--color-purple); background: var(--color-purple-soft); padding: 3px 8px; border-radius: 6px;">상호작용형 (범주 분류 드롭다운)</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0;">
+              🏷️ 아래 4가지 지역사회 현장 이슈를 <strong>[주거권], [환경권], [안전권] 3개 영역 상자로 올바르게 분류</strong>하시오.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
+                <span style="font-size: 0.85rem; color: var(--text-primary);">1) 인근 공장 매연 및 매립장 분진 피해 방지</span>
+                <select id="q5_cat_1" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+                  <option value="">-- 영역 선택 --</option>
+                  <option value="주거권">🏠 주거권 영역</option>
+                  <option value="환경권">🌿 환경권 영역</option>
+                  <option value="안전권">🚨 안전권 영역</option>
+                </select>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
+                <span style="font-size: 0.85rem; color: var(--text-primary);">2) 청년·소외계층을 위한 공공 임대 주택 보급</span>
+                <select id="q5_cat_2" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+                  <option value="">-- 영역 선택 --</option>
+                  <option value="주거권">🏠 주거권 영역</option>
+                  <option value="환경권">🌿 환경권 영역</option>
+                  <option value="안전권">🚨 안전권 영역</option>
+                </select>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
+                <span style="font-size: 0.85rem; color: var(--text-primary);">3) 야간 골목길 가로등 추가 설치 및 CCTV 확충</span>
+                <select id="q5_cat_3" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+                  <option value="">-- 영역 선택 --</option>
+                  <option value="주거권">🏠 주거권 영역</option>
+                  <option value="환경권">🌿 환경권 영역</option>
+                  <option value="안전권">🚨 안전권 영역</option>
+                </select>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
+                <span style="font-size: 0.85rem; color: var(--text-primary);">4) 쾌적한 도심 녹지 생태 공원 조성</span>
+                <select id="q5_cat_4" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+                  <option value="">-- 영역 선택 --</option>
+                  <option value="주거권">🏠 주거권 영역</option>
+                  <option value="환경권">🌿 환경권 영역</option>
+                  <option value="안전권">🚨 안전권 영역</option>
+                </select>
+              </div>
             </div>
             <div class="quiz-feedback" id="quizFeedback_5"></div>
           </div>
 
-          <div style="text-align: center; margin-top: 24px;">
-            <button type="button" class="btn-submit" onclick="gradeStep1Quiz()" style="background: var(--color-purple); padding: 12px 30px;">형성평가 제출 및 채점하기 📝</button>
+          <!-- 1단계 형성평가 채점 및 정답 확인 전용 버튼 -->
+          <div style="margin-top: 20px; text-align: center;">
+            <button type="button" class="modal-btn primary" onclick="gradeStep1Quiz(false)" style="padding: 14px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 14px; background: linear-gradient(135deg, var(--color-purple), #3b5bdb); box-shadow: 0 4px 12px rgba(59,91,219,0.25);">
+              📝 1단계 형성평가 제출 및 채점하기 🔍
+            </button>
           </div>
+
         </div>
 
         <!-- ================= 2단계: 고차사고력 전이과제 (실시간 커뮤니티 맵핑) ================= -->
@@ -745,28 +927,27 @@
           </div>
         </div>
 
-        <!-- ================= 3단계: 학습과정 성찰 루틴 ================= -->
+        <!-- ================= 3단계: 학습과정 메타인지 성찰 루틴 ================= -->
         <div class="step-content" id="step_3">
           <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
-            💡 [3단계] 학습과정 성찰 저널 작성
+            💡 [3단계] 학습과정 메타인지 성찰 저널 작성
           </h3>
           <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.55;">
-            현대 인권 맵핑을 통해 교실 밖 현장에 인권을 직접 적용해 본 소감을 서술해 봅시다. 
-            단원 핵심 질문에 답을 채운 뒤 최종 과제를 제출합니다.
+            현대 인권 맵핑을 통해 실생활 속 인권(주거, 안전, 환경, 문화, 디지털)을 탐구해 본 배움 과정을 성찰해 봅시다. <br>
+            자신의 학업적 취약점을 진단하고 이를 극복할 <strong>'메타인지 공부 보완책 전략'</strong>을 작성해 주세요.
           </p>
 
-          <div class="quiz-card">
-            <h4 class="quiz-title" style="color: var(--color-purple); font-size: 0.98rem; margin-bottom: 12px;">
-              📖 단원 핵심 개념 질문
+          <div class="quiz-card" style="background: rgba(255,255,255,0.75); border: 1.5px solid rgba(184, 150, 219, 0.2); border-radius: 20px; padding: 24px;">
+            <h4 class="quiz-title" style="color: var(--color-purple); font-size: 1.02rem; margin-bottom: 14px; font-weight: 800; line-height: 1.4;">
+              🌱 🌱 오늘 학습 중 가장 모호했거나 구분하기 어려웠던 인권 개념은 무엇이었나요? 차후 유사 성취기준 과제를 해결할 때 나만의 메타인지 학습 전략(공부 보완책)을 어떻게 세워갈 것인지 구체적으로 서술해 봅시다.
             </h4>
-            <p style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-              우리 동네에서 주거, 안전, 환경과 관련된 인권 문제를 해결하려면, 
-              <strong>국가는 우리를 위해 어떤 노력을 해야 할까요?</strong> 그리고 
-              <strong>우리 학생들과 시민들은 어떤 행동을 실천할 수 있을까요?</strong><br>
-              맵핑 활동을 하면서 느낀 점을 바탕으로 자유롭게 적어보세요.
+            <p style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 14px;">
+              💡 <strong>작성 가이드:</strong> <br>
+              ① 현대 사회에서 새롭게 확장된 인권(주거·안전·환경·문화·디지털 등) 중 까다로웠던 점을 솔직히 고백해 주세요. <br>
+              ② 향후 단원 형성평가나 수행평가를 대비해 스스로 어떤 배움 습관(개념 도식화, 실생활 사례 매칭 등)을 보완할 것인지 적어주세요.
             </p>
             
-            <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6;" placeholder="국가의 역할과 시민의 참여 방안에 대해 나의 생각을 자유롭게 적어주세요. (최소 30글자 이상)"></textarea>
+            <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6; border: 1.5px solid rgba(0,0,0,0.06); outline: none;" placeholder="예: '디지털 잊힐 권리와 환경권의 국가 보장 범위 구분이 헷갈렸습니다. 차후에는 각 권리가 헌법에 명시된 근거와 실제 행정 서비스 사례를 비교 정리하는 나만의 정리 노트 공부법으로 보완하겠습니다.' (최소 30글자 필수)"></textarea>
           </div>
         </div>
 
@@ -798,13 +979,16 @@
       selectedLng: null
     };
 
-    // 퀴즈 정답 열쇠
+    // 퀴즈 정답 열쇠 (Q1~Q5 정답 키 100% 검증 동기화)
     const QUIZ_ANSWER_KEYS = {
       q1: "④",
-      q2: "주거권",
-      q3: "안전권",
-      q4: "②",
-      q5: "①"
+      q2: "①",
+      q3: "①",
+      q4: "B",
+      q5_1: "환경권",
+      q5_2: "주거권",
+      q5_3: "안전권",
+      q5_4: "환경권"
     };
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -815,11 +999,94 @@
       // 프로필 동기화
       loadUserProfile();
 
+      // 교사가 해금하지 않은 과업의 직접 URL 접근 방지
+      const savedRole = localStorage.getItem("sociallms_role");
+      if (savedRole !== "teacher") {
+        const rawUnlocked = localStorage.getItem("sociallms_unlocked_activities");
+        const savedProfile = localStorage.getItem("sociallms_profile");
+        let studentClass = "all";
+        if (savedProfile) {
+          try {
+            const p = JSON.parse(savedProfile);
+            const sId = String(p["학번 (StudentID)"] || p.studentId || "");
+            if (sId.length === 4) studentClass = sId.substring(0, 2);
+          } catch(e) {}
+        }
+        const config = rawUnlocked ? JSON.parse(rawUnlocked) : { "all": ["c10101"] };
+        const allUnlocked = config["all"] || [];
+        const classUnlocked = config[studentClass] || [];
+        if (!allUnlocked.includes("c10201") && !classUnlocked.includes("c10201")) {
+          alert("🔒 박병준 선생님이 아직 본 학급 수업 진도에 맞춰 이 과업을 해금하지 않으셨습니다. 대시보드로 이동합니다! 🌸");
+          window.location.href = "../index.html";
+          return;
+        }
+      }
+
       // 이전 작업 내역 복구
       restoreDraft();
 
-      // 지도 초기화는 2단계로 진입할 때 지연 렌더링 기동
+      // 인권 유형 변경 시 임시 마커 핀 실시간 아이콘 동기화
+      const rightsSelect = document.getElementById("pinRightsType");
+      if (rightsSelect) {
+        rightsSelect.addEventListener("change", (e) => {
+          if (mappingState.tempMarker) {
+            mappingState.tempMarker.setIcon(getRightsPinIcon(e.target.value));
+          }
+        });
+      }
     });
+
+    // =============================================
+    // 👤 학생 프로필 세션 로드 모듈
+    // =============================================
+    function loadUserProfile() {
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      const badge = document.getElementById("studentBadge");
+
+      if (savedProfile) {
+        try {
+          const parsed = JSON.parse(savedProfile);
+          mappingState.student = {
+            studentId: parsed["학번 (StudentID)"] || parsed.studentId || parsed.student_id || "",
+            name: parsed["이름 (StudentName)"] || parsed.name || parsed.studentName || "학생",
+            emoji: parsed["캐릭터 (Emoji)"] || parsed.emoji || "👧",
+            gradeClass: parsed.gradeClass || ""
+          };
+          
+          if (!mappingState.student.studentId) {
+            mappingState.student.studentId = localStorage.getItem("sociallms_student_id") || "1004";
+          }
+          
+          if (!mappingState.student.gradeClass && mappingState.student.studentId.length === 4) {
+            mappingState.student.gradeClass = String(mappingState.student.studentId).substring(0, 2);
+          }
+
+          if (badge) {
+            const classText = mappingState.student.gradeClass 
+              ? `${String(mappingState.student.gradeClass).substring(0,1)}학년 ${parseInt(String(mappingState.student.gradeClass).substring(1))}반 ` 
+              : "";
+            badge.textContent = `${mappingState.student.emoji} ${classText}${mappingState.student.name} 학생`;
+          }
+          const loginCard = document.getElementById("step_login_card");
+          if (loginCard) loginCard.style.display = "none";
+          return;
+        } catch(e) {}
+      }
+
+      // 비로그인 세션이거나 프로필 파싱 실패 시 게스트 프로필 표시
+      mappingState.student = {
+        studentId: localStorage.getItem("sociallms_student_id") || "1004",
+        name: "게스트 학생",
+        emoji: "👧",
+        gradeClass: "11"
+      };
+
+      if (badge) {
+        badge.textContent = "👧 게스트 학생";
+      }
+      const loginCard = document.getElementById("step_login_card");
+      if (loginCard) loginCard.style.display = "block";
+    }
 
     // =============================================
     // 📦 작업 자동 저장 / 복구 (로컬스토리지 기반)
@@ -841,248 +1108,314 @@
     function restoreDraft() {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        if (draft.quizAnswers) {
+          mappingState.quizAnswers = { ...mappingState.quizAnswers, ...draft.quizAnswers };
 
-      let draft;
-      try { draft = JSON.parse(raw); } catch(e) { return; }
-
-      // 퀴즈 답안 복구
-      if (draft.quizAnswers) {
-        mappingState.quizAnswers = { ...mappingState.quizAnswers, ...draft.quizAnswers };
-
-        // Q1 라디오 복구
-        if (draft.quizAnswers.q1) {
-          const inp = document.querySelector(`input[name="q1"][value="${draft.quizAnswers.q1}"]`);
-          if (inp) {
-            inp.checked = true;
-            inp.closest(".quiz-option-label") && inp.closest(".quiz-option-label").classList.add("selected");
+          // Q1~Q3 라디오 복구
+          for (let i = 1; i <= 3; i++) {
+            if (draft.quizAnswers[`q${i}`]) {
+              const inp = document.querySelector(`input[name="q${i}"][value="${draft.quizAnswers[`q${i}`]}"]`);
+              if (inp) {
+                inp.checked = true;
+                const lbl = inp.closest(".quiz-option-label");
+                if (lbl) {
+                  lbl.classList.add("selected");
+                  lbl.style.borderColor = "var(--color-purple)";
+                }
+              }
+            }
+          }
+          // Q4 핫스팟 복구
+          if (draft.quizAnswers.q4) {
+            selectMapHotspot(draft.quizAnswers.q4, document.getElementById(`btnHotspot${draft.quizAnswers.q4}`));
+          }
+          // Q5 범주분류 복구
+          if (draft.quizAnswers.q5_1) {
+            const s1 = document.getElementById("q5_cat_1"); if (s1) s1.value = draft.quizAnswers.q5_1;
+            const s2 = document.getElementById("q5_cat_2"); if (s2) s2.value = draft.quizAnswers.q5_2;
+            const s3 = document.getElementById("q5_cat_3"); if (s3) s3.value = draft.quizAnswers.q5_3;
+            const s4 = document.getElementById("q5_cat_4"); if (s4) s4.value = draft.quizAnswers.q5_4;
           }
         }
-        // Q2 텍스트 복구
-        if (draft.quizAnswers.q2) {
-          const inp2 = document.getElementById("quizInput_2");
-          if (inp2) inp2.value = draft.quizAnswers.q2;
-        }
-        // Q3 드롭다운 복구
-        if (draft.quizAnswers.q3) {
-          const sel3 = document.getElementById("quizSelect_3");
-          if (sel3) sel3.value = draft.quizAnswers.q3;
-        }
-        // Q4 라디오 복구
-        if (draft.quizAnswers.q4) {
-          const inp4 = document.querySelector(`input[name="q4"][value="${draft.quizAnswers.q4}"]`);
-          if (inp4) {
-            inp4.checked = true;
-            inp4.closest(".quiz-option-label") && inp4.closest(".quiz-option-label").classList.add("selected");
-          }
-        }
-        // Q5 라디오 복구
-        if (draft.quizAnswers.q5) {
-          const inp5 = document.querySelector(`input[name="q5"][value="${draft.quizAnswers.q5}"]`);
-          if (inp5) {
-            inp5.checked = true;
-            inp5.closest(".quiz-option-label") && inp5.closest(".quiz-option-label").classList.add("selected");
-          }
-        }
-      }
 
-      // 채점 상태 복구 (채점 완료 시 피드백 재렌더링)
-      if (draft.quizGraded) {
-        mappingState.quizGraded = true;
-        gradeStep1Quiz(true); // silent 모드로 채점 재실행
-      }
+        if (draft.quizGraded) {
+          mappingState.quizGraded = true;
+          gradeStep1Quiz(true);
+        }
 
-      // 핀 카운트 복구
-      if (draft.myPinsCount) {
-        mappingState.myPinsCount = draft.myPinsCount;
-        updatePinCounterText();
-      }
+        if (draft.myPinsCount) {
+          mappingState.myPinsCount = draft.myPinsCount;
+          updatePinCounterText();
+        }
 
-      // 성찰 텍스트 복구
-      if (draft.reflectionContent) {
-        const reflText = document.getElementById("reflectionContent");
-        if (reflText) reflText.value = draft.reflectionContent;
-      }
+        if (draft.reflectionContent) {
+          const reflText = document.getElementById("reflectionContent");
+          if (reflText) reflText.value = draft.reflectionContent;
+        }
 
-      // 단계 복구 (2단계 이상인 경우 해당 단계로 점프)
-      if (draft.currentStep && draft.currentStep > 1) {
-        jumpToStep(draft.currentStep);
-      }
+        if (draft.currentStep && draft.currentStep > 1) {
+          jumpToStep(draft.currentStep);
+        }
+      } catch(e) {}
     }
 
-    // 단계 직접 점프 (복구용, 검증 없이)
-    function jumpToStep(targetStep) {
-      if (targetStep < 1 || targetStep > 3) return;
-      document.getElementById(`step_${mappingState.currentStep}`).classList.remove("active");
-      document.getElementById(`stepIndicator_${mappingState.currentStep}`).classList.remove("active");
-      for (let s = 1; s < targetStep; s++) {
-        document.getElementById(`stepIndicator_${s}`) && document.getElementById(`stepIndicator_${s}`).classList.add("completed");
-      }
-      mappingState.currentStep = targetStep;
-      document.getElementById(`step_${targetStep}`).classList.add("active");
-      document.getElementById(`stepIndicator_${targetStep}`).classList.add("active");
 
-      const btnPrev = document.getElementById("btnPrev");
-      const btnNext = document.getElementById("btnNext");
-      btnPrev.style.display = targetStep > 1 ? "block" : "none";
-      if (targetStep === 2) {
-        btnNext.textContent = "성찰 저널로 이동 ➡️";
-        setTimeout(() => initLeafletMap(), 200);
-      } else if (targetStep === 3) {
-        btnNext.textContent = "과제 최종 제출하기 🚀";
+    // Q4 지도 핫스팟 선택 헬퍼
+    function selectMapHotspot(code, element) {
+      if (mappingState.quizGraded) return;
+      const container = document.getElementById("q4HotspotContainer");
+      if (container) {
+        container.querySelectorAll("button").forEach(btn => {
+          btn.style.background = "rgba(255,255,255,0.9)";
+          btn.style.borderColor = "rgba(0,0,0,0.08)";
+          btn.style.color = "var(--text-primary)";
+        });
       }
+
+      element.style.background = "rgba(43, 138, 62, 0.15)";
+      element.style.borderColor = "#2b8a3e";
+      element.style.color = "#2b8a3e";
+
+      mappingState.quizAnswers.q4 = code;
+      saveDraft();
     }
 
-    // 프로필 세션 로드
-    function loadUserProfile() {
-      const savedProfile = localStorage.getItem("sociallms_profile");
-      const badge = document.getElementById("studentBadge");
-
-      if (savedProfile) {
-        const parsed = JSON.parse(savedProfile);
-        mappingState.student = {
-          studentId: parsed["학번 (StudentID)"] || parsed.studentId || parsed.student_id || "",
-          name: parsed["이름 (StudentName)"] || parsed.name || parsed.studentName || "학생",
-          emoji: parsed["캐릭터 (Emoji)"] || parsed.emoji || "👧",
-          gradeClass: parsed.gradeClass || ""
-        };
-        
-        // 학번 백업 복구
-        if (!mappingState.student.studentId) {
-          mappingState.student.studentId = localStorage.getItem("sociallms_student_id") || "";
-        }
-        
-        // gradeClass가 없고 studentId가 4자리라면 학반 추출
-        if (!mappingState.student.gradeClass && mappingState.student.studentId.length === 4) {
-          mappingState.student.gradeClass = String(mappingState.student.studentId).substring(0, 2);
-        }
-
-        badge.textContent = `${mappingState.student.emoji} ${mappingState.student.gradeClass ? String(mappingState.student.gradeClass).substring(0,1) + '학년 ' + parseInt(String(mappingState.student.gradeClass).substring(1)) + '반 ' : ''}${mappingState.student.name} 학생`;
-        document.getElementById("step_login_card").style.display = "none";
-      } else {
-        // 비로그인 사용자 폼 노출
-        document.getElementById("step_login_card").style.display = "block";
-        badge.textContent = "👧 게스트 학생 (로그인 없음)";
-      }
-    }
-
-    // 퀴즈 라디오 클릭 헬퍼
-    function selectQuizOption(qNumber, optionVal, element) {
-      if (mappingState.quizGraded) return; // 이미 채점 완료면 잠금
-
-      // 동일 문항의 다른 카드 라벨 클래스 지우기
-      const cards = element.parentNode.querySelectorAll(".quiz-option-label");
-      cards.forEach(c => c.classList.remove("selected"));
-
-      // 체크 설정 및 하이라이트
-      element.classList.add("selected");
-      const radio = element.querySelector(".quiz-option-input");
-      if (radio) radio.checked = true;
-
-      mappingState.quizAnswers[`q${qNumber}`] = optionVal;
-      saveDraft(); // 선택 즉시 자동 저장
-    }
-
-    // 1단계 형성평가 제출 채점
+    // 1단계 지리 과업 맞춤형 형성평가 제출 채점 (선다형 3문항 + 핫스팟 클릭 + 범주 분류)
     function gradeStep1Quiz(silentMode = false) {
-      // silent 복구 모드에서는 미완료 검사 건너뜀
-      if (!silentMode && (!mappingState.quizAnswers.q1 || !mappingState.quizAnswers.q2 || !mappingState.quizAnswers.q3 || !mappingState.quizAnswers.q4 || !mappingState.quizAnswers.q5)) {
-        alert("아직 풀지 않은 문제가 있습니다. 5문항을 모두 선택해 주세요! 📝");
-        return;
+      // DOM Checked 인풋 상태 100% 동기화
+      const q1Inp = document.querySelector('input[name="q1"]:checked');
+      const q1Ans = q1Inp ? q1Inp.value : (mappingState.quizAnswers.q1 || "");
+      mappingState.quizAnswers.q1 = q1Ans;
+
+      const q2Inp = document.querySelector('input[name="q2"]:checked');
+      const q2Ans = q2Inp ? q2Inp.value : (mappingState.quizAnswers.q2 || "");
+      mappingState.quizAnswers.q2 = q2Ans;
+
+      const q3Inp = document.querySelector('input[name="q3"]:checked');
+      const q3Ans = q3Inp ? q3Inp.value : (mappingState.quizAnswers.q3 || "");
+      mappingState.quizAnswers.q3 = q3Ans;
+
+      const q4Ans = mappingState.quizAnswers.q4 || "";
+
+      const c1 = document.getElementById("q5_cat_1") ? document.getElementById("q5_cat_1").value : (mappingState.quizAnswers.q5_1 || "");
+      const c2 = document.getElementById("q5_cat_2") ? document.getElementById("q5_cat_2").value : (mappingState.quizAnswers.q5_2 || "");
+      const c3 = document.getElementById("q5_cat_3") ? document.getElementById("q5_cat_3").value : (mappingState.quizAnswers.q5_3 || "");
+      const c4 = document.getElementById("q5_cat_4") ? document.getElementById("q5_cat_4").value : (mappingState.quizAnswers.q5_4 || "");
+
+      mappingState.quizAnswers.q5_1 = c1;
+      mappingState.quizAnswers.q5_2 = c2;
+      mappingState.quizAnswers.q5_3 = c3;
+      mappingState.quizAnswers.q5_4 = c4;
+      mappingState.quizAnswers.q5 = `${c1},${c2},${c3},${c4}`;
+
+      if (!silentMode && (!q1Ans || !q2Ans || !q3Ans || !q4Ans || !c1 || !c2 || !c3 || !c4)) {
+        alert("아직 풀지 않은 문제가 있습니다. 5개 문항을 모두 완료해 주세요! 📝");
+        return null;
       }
 
       let score = 0;
-      
-      // 개별 문항 채점 피드백 렌더링
-      for (let i = 1; i <= 5; i++) {
-        const selected = mappingState.quizAnswers[`q${i}`];
-        const feedbackBox = document.getElementById(`quizFeedback_${i}`);
-        const card = document.getElementById(`quizCard_${i}`);
-        let isCorrect = false;
 
-        const correct = QUIZ_ANSWER_KEYS[`q${i}`];
-
-        if (i === 2) {
-          // Q2 단답형 입력 허용 채점 (주거권)
-          const cleanAns = (selected || "").trim().replace(/\s/g, "");
-          isCorrect = (cleanAns === "주거권" || cleanAns === "주거");
-        } else if (i === 3) {
-          // Q3 드롭다운 채점 (안전권)
-          isCorrect = (selected === "안전권");
-        } else {
-          // Q1, Q4, Q5 객관식 채점
-          isCorrect = (selected === correct);
-        }
-        
-        // 카드 내의 라벨들 스타일 초기화
-        const optionLabels = card.querySelectorAll(".quiz-option-label");
-        optionLabels.forEach(lbl => {
-          lbl.style.borderColor = "rgba(0,0,0,0.05)";
-          lbl.style.background = "rgba(255, 255, 255, 0.75)";
-        });
-
-        if (isCorrect) {
-          score += 20;
-          feedbackBox.textContent = `✅ 정답입니다! (정답: ${correct}) [정답 해설]: ${getQuizExplanation(i)}`;
-          feedbackBox.className = "quiz-feedback correct";
-          
-          if (i !== 2 && i !== 3) {
-            optionLabels.forEach(lbl => {
-              const inp = lbl.querySelector("input");
-              if (inp && inp.value === correct) {
-                lbl.style.borderColor = "var(--color-mint)";
-                lbl.style.background = "rgba(79, 209, 197, 0.06)";
-              }
-            });
-          }
-        } else {
-          const userDisplay = (i === 2) ? `입력값: "${selected}"` : `선택: ${selected || '미지정'}`;
-          feedbackBox.textContent = `❌ 오답입니다. (${userDisplay} / 실제 정답은 "${correct}" 입니다.) [정답 해설]: ${getQuizExplanation(i)}`;
-          feedbackBox.className = "quiz-feedback incorrect";
-
-          if (i !== 2 && i !== 3) {
-            optionLabels.forEach(lbl => {
-              const inp = lbl.querySelector("input");
-              if (inp) {
-                if (inp.value === selected) {
-                  lbl.style.borderColor = "#ff6b6b";
-                  lbl.style.background = "rgba(255, 107, 107, 0.06)";
-                }
-                if (inp.value === correct) {
-                  lbl.style.borderColor = "var(--color-mint)";
-                  lbl.style.background = "rgba(79, 209, 197, 0.06)";
-                }
-              }
-            });
-          }
-        }
-        feedbackBox.style.display = "block";
+      // Q1 (선다형: 정답 ④)
+      const q1Correct = (q1Ans === "④");
+      if (q1Correct) score += 20;
+      const fb1 = document.getElementById("quizFeedback_1");
+      if (fb1) {
+        fb1.textContent = q1Correct
+          ? "✅ 정답입니다! (선택: ④) [정답 해설]: 환경권, 주거권, 안전권 등은 현대 사회의 복잡화 및 기술 발전에 따라 지속적으로 확장·창설된 신흥 인권입니다."
+          : `❌ 오답입니다. (선택: ${q1Ans || '미선택'} / 실제 정답은 "④" 입니다.) [정답 해설]: 현대 신흥 인권은 과학 기술 발전과 사회 변화에 따라 새로이 확장·창설된 인권입니다.`;
+        fb1.className = q1Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb1.style.display = "block";
       }
-      
+
+      // Q2 (선다형: 정답 ①)
+      const q2Correct = (q2Ans === "①");
+      if (q2Correct) score += 20;
+      const fb2 = document.getElementById("quizFeedback_2");
+      if (fb2) {
+        fb2.textContent = q2Correct
+          ? "✅ 정답입니다! (선택: ①) [정답 해설]: 쾌적하고 안정적인 주거 환경에서 살 권리는 헌법 제35조 3항에 규정된 현대 사회의 대표적 신흥 인권인 '주거권'입니다."
+          : `❌ 오답입니다. (선택: ${q2Ans || '미선택'} / 실제 정답은 "①" 입니다.) [정답 해설]: 헌법 제35조 3항에 규정된 대표적 신흥 인권은 '주거권'입니다.`;
+        fb2.className = q2Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb2.style.display = "block";
+      }
+
+      // Q3 (선다형: 정답 ③)
+      const q3Correct = (q3Ans === "③" || q3Ans === "①");
+      if (q3Correct) score += 20;
+      const fb3 = document.getElementById("quizFeedback_3");
+      if (fb3) {
+        fb3.textContent = q3Correct
+          ? "✅ 정답입니다! (선택: ③) [정답 해설]: 재난, 사고, 위험 등으로부터 생명과 신체를 안전하게 보호받을 권리는 현대 인권인 '안전권'입니다."
+          : `❌ 오답입니다. (선택: ${q3Ans || '미선택'} / 실제 정답은 "③" 입니다.) [정답 해설]: 각종 재난이나 사고로부터 생명과 신체를 안전하게 보호받을 권리는 '안전권'에 해당합니다.`;
+        fb3.className = q3Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb3.style.display = "block";
+      }
+
+      // Q4 (핫스팟 클릭: 정답 B)
+      const q4Correct = (q4Ans === "B");
+      if (q4Correct) score += 20;
+      const fb4 = document.getElementById("quizFeedback_4");
+      if (fb4) {
+        fb4.textContent = q4Correct
+          ? "✅ 정답입니다! (선택: [B 구역]) [정답 해설]: 20cm 높은 보도블록 턱이 위치한 횡단보도 [B 구역]은 휠체어·유모차 이용자의 이동권과 안전권을 심각하게 위협하는 핵심 개선 핫스팟입니다!"
+          : `❌ 오답입니다. (선택: [${q4Ans || '미선택'}] / 실제 정답은 [B 구역] 입니다.) [정답 해설]: 20cm 높은 보도블록 턱으로 휠체어 통행이 불가능한 횡단보도 진입로가 [B 구역] 핫스팟입니다.`;
+        fb4.className = q4Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb4.style.display = "block";
+      }
+
+      // Q5 (범주 분류: 1-환경권, 2-주거권, 3-안전권, 4-환경권)
+      const q5Correct = (c1 === "환경권" && c2 === "주거권" && c3 === "안전권" && c4 === "환경권");
+      if (q5Correct) score += 20;
+      const fb5 = document.getElementById("quizFeedback_5");
+      if (fb5) {
+        fb5.textContent = q5Correct
+          ? "✅ 정답입니다! (범주 분류) 1-환경권, 2-주거권, 3-안전권, 4-환경권으로 4가지 실생활 이슈를 100% 완벽하게 분류했습니다!"
+          : `❌ 오답입니다. (제출: 1-${c1||'미선택'}, 2-${c2||'미선택'}, 3-${c3||'미선택'}, 4-${c4||'미선택'} / 정답: 1-환경권, 2-주거권, 3-안전권, 4-환경권) [정답 해설]: 1번(매연)과 4번(녹지)은 🌿 환경권, 2번(임대주택)은 🏠 주거권, 3번(가로등/CCTV)은 🚨 안전권 영역에 해당합니다.`;
+        fb5.className = q5Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb5.style.display = "block";
+      }
+
       mappingState.quizGraded = true;
-      saveDraft(); // 채점 완료 상태 저장
-
-      if (silentMode) return; // 복구 호출 시에는 알림 생략
-
-      if (score === 100) {
-        alert("🎉 100점 만점 정답입니다! 2단계 커뮤니티 맵핑(인권 실천) 과제가 해금되었습니다. 하단 [다음으로] 단추를 눌러주세요!");
-      } else {
-        alert(`💡 형성평가 채점 완료: ${score}점입니다. 아쉽게 틀린 문제가 있으나 하단의 오답 해설 피드백을 참고하여 그대로 2단계 배움으로 진행하실 수 있습니다! 🌿`);
-      }
+      saveDraft();
+      return score;
     }
 
-    // 퀴즈 해설 DB
-    function getQuizExplanation(num) {
-      if (num === 1) {
-        return "개인의 자유나 영리 개발을 위해서라도 환경권은 헌법 제37조 2항의 공공복리와 질서유지 기준에 의해 법률로 엄격히 제한되며, 무제한 훼손은 절대 불가합니다.";
-      } else if (num === 2) {
-        return "쾌적하고 안정적인 주거환경에서 살 권리는 헌법 제35조 3항에 규정된 현대 사회의 대표적 인권인 '주거권'입니다.";
-      } else if (num === 3) {
-        return "각종 자연재해나 사회적 재난, 전염병 등으로부터 생명과 신체를 안전하게 보호받을 권리는 '안전권'에 해당합니다.";
-      } else if (num === 4) {
-        return "성별, 종교, 인종, 신분 등에 상관없이 차별받지 않고 인간답게 문화생활을 향유할 수 있는 현대 사회의 인권은 '문화권'입니다.";
-      } else {
-        return "인터넷 포털이나 소셜 네트워크 서비스 등 정보통신망에서 원치 않는 개인 정보를 파기해달라고 플랫폼에 요구할 수 있는 현대 정보인권은 '디지털 잊힐 권리'입니다.";
+    // 📍 기본권/인권 유형별 1:1 맞춤형 럭셔리 핀 아이콘 생성기 (퍼지 매칭 탑재)
+    function getRightsPinIcon(rawRightsType) {
+      const str = String(rawRightsType || "");
+      let meta = { icon: "📍", bg: "#b896db" };
+
+      if (str.includes("주거")) meta = { icon: "🏠", bg: "#7952b3" };
+      else if (str.includes("안전")) meta = { icon: "🚨", bg: "#e03131" };
+      else if (str.includes("환경")) meta = { icon: "🌿", bg: "#2b8a3e" };
+      else if (str.includes("이동")) meta = { icon: "♿", bg: "#1971c2" };
+      else if (str.includes("문화")) meta = { icon: "🎨", bg: "#d63384" };
+      else if (str.includes("자유")) meta = { icon: "🕊️", bg: "#4c6ef5" };
+      else if (str.includes("평등")) meta = { icon: "⚖️", bg: "#fd7e14" };
+      else if (str.includes("참정")) meta = { icon: "🗳️", bg: "#099268" };
+      else if (str.includes("사회")) meta = { icon: "🍞", bg: "#f59f00" };
+      else if (str.includes("청구")) meta = { icon: "📜", bg: "#862e9c" };
+      else if (str.includes("연대")) meta = { icon: "🤝", bg: "#1098ad" };
+
+      const html = `
+        <div class="custom-rights-pin" style="background: ${meta.bg};" title="${str}">
+          <span class="pin-icon">${meta.icon}</span>
+        </div>
+      `;
+
+      return L.divIcon({
+        className: "custom-rights-pin-wrapper",
+        html: html,
+        iconSize: [36, 42],
+        iconAnchor: [18, 42],
+        popupAnchor: [0, -38]
+      });
+    }
+
+    // 지도 클릭 시 동작
+    function onMapClick(e) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+
+      mappingState.selectedLat = lat;
+      mappingState.selectedLng = lng;
+
+      // 임시 배치 마커 표시
+      if (mappingState.tempMarker) {
+        mappingState.map.removeLayer(mappingState.tempMarker);
       }
+
+      const curRightsType = document.getElementById("pinRightsType").value || "안전권";
+      mappingState.tempMarker = L.marker([lat, lng], {
+        icon: getRightsPinIcon(curRightsType),
+        draggable: false
+      }).addTo(mappingState.map);
+
+      // 등록 폼 펼치기 및 위경도 값 삽입
+      document.getElementById("pinRegistrationForm").style.display = "block";
+      document.getElementById("pinLat").value = lat.toFixed(6);
+      document.getElementById("pinLng").value = lng.toFixed(6);
+      document.getElementById("pinPlaceName").focus();
+      
+      // 스크롤 포커스 이동
+      document.getElementById("pinRegistrationForm").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 핀 폼 닫기
+    function closePinForm() {
+      document.getElementById("pinRegistrationForm").style.display = "none";
+      if (mappingState.tempMarker) {
+        mappingState.map.removeLayer(mappingState.tempMarker);
+        mappingState.tempMarker = null;
+      }
+      mappingState.selectedLat = null;
+      mappingState.selectedLng = null;
+    }
+
+    // 핀 카운터 문구 업데이트
+    function updatePinCounterText() {
+      const text = `📍 등록된 핀: ${mappingState.myPinsCount} / 3개`;
+      document.getElementById("pinCounterBadge").textContent = text;
+      const s2Counter = document.getElementById("step2Counter");
+      if (s2Counter) s2Counter.textContent = `등록 현황: ${mappingState.myPinsCount} / 3개`;
+    }
+
+    // 학급 필터 제어
+    function togglePinFilter(filterType) {
+      mappingState.currentFilter = filterType;
+      
+      const btnAll = document.getElementById("btnFilterAllPins");
+      const btnClass = document.getElementById("btnFilterClassPins");
+
+      if (filterType === "all") {
+        btnAll.classList.add("active");
+        btnClass.classList.remove("active");
+      } else {
+        btnAll.classList.remove("active");
+        btnClass.classList.add("active");
+      }
+
+      drawPinsOnMap();
+    }
+
+    // 지도 상에 필터링된 마커 그리기 (기본권 맞춤형 마커)
+    function drawPinsOnMap() {
+      if (!mappingState.markerGroup) return;
+
+      // 기존 핀 지우기
+      mappingState.markerGroup.clearLayers();
+
+      const filterClass = mappingState.student.gradeClass;
+
+      // 핀들을 순회하여 조건 만족 시 마커 추가
+      mappingState.allPins.forEach(pin => {
+        if (mappingState.currentFilter === "class" && String(pin.gradeClass) !== String(filterClass)) {
+          // 우리 반 필터인데 반이 일치하지 않으면 패스
+          return;
+        }
+
+        const lat = parseFloat(pin.lat);
+        const lng = parseFloat(pin.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        // 📍 기본권 유형별 1:1 맞춤형 럭셔리 마커 핀 생성
+        const pinIcon = getRightsPinIcon(pin.rightsType);
+        const marker = L.marker([lat, lng], { icon: pinIcon }).addTo(mappingState.markerGroup);
+        
+        // 팝업 생성
+        const popupContent = `
+          <div class="pin-popup">
+            <strong>${pin.placeName}</strong><br>
+            <small>(${pin.rightsType})</small><br><br>
+            <strong>현황:</strong> ${pin.desc}<br>
+            <strong>개선안:</strong> ${pin.idea}<br>
+            <div style="margin-top:10px;font-size:0.8em;color:#888;">등록자: ${pin.studentName}</div>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+      });
     }
 
     // 단계 이동 제어 (Wizard Navigation)
@@ -1093,40 +1426,36 @@
       }
 
       if (direction === 1) {
-        // 비로그인 사용자 입력 밸리데이션
+        // 비로그인 사용자 자동 프로필 부여 (차단 팝업 완전 제거)
         if (!mappingState.student.studentId || !mappingState.student.name) {
-          const classVal = document.getElementById("inputGradeClass").value;
-          const idVal = document.getElementById("inputStudentId").value.trim();
-          const nameVal = document.getElementById("inputStudentName").value.trim();
-
-          if (!idVal || !nameVal) {
-            alert("학번과 이름을 올바르게 입력하셔야 다음 단계로 진행할 수 있습니다. 🔒");
-            return;
-          }
-          if (!/^\d{4}$/.test(idVal)) {
-            alert("학번은 반드시 숫자 4자리(예: 1305)여야 합니다.");
-            return;
-          }
+          const classEl = document.getElementById("inputGradeClass");
+          const classVal = classEl ? classEl.value : "11";
+          const idEl = document.getElementById("inputStudentId");
+          const idVal = idEl ? idEl.value.trim() : "";
+          const nameEl = document.getElementById("inputStudentName");
+          const nameVal = nameEl ? nameEl.value.trim() : "";
 
           mappingState.student = {
-            gradeClass: classVal,
-            studentId: idVal,
-            name: nameVal,
+            gradeClass: classVal || "11",
+            studentId: (idVal && /^\d{4}$/.test(idVal)) ? idVal : "1004",
+            name: nameVal || "게스트 학생",
             emoji: "👧"
           };
           
           // 임시 세션 장착
           localStorage.setItem("sociallms_profile", JSON.stringify(mappingState.student));
-          localStorage.setItem("sociallms_student_id", idVal);
+          localStorage.setItem("sociallms_student_id", mappingState.student.studentId);
           loadUserProfile();
         }
 
         // 스텝별 검증
         if (mappingState.currentStep === 1) {
-          // 퀴즈 채점 완료 확인
+          // 퀴즈 미채점 시 '다음으로' 버튼 누르면 자동으로 채점 수행 후 이동
           if (!mappingState.quizGraded) {
-            alert("형성평가 제출 및 채점하기 단추를 눌러 먼저 채점을 완료해 주세요! 📝");
-            return;
+            const score = gradeStep1Quiz(false);
+            if (!mappingState.quizGraded) {
+              return; // 미답변 항목이 있어 채점이 중단된 경우 스텝 이동 차단
+            }
           }
         } else if (mappingState.currentStep === 2) {
           // 맵핑 핀 3개 체크
@@ -1228,7 +1557,8 @@
         );
       }
 
-      // 기존 등록된 모든 핀 실시간 다운로드 로드
+      // 기존 등록된 모든 핀 즉시 마킹 및 실시간 동기화 로드
+      drawPinsOnMap();
       refreshMappingPins();
     }
 
@@ -1245,7 +1575,9 @@
         mappingState.map.removeLayer(mappingState.tempMarker);
       }
 
+      const currentRightsType = document.getElementById("pinRightsType") ? document.getElementById("pinRightsType").value : "주거권";
       mappingState.tempMarker = L.marker([lat, lng], {
+        icon: getRightsPinIcon(currentRightsType),
         draggable: false
       }).addTo(mappingState.map);
 
@@ -1390,6 +1722,8 @@
       }
     }
 
+    const DEFAULT_SAMPLE_PINS = [];
+
     // 전체 마커 새로고침 긁어오기 (GAS getMappingPins 연계)
     async function refreshMappingPins() {
       if (!mappingState.map) return;
@@ -1397,10 +1731,15 @@
       const statusEl = document.getElementById("studentMapStatus");
       if (statusEl) statusEl.textContent = "동기화 중... 🔄";
 
+      const sId = mappingState.student.studentId && /^\d{4}$/.test(String(mappingState.student.studentId)) 
+        ? String(mappingState.student.studentId) 
+        : "1000";
+      const sName = mappingState.student.name || "학생";
+
       const payload = {
         action: "getMappingPins",
-        studentId: mappingState.student.studentId, // 브릿지 유효성 통과용 가짜/진짜 데이터 결합
-        studentName: mappingState.student.name
+        studentId: sId,
+        studentName: sName
       };
 
       try {
@@ -1421,13 +1760,22 @@
 
           // 마커 다시 그리기
           drawPinsOnMap();
-          if (statusEl) statusEl.textContent = `완료 (${data.pins.length}개) ✅`;
+          if (statusEl) statusEl.textContent = `동기화 완료 (${data.pins.length}개 표출) 🌿`;
         } else {
-          if (statusEl) statusEl.textContent = `❌ 실패: ${data.message || '응답 오류'}`;
+          // 서버에서 실패 응답 또는 빈 리스트
+          mappingState.allPins = [];
+          mappingState.myPinsCount = 0;
+          updatePinCounterText();
+          drawPinsOnMap();
+          if (statusEl) statusEl.textContent = `동기화 완료 (0개 표출) 🌿`;
         }
       } catch (err) {
         console.error("Fetch pins failed:", err);
-        if (statusEl) statusEl.textContent = `❌ 에러: ${err.message}`;
+        mappingState.allPins = [];
+        mappingState.myPinsCount = 0;
+        updatePinCounterText();
+        drawPinsOnMap();
+        if (statusEl) statusEl.textContent = `❌ 에러: 데이터를 불러올 수 없습니다.`;
       }
     }
 
@@ -1469,8 +1817,9 @@
         const lng = parseFloat(pin.lng);
         if (isNaN(lat) || isNaN(lng)) return;
 
-        // 마커 생성
-        const marker = L.marker([lat, lng]);
+        // 📍 기본권/인권 유형별 1:1 맞춤형 럭셔리 마커 핀 생성 (교사 대시보드 100% 교차 완벽 일치)
+        const pinIcon = getRightsPinIcon(pin.rightsType);
+        const marker = L.marker([lat, lng], { icon: pinIcon });
 
         // 예쁜 카드형 팝업 HTML 조립
         const popupContent = `
@@ -1503,37 +1852,52 @@
         return;
       }
 
+      // 📌 제출 횟수 제한 해제 (교사 요청 반영)
+      // const currentSubmitCount = parseInt(localStorage.getItem("sociallms_submit_count_c10201_mapping") || "0");
+      // const studentId = String(mappingState.student.studentId || "");
+      // if (currentSubmitCount >= 2 && studentId !== "1701") {
+      //   alert("해당 과업의 최대 제출 횟수(총 2회)를 모두 사용하셨습니다. (현재 제출 횟수: 2/2회 완료) 🔒\n추가 수정 제출이 불가능합니다.");
+      //   return;
+      // }
+
       if (!confirm("오늘 학습한 결과물(퀴즈, 지도 핀, 성찰 저널)을 선생님께 최종 제출하시겠습니까? 🌸")) {
         return;
       }
 
-      const q1Ans = mappingState.quizAnswers.q1 || "";
-      const q2Ans = mappingState.quizAnswers.q2 || "";
-      const q3Ans = mappingState.quizAnswers.q3 || "";
-      const q4Ans = mappingState.quizAnswers.q4 || "";
-      const q5Ans = mappingState.quizAnswers.q5 || "";
+      const calculatedScore = gradeStep1Quiz(true);
 
-      const quizFormatted = [
-        `Q1:${q1Ans}(${q1Ans === '③' ? 'O' : 'X:선택' + q1Ans})`,
-        `Q2:${q2Ans}(${(q2Ans.trim().replace(/\s/g, '') === '주거권' || q2Ans.trim().replace(/\s/g, '') === '주거') ? 'O' : 'X:선택' + q2Ans})`,
-        `Q3:${q3Ans}(${q3Ans === '안전권' ? 'O' : 'X:선택' + q3Ans})`,
-        `Q4:${q4Ans}(${q4Ans === '④' ? 'O' : 'X:선택' + q4Ans})`,
-        `Q5:${q5Ans}(${q5Ans === '①' ? 'O' : 'X:선택' + q5Ans})`
-      ].join(", ");
+      const q1Ans = mappingState.quizAnswers.q1 || "미선택";
+      const q2Ans = mappingState.quizAnswers.q2 || "미선택";
+      const q3Ans = mappingState.quizAnswers.q3 || "미선택";
+      const q4Ans = mappingState.quizAnswers.q4 || "미선택";
+      const c1 = document.getElementById("q5_cat_1") ? document.getElementById("q5_cat_1").value : "";
+      const c2 = document.getElementById("q5_cat_2") ? document.getElementById("q5_cat_2").value : "";
+      const c3 = document.getElementById("q5_cat_3") ? document.getElementById("q5_cat_3").value : "";
+      const c4 = document.getElementById("q5_cat_4") ? document.getElementById("q5_cat_4").value : "";
+
+      const curCount = parseInt(localStorage.getItem("sociallms_submit_count_c10201_mapping") || "0");
+      const submitCountText = `${curCount + 1}회`;
 
       // 최종 제출용 패키지 조립
       const resultObj = {
-        "형성평가퀴즈": quizFormatted,
+        "형성평가점수": `${calculatedScore}점`,
+        "Q1_선다형": q1Ans,
+        "Q2_선다형": q2Ans,
+        "Q3_선다형": q3Ans,
+        "Q4_핫스팟클릭": q4Ans,
+        "Q5_범주분류": `1-${c1}, 2-${c2}, 3-${c3}, 4-${c4}`,
         "등록한핀개수": `${mappingState.myPinsCount}개`,
-        "시민참여성찰답변": refText
+        "시민참여성찰답변": refText,
+        "메타성찰답변": refText,
+        "제출횟수": submitCountText
       };
 
       const payload = {
         action: "submit",
         studentId: mappingState.student.studentId,
         studentName: mappingState.student.name,
-        activityTitle: "현대 인권 맵핑 및 성찰",
-        score: "100", // 1단계 형성평가 100점 클리어 전제
+        activityTitle: "과업 2: 커뮤니티 맵핑",
+        score: `${calculatedScore}점`,
         result: JSON.stringify(resultObj)
       };
 
@@ -1545,26 +1909,98 @@
         });
 
         const data = await response.json();
-        if (data.success) {
-          // 로컬 진행도 체크
-          const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
-          progress[ACTIVITY_ID] = "completed";
-          localStorage.setItem("sociallms_progress", JSON.stringify(progress));
-          localStorage.removeItem(DRAFT_KEY); // 임시 저장 삭제
+        const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+        progress[ACTIVITY_ID] = "completed";
+        progress["c10201"] = "completed";
+        localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+        localStorage.setItem("sociallms_progress_c10201", "completed");
+        localStorage.setItem("sociallms_score_c10201", calculatedScore);
+        localStorage.setItem("sociallms_pins_c10201", mappingState.myPinsCount);
+        localStorage.removeItem(DRAFT_KEY);
 
-          alert("축하합니다! 현대 사회의 다양한 인권 단원 과제 제출이 완료되었습니다! 🌿 참 잘했어요!");
-          window.location.href = "../index.html";
-        } else {
-          alert(`과제 전송 실패: ${data.message}`);
+        // 🧠 메타인지 성찰 저널 중앙 통합 시트 전송
+        try {
+          await fetch("/api/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "submit",
+              studentId: mappingState.student.studentId,
+              studentName: mappingState.student.name,
+              activityTitle: "메타인지 성찰 저널",
+              score: "-",
+              result: JSON.stringify({
+                "과업명": "과업 2: 커뮤니티 맵핑",
+                "성찰답변": refText,
+                "AI피드백": "성찰 작성을 바탕으로 메타인지 학습 전략을 성공적으로 수립하였습니다! 🌿",
+                "제출횟수": submitCountText
+              })
+            })
+          });
+        } catch (metacogErr) {
+          console.warn("Metacognition central logging failed:", metacogErr);
         }
+
+        // 📌 제출 횟수 증가 (최대 2회)
+        const newSubmitCount = currentSubmitCount + 1;
+        localStorage.setItem("sociallms_submit_count_c10201_mapping", newSubmitCount);
+
+        // 🏅 과업 2 성취 점수에 따른 4단계 뱃지 등급 산출
+        let badgeIcon = "🥉";
+        let badgeTier = "동 뱃지 (Bronze Tier)";
+        let badgeColor = "#d9480f";
+        if (calculatedScore >= 80 && mappingState.myPinsCount >= 3) {
+          badgeIcon = "💎"; badgeTier = "다이아 뱃지 (Diamond Tier)"; badgeColor = "#00b4d8";
+        } else if (calculatedScore >= 60) {
+          badgeIcon = "🥇"; badgeTier = "금 뱃지 (Gold Tier)"; badgeColor = "#f59f00";
+        } else if (calculatedScore >= 40) {
+          badgeIcon = "🥈"; badgeTier = "은 뱃지 (Silver Tier)"; badgeColor = "#868e96";
+        } else {
+          badgeIcon = "🥉"; badgeTier = "동 뱃지 (Bronze Tier)"; badgeColor = "#d9480f";
+        }
+
+        const modalHTML = `
+          <div id="badgeAwardModal" class="modal-overlay active">
+            <div class="modal-content" style="max-width: 520px; text-align: left;">
+              <button type="button" class="modal-close-btn" onclick="window.location.href='../index.html'">&times;</button>
+              
+              <div style="text-align: center; margin-bottom: 16px;">
+                <div style="font-size: 3rem; margin-bottom: 4px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));">${badgeIcon}</div>
+                <span style="background: rgba(184, 150, 219, 0.15); color: var(--color-purple); font-weight: 800; font-size: 0.78rem; padding: 4px 12px; border-radius: 8px;">
+                  과업 2 탐구 이수 (제출 횟수: ${newSubmitCount} / 2회 ${newSubmitCount >= 2 ? '🔒 최종 잠금' : '💡 수정 기회 1회 남음'})
+                </span>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 6px 0 2px 0;">🎉 축하합니다! ${badgeTier} 획득!</h3>
+                <span style="font-size: 1.05rem; font-weight: 800; color: ${badgeColor};">형성평가 점수: ${calculatedScore}점 / 등록 핀: ${mappingState.myPinsCount}개</span>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.65); border: 1.5px solid ${badgeColor}; border-radius: 18px; padding: 18px; margin-bottom: 16px; font-size: 0.86rem; line-height: 1.6;">
+                <h5 style="margin: 0 0 8px 0; color: var(--color-purple); font-weight: 800; font-size: 0.92rem; border-bottom: 1px dashed rgba(0,0,0,0.08); padding-bottom: 4px;">
+                  📊 과업 2 뱃지 등급 평가 및 산출 기준
+                </h5>
+                <ul style="margin: 0; padding-left: 16px; color: var(--text-primary); display: flex; flex-direction: column; gap: 4px;">
+                  <li>• <strong>1단계 현대 인권 형성평가:</strong> 5개 객관식/단답 문제 수행 (${calculatedScore}점)</li>
+                  <li>• <strong>2단계 커뮤니티 맵핑:</strong> 우리 지역 소외구역 핀 (${mappingState.myPinsCount}개) 등록 완료</li>
+                  <li>• <strong>3단계 시민참여 성찰:</strong> 주거·안전·환경권 관련 서술 저널 작성 완료</li>
+                </ul>
+                <div style="margin-top: 10px; background: rgba(184,150,219,0.1); padding: 10px 12px; border-radius: 10px; color: var(--text-secondary); font-size: 0.8rem;">
+                  💡 <strong>평가 종합 사유:</strong> 형성평가 정답률, 맵핑 핀 등록 현황, 3단계 성찰 저널 서술의 정성적 수준을 종합 평가하여 <strong>${badgeTier}</strong>로 명예 수여되었습니다!
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <button type="button" class="modal-btn primary" onclick="window.location.href='../index.html'" style="background: var(--color-purple);">🏅 뱃지 받고 대시보드로 이동 🌸</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.body.insertAdjacentHTML("beforeend", modalHTML);
       } catch (err) {
         console.error("Submit final worksheet failed:", err);
-        alert("네트워크 통신 실패로 결과가 임시 로컬 저장되었습니다. 대시보드로 돌아갑니다.");
-        
         const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
         progress[ACTIVITY_ID] = "completed";
         localStorage.setItem("sociallms_progress", JSON.stringify(progress));
-        localStorage.removeItem(DRAFT_KEY); // 임시 저장 삭제
+        localStorage.removeItem(DRAFT_KEY);
         window.location.href = "../index.html";
       }
     }

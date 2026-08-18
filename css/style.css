@@ -76,11 +76,18 @@ body {
   background: rgba(188, 156, 222, 0.7);
 }
 
-/* 컨테이너 (iPad 가로세로 모드에 대응하는 반응형 그리드) */
+/* 컨테이너 (와이드 스크린 1.5배 확장 대응) */
 .app-container {
-  max-width: 1080px;
+  max-width: 1650px;
   margin: 0 auto;
   padding-bottom: 60px;
+}
+
+/* 활동 공통 스타일 (activities) */
+.activity-page {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 /* 헤더 스타일 */
@@ -604,6 +611,7 @@ header {
 }
 
 .modal-content {
+  position: relative;
   background: var(--bg-gradient);
   border: 1px solid var(--border-glass);
   border-radius: 28px;
@@ -613,6 +621,43 @@ header {
   box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
   transform: translateY(30px) scale(0.95);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 🌸 프리미엄 모달 닫기(X) 원형 럭셔리 버튼 스타일 */
+.modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10;
+  outline: none;
+  line-height: 1;
+}
+
+[data-theme="dark"] .modal-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.modal-close-btn:hover {
+  background: var(--color-pink);
+  color: white;
+  border-color: var(--color-pink);
+  transform: rotate(90deg) scale(1.12);
+  box-shadow: 0 4px 14px rgba(255, 133, 162, 0.45);
 }
 
 .modal-overlay.active .modal-content {
@@ -1103,6 +1148,43 @@ header {
 
 .emoji-display-window.bounce {
   transform: scale(1.25);
+}
+
+/* 📍 [전역] 기본권/인권 유형별 1:1 맞춤형 럭셔리 마커 핀 스타일 (교사/학생 공통) */
+.leaflet-marker-icon.custom-rights-pin-wrapper,
+.leaflet-pane .leaflet-marker-icon.custom-rights-pin-wrapper,
+.custom-rights-pin-wrapper {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.custom-rights-pin {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% 50% 50% 0 !important;
+  transform: rotate(-45deg) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  border: 2.5px solid #ffffff !important;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease !important;
+  cursor: pointer !important;
+}
+
+.custom-rights-pin:hover {
+  transform: rotate(-45deg) scale(1.25) !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5) !important;
+  z-index: 99999 !important;
+}
+
+.custom-rights-pin .pin-icon {
+  transform: rotate(45deg) !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
 }
 
 

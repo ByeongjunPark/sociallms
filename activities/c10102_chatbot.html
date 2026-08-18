@@ -3,477 +3,1470 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>병준쌤 봇과 함께하는 시민 참여 시뮬레이션 💬</title>
+  <title>과업 3: 헌법의 역할과 시민 참여 (NVIDIA AI 페르소나 챗봇) 💬</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
+    /* 와이드 스크린 1350px 파스텔 글래스모피즘 테마 */
     .activity-container {
-      max-width: 700px;
+      max-width: 1350px;
       margin: 0 auto;
-      padding-bottom: 40px;
-      height: 90vh;
-      display: flex;
-      flex-direction: column;
+      padding-bottom: 80px;
       animation: fadeInUp 0.6s ease;
     }
     
-    .chat-card {
+    .card-activity {
       background: var(--bg-card);
       border: 1px solid var(--border-glass);
       border-radius: 28px;
+      padding: 32px;
       box-shadow: var(--shadow-primary);
       backdrop-filter: blur(12px);
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
 
-    .chat-header {
-      padding: 16px 24px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(255, 255, 255, 0.3);
-    }
-    [data-theme="dark"] .chat-header {
-      border-bottom-color: rgba(255, 255, 255, 0.05);
-      background: rgba(255, 255, 255, 0.02);
-    }
-    .teacher-avatar {
-      font-size: 2rem;
+    .student-badge {
+      font-size: 0.9rem;
       background: var(--color-purple-soft);
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-    .teacher-status {
-      display: flex;
-      flex-direction: column;
-    }
-    .teacher-name {
+      color: var(--color-purple);
+      padding: 8px 16px;
+      border-radius: 14px;
       font-weight: 700;
-      font-size: 1rem;
-    }
-    .teacher-badge-active {
-      font-size: 0.75rem;
-      color: var(--color-mint);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 12px;
     }
 
-    /* 대화 영역 */
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
+    .activity-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    /* 2단계 전용 2단 그리드 (좌: 희망 진로 매칭 페르소나 프로필 / 우: Upstage Solar Pro3 챗봇) */
+    .step2-grid {
+      display: grid;
+      grid-template-columns: 370px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .step2-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* NVIDIA Nemotron 페르소나 프로필 카드 */
+    .persona-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(243,238,255,0.95) 100%);
+      border: 1.5px solid rgba(184, 150, 219, 0.35);
+      border-radius: 24px;
       padding: 24px;
+      box-shadow: 0 10px 30px rgba(184, 150, 219, 0.12);
       display: flex;
       flex-direction: column;
       gap: 16px;
-      -webkit-overflow-scrolling: touch;
+      height: fit-content;
     }
 
-    .message-bubble {
-      max-width: 75%;
-      padding: 14px 20px;
-      border-radius: 20px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      position: relative;
-      animation: messageSlide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-    }
-    
-    .message-bubble.teacher {
-      background: white;
-      color: var(--text-primary);
-      align-self: flex-start;
-      border-top-left-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    }
-    [data-theme="dark"] .message-bubble.teacher {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .message-bubble.student {
-      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
-      color: white;
-      align-self: flex-end;
-      border-top-right-radius: 4px;
-      box-shadow: 0 4px 15px rgba(184, 150, 219, 0.25);
-    }
-
-    .message-time {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      margin-top: 4px;
-      align-self: flex-end;
-    }
-    .message-bubble.teacher + .message-time {
-      align-self: flex-start;
-      margin-left: 6px;
-    }
-    .message-bubble.student + .message-time {
-      align-self: flex-end;
-      margin-right: 6px;
-    }
-
-    /* 로딩 애니메이션 */
-    .typing-indicator {
+    .persona-avatar-box {
       display: flex;
-      gap: 4px;
-      padding: 12px 18px;
-      background: white;
-      border-radius: 20px;
-      width: fit-content;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      align-self: flex-start;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1.5px solid rgba(0,0,0,0.06);
+      padding-bottom: 14px;
     }
-    [data-theme="dark"] .typing-indicator {
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .typing-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--color-purple);
-      border-radius: 50%;
-      animation: typingBounce 1.4s infinite ease-in-out both;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-    /* 대답 선택 패널 */
-    .response-panel {
-      padding: 16px 24px;
-      background: rgba(255, 255, 255, 0.4);
-      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    .persona-avatar-emoji {
+      font-size: 3rem;
+      width: 68px;
+      height: 68px;
+      background: #ffffff;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    .persona-name-tag {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-    [data-theme="dark"] .response-panel {
-      background: rgba(255, 255, 255, 0.02);
-      border-top-color: rgba(255, 255, 255, 0.05);
-    }
-    .choices-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
-    .choice-btn {
-      background: white;
-      border: 1.5px solid var(--color-purple-soft);
-      padding: 12px 20px;
-      border-radius: 16px;
-      font-family: var(--font-family-body);
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-      transition: all 0.2s ease;
-    }
-    [data-theme="dark"] .choice-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
-    .choice-btn:hover {
-      background: var(--color-purple-soft);
-      border-color: var(--color-purple);
-      transform: translateY(-2px);
     }
 
-    .custom-input-bar {
+    .persona-name-tag h4 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .persona-name-tag span {
+      font-size: 0.82rem;
+      color: var(--color-purple);
+      font-weight: 700;
+    }
+
+    .persona-info-item {
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 0.83rem;
+      line-height: 1.5;
+    }
+
+    .persona-info-item strong {
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .persona-grievance-box {
+      background: rgba(255, 107, 107, 0.08);
+      border-left: 4px solid #e03131;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.83rem;
+      color: var(--text-primary);
+      line-height: 1.55;
+    }
+
+    /* 3단계 마법사 탭 */
+    .wizard-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      background: rgba(0,0,0,0.03);
+      padding: 6px;
+      border-radius: 18px;
+    }
+
+    .wizard-step-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .wizard-step-item.active {
+      background: #ffffff;
+      color: var(--color-purple);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .wizard-step-item.completed {
+      color: #2b8a3e;
+    }
+
+    /* 퀴즈 카드 */
+    .quiz-card {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .quiz-option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1.5px solid rgba(0,0,0,0.05);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.7);
+      transition: all 0.2s;
+    }
+
+    .quiz-option-label:hover {
+      background: rgba(184, 150, 219, 0.08);
+      border-color: var(--color-purple);
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.83rem;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .quiz-feedback.correct {
+      background: rgba(43, 138, 62, 0.1);
+      color: #2b8a3e;
+      border-left: 4px solid #2b8a3e;
+    }
+
+    .quiz-feedback.incorrect {
+      background: rgba(224, 49, 49, 0.1);
+      color: #e03131;
+      border-left: 4px solid #e03131;
+    }
+
+    /* 챗봇 대화창 UI */
+    .chat-window {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(184, 150, 219, 0.25);
+      border-radius: 24px;
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chat-bubble {
+      max-width: 82%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      word-break: break-word;
+      animation: fadeInUp 0.3s ease;
+    }
+
+    .chat-bubble.persona {
+      align-self: flex-start;
+      background: #ffffff;
+      border: 1.5px solid rgba(184, 150, 219, 0.25);
+      border-top-left-radius: 4px;
+      color: var(--text-primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .chat-bubble.student {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--color-purple) 0%, #7952b3 100%);
+      color: #ffffff;
+      border-top-right-radius: 4px;
+      box-shadow: 0 4px 14px rgba(121, 82, 179, 0.25);
+    }
+
+    .chat-input-bar {
       display: flex;
       gap: 8px;
-    }
-    .custom-input {
-      flex: 1;
-      background: white;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 16px;
       padding: 14px;
+      background: rgba(255,255,255,0.95);
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      border: 1.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
       font-family: var(--font-family-body);
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       outline: none;
     }
-    [data-theme="dark"] .custom-input {
-      background: rgba(255, 255, 255, 0.03);
-      border-color: rgba(255, 255, 255, 0.08);
-      color: white;
-    }
-    .custom-send-btn {
-      background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%);
+
+    .chat-input-bar button {
+      background: var(--color-purple);
       color: white;
       border: none;
-      padding: 0 20px;
-      border-radius: 16px;
+      padding: 10px 18px;
+      border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
+      transition: background 0.2s;
     }
 
-    @keyframes messageSlide {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+    .chat-input-bar button:hover {
+      background: #6741d9;
     }
-    @keyframes typingBounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1.0); }
+
+    /* 통일된 하단 마법사 조작 바 */
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* 럭셔리 모달 닫기 버튼 */
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+    }
+
+    .modal-close-btn:hover {
+      background: var(--color-purple);
+      color: #ffffff;
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 4px 12px rgba(121, 82, 179, 0.3);
     }
   </style>
 </head>
 <body>
-  <div class="activity-page" style="height: 100vh; display: flex; flex-direction: column;">
-    <a href="../index.html" class="activity-back-link">🌸 대시보드로 돌아가기</a>
-    
-    <div class="activity-container">
-      <div style="text-align: right; margin-bottom: 10px;">
-        <span class="student-badge" id="studentBadge" style="background: var(--color-purple-soft); color: var(--color-purple);">👧 설정된 학생 없음</span>
+  <div class="activity-container">
+    <div class="activity-header" style="margin-bottom: 20px;">
+      <a href="../index.html" class="activity-back-link">⬅️ 대시보드로 돌아가기</a>
+    </div>
+
+    <!-- 헤더 카드 -->
+    <div class="card-activity" style="padding: 28px 36px; margin-bottom: 20px;">
+      <span class="student-badge" id="studentBadge">👧 학생 프로필 로딩 중...</span>
+      <h2 class="activity-title">💬 과업 3: 헌법의 역할과 시민 참여 (가상 시민 AI 대화)</h2>
+      <p style="margin: 0; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">
+        학생의 희망 진로 및 관심사와 1:1 맞춤 추천된 가상 시민의 인권 고충을 2단계 대화로 경청하고, 헌법상 기본권 침해 원인을 분석하여 구체적 시민 참여 해결책을 제시해 주세요! 🏛️
+      </p>
+    </div>
+
+    <!-- 3단계 인디케이터 바 -->
+    <div class="wizard-steps">
+      <div class="wizard-step-item active" id="stepTab_1" onclick="jumpToStep(1)">1단계: 형성평가 📝</div>
+      <div class="wizard-step-item" id="stepTab_2" onclick="jumpToStep(2)">2단계: AI 대화 💬 (진로 매칭 카드 & Solar Pro3 연동)</div>
+      <div class="wizard-step-item" id="stepTab_3" onclick="jumpToStep(3)">3단계: 성찰 저널 💡</div>
+    </div>
+
+    <!-- [1단계: 형성평가 (고품질 탐구 5문항)] -->
+    <div class="card-activity" id="stepSection_1" style="padding: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--color-purple);">
+          📝 [1단계] 헌법의 역할과 시민 참여 고급 개념 형성평가
+        </h4>
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);" id="step1ScoreNotice">
+          총 5문항 (문항당 20점)
+        </span>
       </div>
 
-      <!-- 메인 챗 프레임 -->
-      <main class="chat-card">
-        <div class="chat-header">
-          <div class="teacher-avatar">👨‍🏫</div>
-          <div class="teacher-status">
-            <span class="teacher-name">병준쌤 AI 🌸</span>
-            <span class="teacher-badge-active">🟢 실시간 대화 중</span>
-          </div>
+      <!-- Q1: [선다형 - 난이도 하] 기본권 기초 개념 -->
+      <div class="quiz-card" id="quizCard_1">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q1. [기본권 개념] 부당한 차별을 받지 않을 권리</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: rgba(43, 138, 62, 0.1); padding: 3px 8px; border-radius: 6px;">선다형 (난이도: 하)</span>
         </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px;">
+          📌 <strong>[제시문]</strong> "국가나 타인으로부터 성별, 종교, 장애, 신분 등을 이유로 부당한 차별을 받지 않고 법 앞에 동등하게 대우받을 권리"
+        </p>
+        <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 8px;">위 제시문이 설명하는 헌법상 기본권의 유형은 무엇인가요?</p>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '①', this)">
+          <input type="radio" name="q1" value="①" class="quiz-option-input"> ① 평등권 - 법 앞에 차별받지 않고 균등한 대우를 받을 권리
+        </label>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '②', this)">
+          <input type="radio" name="q1" value="②" class="quiz-option-input"> ② 자유권 - 국가 권력의 부당한 간섭이나 침해를 받지 않을 권리
+        </label>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '③', this)">
+          <input type="radio" name="q1" value="③" class="quiz-option-input"> ③ 참정권 - 국가의 정치 과정에 직접 또는 간접적으로 참여할 권리
+        </label>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 1, '④', this)">
+          <input type="radio" name="q1" value="④" class="quiz-option-input"> ④ 청구권 - 기본권이 침해되었을 때 그 구제를 요구할 수 있는 권리
+        </label>
+        <div class="quiz-feedback" id="quizFeedback_1"></div>
+      </div>
 
-        <!-- 메시지 윈도우 -->
-        <div class="chat-messages" id="chatMessages">
-          <!-- 대화 말풍선이 동적으로 생성됩니다. -->
+      <!-- Q2: [단답형 - 난이도 중] 헌법 제37조 제2항 기본권 제한의 한계 원칙 -->
+      <div class="quiz-card" id="quizCard_2">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q2. [단답형] 헌법 제37조 제2항 기본권 제한의 한계 원칙</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25, 113, 194, 0.1); padding: 3px 8px; border-radius: 6px;">단답형 (직접 입력)</span>
         </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; line-height: 1.6;">
+          📌 <strong>[헌법 제37조 제2항]</strong> "국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 <u>법률로써 제한할 수 있으며</u>, 자유와 권리의 본질적인 내용을 침해할 수 없다."
+        </p>
+        <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 10px; font-weight: 600;">
+          위 헌법 조항의 <u>'법률로써 제한할 수 있으며'</u>가 내포하는 의미로서, 국가가 국민의 기본권을 제한할 때는 목적의 정당성, 수단의 적합성, 피해의 최소성, 법익의 균형성을 갖추어야 한다는 기본권 제한의 한계 원칙은 '<strong>O O O O 의 원 칙</strong>'입니다. 빈칸에 들어갈 4글자 단어를 적으시오.
+        </p>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input type="text" id="q2_short_answer" oninput="saveDraft()" placeholder="단답형 4글자 답안 입력" style="width: 100%; max-width: 320px; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--color-purple); font-size: 0.95rem; font-weight: 700; color: var(--text-primary); outline: none; background: var(--bg-card);">
+        </div>
+        <div class="quiz-feedback" id="quizFeedback_2"></div>
+      </div>
 
-        <!-- 학생 응답 영역 -->
-        <div class="response-panel">
-          <div class="choices-container" id="choicesContainer">
-            <!-- 선택지 버튼이 동적으로 생성됩니다. -->
+      <!-- Q3: [선다형 - 난이도 중상] 헌법재판 권리 구제 제도의 유형 구분 -->
+      <div class="quiz-card" id="quizCard_3">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q3. [헌법재판 제도] 공권력 침해 시 권리 구제 제도 선택</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #d9480f; background: rgba(217, 72, 15, 0.1); padding: 3px 8px; border-radius: 6px;">선다형 (4지선다)</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; line-height: 1.6;">
+          📌 <strong>[사례]</strong> 국가 기관의 부당한 법률 적용이나 행정 공권력의 행사(또는 불행사)로 인하여 헌법상 보장된 기본권을 직접 침해당한 국민이 헌법재판소에 직접 권리 구제를 청구하는 제도
+        </p>
+        <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 8px; font-weight: 600;">위 설명에 올바르게 해당하는 헌법재판 제도의 명칭을 보기에서 고르시오.</p>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '①', this)">
+          <input type="radio" name="q3" value="①" class="quiz-option-input"> ① 권리구제형 헌법소원
+        </label>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '②', this)">
+          <input type="radio" name="q3" value="②" class="quiz-option-input"> ② 위헌심사형 헌법소원
+        </label>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '③', this)">
+          <input type="radio" name="q3" value="③" class="quiz-option-input"> ③ 위헌법률심판
+        </label>
+        <label class="quiz-option-label" onclick="selectQuizOption(event, 3, '④', this)">
+          <input type="radio" name="q3" value="④" class="quiz-option-input"> ④ 행정 강제 집행
+        </label>
+        <div class="quiz-feedback" id="quizFeedback_3"></div>
+      </div>
+
+      <!-- Q4: [상호작용형 짝맞추기] 기본권 종류 ↔ 실생활 고충 사례 1:1 매칭 -->
+      <div class="quiz-card" id="quizCard_4">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q4. [상호작용형 짝맞추기] 기본권 유형과 실생활 사례 1:1 매칭</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: rgba(43, 138, 62, 0.1); padding: 3px 8px; border-radius: 6px;">상호작용형 (드롭다운 매칭)</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 12px 0; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; line-height: 1.5;">
+          📌 아래 4개의 실생활 침해/요구 사례에 올바르게 해당되는 헌법상 기본권(자유권, 평등권, 청구권, 사회권)을 오른쪽에 골라 연결하시오.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">1) 국가 공권력의 침해에 대하여 헌법소원 및 재판 청구</span>
+            <select id="q4_match_1" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 기본권 선택 --</option>
+              <option value="자유권">자유권</option>
+              <option value="평등권">평등권</option>
+              <option value="청구권">청구권</option>
+              <option value="사회권">사회권</option>
+            </select>
           </div>
-          <div class="custom-input-bar">
-            <input type="text" id="customInput" class="custom-input" placeholder="여기에 의견을 자유롭게 적어보세요..." onkeypress="handleKeyPress(event)">
-            <button class="custom-send-btn" onclick="sendCustomMessage()">전송</button>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">2) 성별 및 종교를 이유로 정당한 사유 없이 임금 차별</span>
+            <select id="q4_match_2" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 기본권 선택 --</option>
+              <option value="자유권">자유권</option>
+              <option value="평등권">평등권</option>
+              <option value="청구권">청구권</option>
+              <option value="사회권">사회권</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">3) 인터넷 포털 개인정보 유출 및 집회의 자유 통제 받음</span>
+            <select id="q4_match_3" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 기본권 선택 --</option>
+              <option value="자유권">자유권</option>
+              <option value="평등권">평등권</option>
+              <option value="청구권">청구권</option>
+              <option value="사회권">사회권</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">4) 주 70시간 연속 강제 야근으로 인간다운 생활 위협</span>
+            <select id="q4_match_4" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 기본권 선택 --</option>
+              <option value="자유권">자유권</option>
+              <option value="평등권">평등권</option>
+              <option value="청구권">청구권</option>
+              <option value="사회권">사회권</option>
+            </select>
           </div>
         </div>
-      </main>
+        <div class="quiz-feedback" id="quizFeedback_4"></div>
+      </div>
+
+      <!-- Q5: [상호작용형 텍스트 하이라이트] 시민 불복종 지문 오개념 분석 -->
+      <div class="quiz-card" id="quizCard_5">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q5. [상호작용형 텍스트 하이라이트] 시민 불복종 요건 지문에서 오류 문장 선택</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: var(--color-purple); background: var(--color-purple-soft); padding: 3px 8px; border-radius: 6px;">상호작용형 (텍스트 형광펜 터치)</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0;">
+          💡 아래 제시문 중 <strong>정당한 시민 불복종의 요건에 <u>어긋나는 오개념 문장</u>을 클릭/터치하여 형광펜 하이라이트</strong> 하시오.
+        </p>
+
+        <div style="background: rgba(255,255,255,0.95); border: 1.5px dashed var(--color-purple-soft); border-radius: 14px; padding: 16px; font-size: 0.88rem; line-height: 1.8; color: var(--text-primary);" id="q5HighlightContainer">
+          "정당한 시민 불복종 운동은 헌법상 정의에 따라 수행된다.<br>
+          <span class="highlight-phrase" onclick="selectQ5Highlight('A', this)" style="padding: 3px 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; display: inline-block; margin-top: 4px;">
+            [A] 개인이나 특정 사익 집단의 재산적 이익 증진을 목적으로 삼아야 하며
+          </span>,<br>
+          <span class="highlight-phrase" onclick="selectQ5Highlight('B', this)" style="padding: 3px 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; display: inline-block; margin-top: 4px;">
+            [B] 폭력을 배제하고 주위에 피해를 주지 않는 비폭력이어야 하고
+          </span>,<br>
+          <span class="highlight-phrase" onclick="selectQ5Highlight('C', this)" style="padding: 3px 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; display: inline-block; margin-top: 4px;">
+            [C] 모든 합법적 수단을 다 사용한 후 행하는 최후의 수단이어야 하며
+          </span>,<br>
+          <span class="highlight-phrase" onclick="selectQ5Highlight('D', this)" style="padding: 3px 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; display: inline-block; margin-top: 4px;">
+            [D] 위법 행위에 따른 법적 처벌과 불이익을 기꺼이 받아들이는 처벌 감수성이 있어야 한다
+          </span>."
+        </div>
+        <div class="quiz-feedback" id="quizFeedback_5"></div>
+      </div>
+
+      <!-- 1단계 채점 전용 명시적 버튼 (5개 문항 최하단 배치) -->
+      <div style="text-align: center; margin-top: 24px; margin-bottom: 12px;">
+        <button type="button" onclick="gradeStep1Quiz(false)" style="background: linear-gradient(135deg, var(--color-purple) 0%, #818cf8 100%); color: white; border: none; padding: 14px 28px; border-radius: 16px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 14px rgba(168,130,220,0.35); transition: all 0.25s ease;">
+          📝 1단계 형성평가 제출 및 채점하기 🔍
+        </button>
+      </div>
+    </div>
+
+    <!-- [2단계: AI 대화형 챗봇 전이과제 - 좌측 인물 희망진로 매칭 신상 카드 / 우측 챗봇] -->
+    <div id="stepSection_2" style="display: none;">
+      <div class="step2-grid">
+        <!-- 좌측: 학생 희망 진로 1:1 맞춤 추천 신상 카드 -->
+        <aside class="persona-card" id="personaCard">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
+            <span style="font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: rgba(43, 138, 62, 0.1); padding: 4px 8px; border-radius: 6px;" id="personaMatchBadge">
+              🎯 학생 희망 진로 1:1 맞춤 추천
+            </span>
+            <button onclick="fetchRandomPersona(true)" style="font-size: 0.75rem; border: none; background: rgba(184,150,219,0.15); padding: 4px 10px; border-radius: 8px; cursor: pointer; font-weight: 800; color: var(--color-purple); transition: all 0.2s;">
+              🔄 인물 재매칭
+            </button>
+          </div>
+
+          <div class="persona-avatar-box" style="margin-top: 10px;">
+            <div class="persona-avatar-emoji" id="personaEmoji">👨‍💻</div>
+            <div class="persona-name-tag">
+              <h4 id="personaName">최민준</h4>
+              <span id="personaCareer">IT / AI 개발자 카테고리</span>
+            </div>
+          </div>
+
+          <div class="persona-info-item">
+            <strong>👤 신상 정보:</strong>
+            <span id="personaProfile">29세 / 판교 AI 스타트업 프론트엔드 개발자 (거주: 성남시 분당구)</span>
+          </div>
+
+          <div class="persona-info-item">
+            <strong>💡 가치관 & 특성:</strong>
+            <span id="personaValues">기술을 통한 사회 문제 해결 지향, 사생활 보호와 근로의 권리를 중요하게 여김</span>
+          </div>
+
+          <div class="persona-grievance-box">
+            <strong>🚨 헌법상 기본권 침해 고충 상황:</strong>
+            <p id="personaGrievance" style="margin: 4px 0 0 0;">
+              "인터넷 포털에 무단 유출된 개인 사생활 정보 때문에 잊힐 권리를 침해당하고, 포괄임금제로 주 70시간 연속 야간 근무를 강요받아 건강권과 인간다운 생활이 위협받고 있습니다."
+            </p>
+          </div>
+        </aside>
+
+        <!-- 우측: 가상 시민 AI 대화창 -->
+        <main class="card-activity" style="padding: 28px; margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--color-purple);">
+              💬 [2단계] 가상 시민과의 1:1 대화
+            </h4>
+            <span style="font-size: 0.8rem; font-weight: 700; color: #2b8a3e;" id="chatTurnCounter">
+              대화 진행: 0 / 3단계
+            </span>
+          </div>
+
+          <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+            💡 <strong>대화 미션 (3턴 순서대로 간결하게 진행)</strong>:<br>
+            1️⃣ <strong>[1턴: 공감]</strong> 좌측 시민의 고충을 경청하고 위로하기<br>
+            2️⃣ <strong>[2턴: 기본권 진단]</strong> 침해된 헌법상 기본권(자유권, 사회권, 안전권 등) 짚어주기<br>
+            3️⃣ <strong>[3턴: 솔루션 제안]</strong> 헌법소원, 국민청원, 시민단체 연대 등 구체적 해결책 알려주기
+          </p>
+
+          <!-- 미션 완료 배너 -->
+          <div id="chatCompletionBanner" style="display: none; background: rgba(43, 138, 62, 0.1); border: 1.5px solid #2b8a3e; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; color: #2b8a3e; margin-bottom: 12px; text-align: center; animation: fadeInUp 0.3s ease;">
+            🎉 AI 페르소나 대화 미션 완수! [성찰 저널로 이동 ➡️] 버튼을 눌러 다음 단계로 진행하세요.
+          </div>
+
+          <!-- 챗봇 메시지 영역 -->
+          <div class="chat-window">
+            <div class="chat-messages" id="chatMessages">
+              <!-- JS 동적 생성 -->
+            </div>
+            <div class="chat-input-bar">
+              <input type="text" id="chatInput" onkeypress="handleChatKeyPress(event)" placeholder="좌측 페르소나에게 공감 및 시민 참여 해결책을 말해보세요..." autocomplete="off">
+              <button type="button" id="chatSendBtn" onclick="sendChatMessage()">전송 🚀</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- [3단계: 메타인지 성찰 저널] -->
+    <div class="card-activity" id="stepSection_3" style="display: none; padding: 28px;">
+      <h4 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 800; color: var(--color-purple);">
+        💡 [3단계] 헌법의 역할과 시민 참여 학습 과정 성찰 저널
+      </h4>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+        오늘 가상 시민 AI와의 대화를 통해 헌법이 왜 필요한지, 그리고 주권자인 시민으로서 어떤 방식으로 문제를 해결할 수 있는지 배운 점과 스스로의 공부 보완책을 서술해 주세요.
+      </p>
+
+      <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6; border: 1.5px solid rgba(0,0,0,0.08); outline: none;" placeholder="예: '헌법이 단순한 조문이 아니라 국민의 기본권을 지키는 울타리임을 알게 되었습니다. 불공정 노동 환경에 대해 국민신문고 청원과 시민단체 연대가 큰 힘이 됨을 느꼈으며, 차후에는 헌법소원 심판 절차를 더 탐구하겠습니다.' (최소 30글자 필수)"></textarea>
+    </div>
+
+    <!-- 통일된 마법사 하단 네비게이션 조작 바 -->
+    <div class="card-activity" style="padding: 18px 28px; margin-top: 20px;">
+      <div class="wizard-actions">
+        <button type="button" class="modal-btn secondary" id="btnPrev" onclick="navigateStep(-1)" style="display: none;">⬅️ 이전 단계</button>
+        <button type="button" class="modal-btn primary" id="btnNext" onclick="navigateStep(1)" style="margin-left: auto;">1단계 채점 후 다음으로 (2단계: AI 대화) ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎉 과업 3 전용 4단계 명예 뱃지 수여 및 상세 리포트 팝업 모달 -->
+  <div class="modal-backdrop" id="badgeModalBackdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
+    <div class="modal-card" style="background: var(--bg-card); border-radius: 28px; width: 92%; max-width: 640px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid var(--border-glass); position: relative; animation: fadeInUp 0.4s ease; max-height: 90vh; overflow-y: auto;">
+      <button type="button" class="modal-close-btn" onclick="closeBadgeModal()" title="닫기">✕</button>
+
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="font-size: 0.8rem; font-weight: 800; color: var(--color-purple); background: var(--color-purple-soft); padding: 6px 14px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">
+          🏛️ 헌법의 역할과 시민 참여 과업 완수
+        </span>
+        <h3 style="margin: 0 0 6px 0; font-size: 1.5rem; font-weight: 800; color: var(--text-primary);" id="modalBadgeHeaderTitle">
+          🎉 명예 뱃지 수여 및 AI 평가 리포트
+        </h3>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);" id="modalSubmitCountInfo">
+          제출 현황: 제출 완료 🌿
+        </p>
+      </div>
+
+      <div style="background: linear-gradient(135deg, rgba(184,150,219,0.12) 0%, rgba(255,255,255,0.8) 100%); border-radius: 20px; padding: 24px; text-align: center; border: 1.5px solid rgba(184,150,219,0.25); margin-bottom: 20px;">
+        <div style="font-size: 4rem; line-height: 1; margin-bottom: 10px;" id="modalBadgeIcon">🥉</div>
+        <h4 style="margin: 0 0 4px 0; font-size: 1.3rem; font-weight: 800; color: var(--color-purple);" id="modalBadgeTierName">브론즈 뱃지</h4>
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);" id="modalTotalScoreText">종합 평가 점수: 75점 / 100점</span>
+      </div>
+
+      <!-- 세부 채점 내역 -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px;">
+          <span>📝 1단계 형성평가 (5문항)</span>
+          <strong id="modalStep1Detail" style="color: var(--color-purple);">80점 / 100점</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px;">
+          <span>💬 2단계 AI 페르소나 대화 완수</span>
+          <strong id="modalStep2Detail" style="color: #2b8a3e;">Solar Pro3 대화 완료 ✅</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px;">
+          <span>🌱 3단계 메타인지 성찰 평가</span>
+          <strong id="modalStep3Detail" style="color: #2b8a3e;">우수 (Advanced) 🌟</strong>
+        </div>
+      </div>
+
+      <!-- AI 코치 맞춤형 조언 -->
+      <div style="background: rgba(184, 150, 219, 0.08); border-left: 4px solid var(--color-purple); padding: 14px 16px; border-radius: 14px; font-size: 0.84rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 24px;">
+        💡 <strong>AI 코치의 성장 조언:</strong>
+        <p id="modalAiCoachAdvice" style="margin: 4px 0 0 0; font-weight: 500;">
+          "가상 시민의 헌법적 고충에 깊이 공감하고 헌법소원과 주민청원이라는 구체적 시민 참여 수단을 탁월하게 제시하였습니다!"
+        </p>
+      </div>
+
+      <button type="button" onclick="closeBadgeModal()" class="modal-btn primary" style="width: 100%; padding: 14px; border-radius: 14px; font-size: 0.95rem;">
+        확인하고 대시보드로 이동 🚀
+      </button>
     </div>
   </div>
 
   <script>
-    const ACTIVITY_ID = "c10102_chatbot";
-    let studentName = "친구";
-    let chatStep = 0;
-
-    // 대화 흐름 스크립트 정의
-    const DIALOGUE_FLOW = {
-      0: {
-        text: () => `안녕, ${studentName}! 🌸 오늘 배움의 주제는 '인권 보장과 시민 참여'란다.\n\n우리 헌법에 명시된 인간 존엄성을 지키기 위해 시민들은 다양한 방식으로 사회적 의사를 표현할 수 있어. 혹시 실생활에서 보거나 참여해 본 '시민 참여'의 수단이 있니?`,
-        choices: [
-          { text: "🗳️ 선거 및 투표 참여", next: 1 },
-          { text: "🕯️ 촛불집회 및 1인 시위", next: 2 },
-          { text: "✍️ 온라인 서명운동", next: 3 },
-          { text: "아직 잘 모르겠어요! 🥺", next: 4 }
-        ]
-      },
-      1: {
-        text: () => `선거와 투표를 선택했구나! 아주 훌륭한 민주 사회의 가장 핵심적인 참여 수단이지.\n\n만약 우리 동네 공원에 어린이와 청소년을 위한 안전 시설이 턱없이 부족하다고 할 때, 투표 말고 우리가 직접 할 수 있는 시민 참여 수단은 무엇이 있을까?`,
-        choices: [
-          { text: "공식 홈페이지에 '시민 청원' 넣기 ✍️", next: 5 },
-          { text: "친구들과 함께 캠페인 피켓 들기 🪧", next: 6 },
-          { text: "구의원/시의원 사무실에 민원 넣기 📞", next: 7 }
-        ]
-      },
-      2: {
-        text: () => `촛불집회와 1인 시위 같은 집회·시위의 자유를 선택했구나! 이는 헌법이 보장하는 강한 표현 수단이지.\n\n대규모 집회뿐 아니라 청소년 노동권이나 환경 보호를 알리기 위한 평화적인 1인 시위나 플래시몹도 대중의 주목을 끌 수 있어. 이런 행동이 가지는 가장 큰 효과는 무엇일까?`,
-        choices: [
-          { text: "사람들의 관심을 환기하고 여론을 형성해요 🗣️", next: 8 },
-          { text: "정부나 기업의 즉각적인 정책 변화를 이끌어내요 🏛️", next: 9 }
-        ]
-      },
-      3: {
-        text: () => `스마트폰으로 쉽게 동참할 수 있는 온라인 서명을 택했구나! 아주 현대적이고 파워풀한 방법이지.\n\n예를 들어 '청소년 아르바이트 최저임금 미지급 문제'를 고발하는 서명 운동에 10만 명이 동참한다면, 사회는 어떻게 바뀔까?`,
-        choices: [
-          { text: "많은 사람들이 노동권 문제에 경각심을 가질 거예요 🤝", next: 8 },
-          { text: "국회에서 관련 법률 심사가 촉발될 수 있어요 📜", next: 9 }
-        ]
-      },
-      4: {
-        text: () => `괜찮단다! 차근차근 배워가면 되지. 😊\n\n시민 참여는 거창한 것이 아니라, 우리가 학교 급식실 잔반 줄이기 서명 운동을 하거나, 우리 동네 불법 주차 해결을 위해 안전신문고 앱으로 신고하는 모든 행동을 의미해.\n\n그럼 혹시 학교생활 중에 '우리가 건의해서 무언가를 바꾼 경험'이 있니?`,
-        choices: [
-          { text: "건의함에 의견을 내서 규칙을 바꾼 적이 있어요! 🏫", next: 5 },
-          { text: "학급 회의를 통해 축제 테마를 결정한 적이 있어요! 🎉", next: 6 },
-          { text: "없지만, 앞으로 해보고 싶어요! ✨", next: 7 }
-        ]
-      },
-      5: {
-        text: () => `우와, 직접 의견을 제출해 제도를 바꾸려 해본(또는 바꾼) 경험이 있구나! 헌법 제26조 '청원권'의 적극적인 실천이야. 🏛️\n\n이처럼 시민 참여는 우리 주변의 작고 불편한 문제를 인권에 맞게 고쳐 나가는 힘이란다. 마지막으로 오늘 챗봇 대화를 통해 느낀 점을 한 문장으로 정리해줄래?`,
-        input: true,
-        next: 10
-      },
-      6: {
-        text: () => `협력적 캠페인이나 학급 회의 같은 공동체적 해결은 민주주의의 꽃이지! 🌸\n\n다양한 목소리가 합쳐질 때 사회는 긍정적인 방향으로 움직인단다. 마지막으로 오늘 배움을 정리하며, 본인이 실천할 수 있는 한 가지 참여 수단을 문장으로 적어 볼까?`,
-        input: true,
-        next: 10
-      },
-      7: {
-        text: () => `좋은 생각이야! 지방의원 등 대의원들을 활용한 간접적인 청원도 법률적으로 매우 효과적이란다. 😊\n\n앞으로 작은 일부터 참여해보겠다는 다짐이 기특하구나. 마지막으로 오늘 챗봇 대화의 소감을 자유롭게 한 문장 적고 마쳐볼까?`,
-        input: true,
-        next: 10
-      },
-      8: {
-        text: () => `정확해! 여론 형성이야말로 정치가 움직이게 하는 핵심 연료지. 💡\n\n대중의 공감을 얻는 순간 제도는 반드시 바뀌게 된단다. 마지막으로 오늘 챗봇 대화를 마치며, 헌법과 시민 참여에 대해 느낀 소감을 간단히 적어보자.`,
-        input: true,
-        next: 10
-      },
-      9: {
-        text: () => `맞아! 대규모 시민 참여는 실제로 법률 개정이나 정책 수정을 직접 압박하는 아주 직접적인 힘을 가져.\n\n기특한 통찰력을 지녔구나! 마지막으로 오늘 배운 소감을 한 문장 적어보고 마칠까?`,
-        input: true,
-        next: 10
-      },
-      10: {
-        text: () => `완벽해! 정말 알찬 답변이었어. ${studentName} 학생은 앞으로 훌륭한 민주 시민으로 성장할 자질이 넘치는구나. 🥰🌸\n\n오늘 학습 결과는 대시보드에 반영될 거야. 수고했어! 아래 완료 버튼을 눌러줘.`,
-        isEnd: true
-      }
+    const ACTIVITY_ID = "c10102";
+    
+    // 로컬 상태
+    const taskState = {
+      student: { studentId: "", name: "", emoji: "👧", gradeClass: "", career: "" },
+      currentStep: 1,
+      quizAnswers: { q1: "", q2: "", q3: "", q4: "", q5: "" },
+      quizGraded: false,
+      currentPersona: null,
+      chatHistory: [],
+      chatTurn: 0
     };
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // 테마 초기화
-      const savedTheme = localStorage.getItem("sociallms_theme") || "light";
-      document.documentElement.setAttribute("data-theme", savedTheme);
+    // 퀴즈 정답 키 (고품질 탐구 5문항)
+    const QUIZ_ANSWER_KEYS = {
+      q1: "②", // 사회권
+      q2: "①", // 자유권 vs 청구권
+      q3: "①", // 헌법 제37조 제2항 (장관 명령으로 무제한 제한 불가)
+      q4: "①", // 헌법소원 심판
+      q5: "①"  // 사익 목적으로 불복종 불가
+    };
 
-      // 학생 프로필 확인
-      const savedProfile = localStorage.getItem("sociallms_profile");
-      if (savedProfile) {
-        const student = JSON.parse(savedProfile);
-        studentName = student.name;
-        document.getElementById("studentBadge").textContent = `${student.emoji} ${student.gradeClass ? student.gradeClass + ' ' : ''}${student.name} 학생`;
+    // 진로 1:1 맞춤형 큐레이션 DB (가상 시민 페르소나 8종)
+    const LOCAL_PERSONA_DB = [
+      {
+        id: "welfare_edu",
+        categoryKeywords: ["교육", "사범", "교사", "사범대", "선생님", "학교", "교육학", "사회복지", "복지", "특수", "상담", "유아", "사범계열", "교육계열", "교육사범", "교육사범자연", "교육사범자연과", "자연과"],
+        name: "정윤호",
+        age: 38,
+        job: "장애인 종합복지관 사회복지사 (전 직업: 대안학교 교사)",
+        location: "창원시 의창구",
+        careerCategory: "교육 / 사범 / 사회복지",
+        emoji: "🧑‍🏫",
+        values: "교통약자의 무장애 보행 및 약자 연대 보편 복지·교육권 지향",
+        grievance: "시내 저상버스 및 휠체어 리프트 택시 부족으로 인해 휠체어 이용 장애인분들과 학생들의 헌법상 이동권, 교육권, 평등권이 심각하게 제한받고 있습니다."
+      },
+      {
+        id: "env_build",
+        categoryKeywords: ["건축", "환경", "에너지", "도시", "토목", "자연", "자연과학", "과학", "기후", "생태", "자연계열", "이공", "이공계열", "자연과학계열", "생물", "화학", "물리", "지구과학", "자연과"],
+        name: "강현우",
+        age: 41,
+        job: "아파트 주민 대표 및 도시 환경 운동가",
+        location: "창원시 성산구",
+        careerCategory: "건축 / 환경 / 자연과학",
+        emoji: "🌿",
+        values: "쾌적한 주거 환경권 보장 및 공해 없는 친환경 도시 생태계 가치 지향",
+        grievance: "인근 대형 재개발 공사장 소음, 진동, 일조권 침해 및 매연 분진 피해로 인해 헌법상 쾌적한 환경에서 살 권리(환경권)와 주거권을 심각하게 침해받고 있습니다."
+      },
+      {
+        id: "it_ai",
+        categoryKeywords: ["IT", "소프트웨어", "개발자", "프로그래머", "인공지능", "컴퓨터", "정보통신", "코딩", "보안", "시스템", "웹", "앱"],
+        name: "최민준",
+        age: 29,
+        job: "판교 AI 스타트업 프론트엔드 개발자",
+        location: "성남시 분당구",
+        careerCategory: "IT / 소프트웨어 / 개발",
+        emoji: "👨‍💻",
+        values: "기술 혁신을 통한 사회적 가치 창출 지향, 개인 사생활 및 근로권 중시",
+        grievance: "인터넷 포털에 무단 유출된 개인 사생활 정보 때문에 '디지털 잊힐 권리'를 침해당하고 있으며, 포괄임금제로 주 70시간 이상 야간 근무를 강요받아 인간다운 생활을 누릴 권리가 위협받고 있습니다."
+      },
+      {
+        id: "medical",
+        categoryKeywords: ["의료", "보건", "간호", "의사", "약학", "치과", "임상", "응급", "병원", "의약", "의학", "의약계열", "보건계열"],
+        name: "김서연",
+        age: 34,
+        job: "종합병원 응급실 전문 간호사",
+        location: "창원시 성산구",
+        careerCategory: "의료 / 보건",
+        emoji: "👩‍⚕️",
+        values: "환자의 생명 보호 및 의료진의 안전한 근무 환경 보장 지향",
+        grievance: "야간 응급실 근무 중 환자 보호자의 폭언과 폭행 위험에 무방비로 노출되어 헌법상 안전하게 일할 권리(안전권)를 침해당하고 있습니다."
+      },
+      {
+        id: "business",
+        categoryKeywords: ["경영", "소상공인", "자영업", "마케팅", "창업", "금융", "경제", "유통", "상업", "통상", "회계", "무역"],
+        name: "박성철",
+        age: 45,
+        job: "창원 전통시장 소상공인 (과일점)",
+        location: "창원시 마산합포구",
+        careerCategory: "소상공인 / 자영업 / 경영",
+        emoji: "🏪",
+        values: "지역 상권과의 상생 발전 및 공정한 시장 경쟁 가치 지향",
+        grievance: "인근 대기업 대형마트의 무분별한 24시간 영업으로 인해 소상공인의 생존권과 평등한 경제 활동 권리가 위협받고 있습니다."
+      },
+      {
+        id: "art_media",
+        categoryKeywords: ["문화", "예술", "미디어", "디자인", "웹툰", "방송", "언론", "음악", "영상", "크리에이터", "예체능", "체육", "미술"],
+        name: "이지은",
+        age: 24,
+        job: "프리랜서 웹툰 작가 및 일러스트레이터",
+        location: "서울시 마포구",
+        careerCategory: "문화 / 예술 / 미디어",
+        emoji: "🎨",
+        values: "창작자의 정당한 권리 보장 및 공정한 창작 생태계 구축",
+        grievance: "제작사의 불공정 표준계약서 강요로 창작물 재산권을 침해당하고, 해외 불법 사이트의 무단 불펌으로 정당한 노동의 대가를 받지 못하고 있습니다."
+      },
+      {
+        id: "labor_youth",
+        categoryKeywords: ["청년", "근로", "알바", "서비스", "아르바이트", "학생", "취업", "인문", "사회", "어문"],
+        name: "윤아름",
+        age: 22,
+        job: "대학생 및 뷰티숍 아르바이트 근로자",
+        location: "부산시 진구",
+        careerCategory: "청년 / 노동 / 서비스",
+        emoji: "👩‍🎓",
+        values: "청년 노동권 존중 및 정당한 노동 대가 보장 지향",
+        grievance: "주 20시간 이상 근무함에도 주휴수당을 전혀 받지 못하고 3개월 차에 부당 해고당하여 근로의 권리와 부당한 대우로부터 보호받을 권리를 침해당했습니다."
+      },
+      {
+        id: "public_logistics",
+        categoryKeywords: ["공공", "행정", "택배", "물류", "플랫폼", "운송", "서비스", "공무원", "법률", "경찰", "소방", "군인"],
+        name: "한경수",
+        age: 52,
+        job: "플랫폼 택배 기사 및 새벽 배송 노동자",
+        location: "창원시 마산회원구",
+        careerCategory: "공공 / 물류 / 플랫폼 노동",
+        emoji: "🚚",
+        values: "플랫폼 노동자 인권 보호 및 과로사 방지 사회적 합의 지향",
+        grievance: "하루 14시간 이상의 과도한 고강도 야간 연속 노동과 휴게 시설 부재로 인해 인간으로서의 존엄성과 건강권, 인간다운 생활을 할 권리를 위협받고 있습니다."
+      }
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadUserProfile();
+
+      // 교사가 해금하지 않은 과업의 직접 URL 접근 방지
+      const savedRole = localStorage.getItem("sociallms_role");
+      if (savedRole !== "teacher") {
+        const rawUnlocked = localStorage.getItem("sociallms_unlocked_activities");
+        const savedProfile = localStorage.getItem("sociallms_profile");
+        let studentClass = "all";
+        if (savedProfile) {
+          try {
+            const p = JSON.parse(savedProfile);
+            const sId = String(p["학번 (StudentID)"] || p.studentId || "");
+            if (sId.length === 4) studentClass = sId.substring(0, 2);
+          } catch(e) {}
+        }
+        const config = rawUnlocked ? JSON.parse(rawUnlocked) : { "all": ["c10101"] };
+        const allUnlocked = config["all"] || [];
+        const classUnlocked = config[studentClass] || [];
+        if (!allUnlocked.includes("c10102") && !classUnlocked.includes("c10102")) {
+          alert("🔒 박병준 선생님이 아직 본 학급 수업 진도에 맞춰 이 과업을 해금하지 않으셨습니다. 대시보드로 이동합니다! 🌸");
+          window.location.href = "../index.html";
+          return;
+        }
       }
 
-      // 첫 대화 시작
-      triggerNextStep(0);
+      restoreDraft();
+      fetchRandomPersona();
     });
 
-    // 챗봇 답변 렌더링
-    function triggerNextStep(step) {
-      chatStep = step;
-      showTypingIndicator();
+    // 프로필 세션 로드 및 학생 희망진로 파악
+    function loadUserProfile() {
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      const badge = document.getElementById("studentBadge");
 
-      setTimeout(() => {
-        hideTypingIndicator();
-        const data = DIALOGUE_FLOW[step];
-        addMessage(data.text(), "teacher");
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile);
+        taskState.student = {
+          studentId: parsed["학번 (StudentID)"] || parsed.studentId || "",
+          name: parsed["이름 (StudentName)"] || parsed.name || "학생",
+          emoji: parsed["캐릭터 (Emoji)"] || parsed.emoji || "👧",
+          gradeClass: parsed.gradeClass || "",
+          career: parsed["Q1_희망진로"] || parsed["희망진로"] || parsed["career"] || parsed["careerCategory"] || parsed["진로"] || parsed["Q1"] || ""
+        };
+        badge.textContent = `${taskState.student.emoji} ${taskState.student.name} 학생 (과업 3)`;
+      } else {
+        badge.textContent = "👧 게스트 학생 (로그인 필요)";
+      }
+    }
 
-        // 선택지 그리기
-        const choicesContainer = document.getElementById("choicesContainer");
-        choicesContainer.innerHTML = "";
+    // 마크다운 파서 (HTML 태그 이스케이프 및 **bold** 렌더링)
+    function parseMarkdownText(text) {
+      if (!text) return "";
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--color-purple); font-weight: 800;">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
 
-        if (data.choices) {
-          data.choices.forEach(ch => {
-            const btn = document.createElement("button");
-            btn.className = "choice-btn";
-            btn.textContent = ch.text;
-            btn.onclick = () => {
-              addMessage(ch.text, "student");
-              triggerNextStep(ch.next);
-            };
-            choicesContainer.appendChild(btn);
-          });
-          document.getElementById("customInput").disabled = true;
-        } else if (data.input) {
-          document.getElementById("customInput").disabled = false;
-          document.getElementById("customInput").focus();
-        } else if (data.isEnd) {
-          document.getElementById("customInput").disabled = true;
-          
-          // 최종 완료 버튼
-          const btn = document.createElement("button");
-          btn.className = "choice-btn";
-          btn.style.background = "linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%)";
-          btn.style.color = "white";
-          btn.style.borderColor = "transparent";
-          btn.textContent = "탐구 완료 및 대시보드로 가기 🌸";
-          btn.onclick = finishChat;
-          choicesContainer.appendChild(btn);
+    // 학생 희망 진로 1:1 맞춤형 가상 시민 매칭기 (HuggingFace nvidia/Nemotron-Personas-Korea 실시간 연동)
+    async function fetchRandomPersona(isManualClick = false) {
+      const pName = document.getElementById("personaName");
+      const pCareer = document.getElementById("personaCareer");
+      const pProfile = document.getElementById("personaProfile");
+      const pValues = document.getElementById("personaValues");
+      const pGrievance = document.getElementById("personaGrievance");
+      const pEmoji = document.getElementById("personaEmoji");
+      const matchBadge = document.getElementById("personaMatchBadge");
+
+      pName.textContent = "HuggingFace 데이터셋 매칭 중...";
+
+      const studentCareer = (taskState.student && taskState.student.career) ? String(taskState.student.career).trim() : "";
+      const curId = taskState.currentPersona ? taskState.currentPersona.id : null;
+
+      let chosenPersona = null;
+
+      try {
+        const response = await fetch(`/api/persona?career=${encodeURIComponent(studentCareer)}&excludeId=${curId || ''}`);
+        const resData = await response.json();
+        if (resData.success && resData.persona) {
+          chosenPersona = resData.persona;
+          if (matchBadge) {
+            matchBadge.textContent = isManualClick
+              ? `🎲 1:1 무작위 시민 재매칭`
+              : (studentCareer ? `🎯 희망진로 [${studentCareer.substring(0, 10)}] 1:1 맞춤 추천` : `🎯 1:1 추천 가상 시민`);
+          }
+        } else {
+          throw new Error("Live dataset fetch returned empty persona");
         }
-      }, 1000);
-    }
+      } catch (err) {
+        console.warn("Live dataset API fetch failed, fallback to local curated DB:", err);
+        if (isManualClick) {
+          const otherPersonas = LOCAL_PERSONA_DB.filter(item => item.id !== curId);
+          const randIdx = Math.floor(Math.random() * otherPersonas.length);
+          chosenPersona = otherPersonas[randIdx];
+          if (matchBadge) matchBadge.textContent = `🎲 1:1 무작위 시민 재매칭`;
+        } else {
+          let candidates = [];
+          if (studentCareer) {
+            const cleanCareer = studentCareer.toLowerCase();
+            const scoredPersonas = LOCAL_PERSONA_DB.map(item => {
+              let score = 0;
+              item.categoryKeywords.forEach(kw => {
+                const cleanKw = kw.toLowerCase();
+                if (cleanCareer.includes(cleanKw)) {
+                  score += cleanKw.length >= 2 ? 5 : 2;
+                } else if (cleanKw.includes(cleanCareer)) {
+                  score += 3;
+                }
+              });
+              return { persona: item, score };
+            });
 
-    // 채팅창 메시지 추가
-    function addMessage(text, sender) {
-      const messagesContainer = document.getElementById("chatMessages");
+            scoredPersonas.sort((a, b) => b.score - a.score);
+            const maxScore = scoredPersonas[0] ? scoredPersonas[0].score : 0;
+
+            if (maxScore > 0) {
+              candidates = scoredPersonas.filter(sp => sp.score === maxScore).map(sp => sp.persona);
+            }
+          }
+
+          if (candidates.length > 0) {
+            const randIdx = Math.floor(Math.random() * candidates.length);
+            chosenPersona = candidates[randIdx];
+            if (matchBadge) matchBadge.textContent = `🎯 희망진로 [${studentCareer.substring(0, 10)}] 1:1 맞춤 추천`;
+          } else {
+            const randIdx = Math.floor(Math.random() * LOCAL_PERSONA_DB.length);
+            chosenPersona = LOCAL_PERSONA_DB[randIdx];
+            if (matchBadge) matchBadge.textContent = `🎯 1:1 추천 가상 시민`;
+          }
+        }
+      }
+
+      taskState.currentPersona = chosenPersona;
+
+      // 프로필 UI 렌더링
+      const p = taskState.currentPersona;
+      pEmoji.textContent = p.emoji;
+      pName.textContent = p.name;
+      pCareer.textContent = `${p.careerCategory} 카테고리`;
+      pProfile.textContent = `${p.age}세 / ${p.job} (거주: ${p.location})`;
+      pValues.textContent = p.values;
+      pGrievance.textContent = `"${p.grievance}"`;
+
+      // 대화창 폼 잠금 해제 및 상태 리셋
+      const input = document.getElementById("chatInput");
+      const sendBtn = document.getElementById("chatSendBtn");
+      const banner = document.getElementById("chatCompletionBanner");
+      if (input) { input.disabled = false; input.placeholder = "좌측 시민에게 공감 및 시민 참여 해결책을 말해보세요..."; }
+      if (sendBtn) { sendBtn.disabled = false; sendBtn.style.opacity = "1"; }
+      if (banner) { banner.style.display = "none"; }
+
+      taskState.chatTurn = 0;
+      const turnCounter = document.getElementById("chatTurnCounter");
+      if (turnCounter) turnCounter.textContent = "대화 진행: 0 / 3단계";
       
-      const bubble = document.createElement("div");
-      bubble.className = `message-bubble ${sender}`;
-      bubble.innerText = text;
-      
-      const time = document.createElement("div");
-      time.className = "message-time";
-      time.textContent = new Date().toLocaleTimeString("ko-KR", { hour: '2-digit', minute: '2-digit' });
-
-      messagesContainer.appendChild(bubble);
-      messagesContainer.appendChild(time);
-      
-      // 자동 스크롤 하단 고정
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      initChatbotGreeting();
     }
 
-    // 타이핑 로딩 표시
-    function showTypingIndicator() {
-      const messagesContainer = document.getElementById("chatMessages");
-      const indicator = document.createElement("div");
-      indicator.className = "typing-indicator";
-      indicator.id = "typingIndicator";
-      indicator.innerHTML = `
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-      `;
-      messagesContainer.appendChild(indicator);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // 챗봇 초기 인사 메시지
+    function initChatbotGreeting() {
+      const p = taskState.currentPersona;
+
+      taskState.chatHistory = [
+        {
+          sender: "persona",
+          text: `안녕하세요... 저는 ${p.location}에 살고 있는 ${p.job} ${p.name}(${p.age}세)입니다.\n\n요즘 제가 겪고 있는 이 고충 때문에 밤마다 마음이 너무 무겁네요:\n"${p.grievance}"\n\n혹시 제 이야기를 조금 들어주실 수 있나요? 🥺`
+        }
+      ];
+
+      renderChatMessages();
     }
 
-    function hideTypingIndicator() {
-      const indicator = document.getElementById("typingIndicator");
-      if (indicator) indicator.remove();
+    function renderChatMessages() {
+      const container = document.getElementById("chatMessages");
+      container.innerHTML = taskState.chatHistory.map(msg => `
+        <div class="chat-bubble ${msg.sender}">
+          ${parseMarkdownText(msg.text)}
+        </div>
+      `).join("");
+      container.scrollTop = container.scrollHeight;
     }
 
-    // 커스텀 텍스트 전송
-    function sendCustomMessage() {
-      const input = document.getElementById("customInput");
+    function handleChatKeyPress(e) {
+      if (e.key === "Enter") {
+        sendChatMessage();
+      }
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById("chatInput");
       const text = input.value.trim();
       if (!text) return;
 
-      addMessage(text, "student");
+      taskState.chatHistory.push({ sender: "student", text });
       input.value = "";
+      renderChatMessages();
 
-      const currentFlow = DIALOGUE_FLOW[chatStep];
-      if (currentFlow.next) {
-        // 다음 단계로
-        triggerNextStep(currentFlow.next);
+      taskState.chatTurn++;
+      const turnCounter = document.getElementById("chatTurnCounter");
+      if (turnCounter) turnCounter.textContent = `대화 진행: ${Math.min(taskState.chatTurn, 3)} / 3단계`;
+
+      // Upstage Solar Pro3 실시간 AI 대화 생성기
+      generatePersonaResponse(text);
+    }
+
+    // Upstage Solar Pro3 실시간 AI 생성형 대화 엔진 & 3단계 미션 평가
+    async function generatePersonaResponse(studentText) {
+      const p = taskState.currentPersona;
+      
+      // 타이핑 로딩 표시
+      taskState.chatHistory.push({ sender: "persona", text: "..." });
+      renderChatMessages();
+
+      const systemPrompt = `당신은 ${p.location}에 사는 ${p.age}세 ${p.job} '${p.name}'(성향: ${p.values})입니다.
+현재 겪고 있는 헌법적 고충: "${p.grievance}".
+
+[대화 롤플레잉 지침 - Upstage Solar 3 생성형 AI 페르소나 몰입]
+1. 당신은 오직 자신의 성향과 신상에 100% 몰입한 일반 대한민국 시민입니다. 결코 챗봇이나 교사처럼 정답을 열거하거나 가르치지 마시고, 억울하고 속상해하는 시민의 실제 감정이 담긴 생생한 구어체로만 답변하세요.
+2. 답변은 1~2문장(최대 90자 이내)으로 간결하고 다정하거나 안도하는 어조로 이야기하세요.
+
+[대화 미션 달성 판단 규칙 - 3턴 3단계 솔루션 탐구]
+학생과 대화하면서 아래 3개 미션 단계가 달성되고 있는지 판단하세요:
+- 1단계 [공감 & 위로]: 학생이 당신의 고충을 경청하고 위로했는가?
+- 2단계 [기본권 진단]: 학생이 자유권, 평등권, 사회권, 청구권, 환경권, 주거권, 안전권, 알권리/잊힐권리 등 침해받은 헌법상 기본권을 정확히 짚어주었는가?
+- 3단계 [솔루션 제안]: 학생이 헌법소원, 국민청원, 인권위 진정, 행정소송, 노동청 신고, 주민청원, 시민단체 연대 등 구체적 헌법적/법적/시민참여 수단을 제안했는가?
+
+학생의 조언이 3단계(솔루션 제안)까지 완수되어 큰 도움이 되었다고 판단되면, 답변 맨 끝에 반드시 [MISSION_SUCCESS] 태그를 붙이세요.
+아직 대화가 진행 중이거나 구체적 솔루션이 부족하다면 답변 맨 끝에 [MISSION_CONTINUE] 태그를 붙이세요.`;
+
+      const apiMessages = [
+        { role: "system", content: systemPrompt },
+        ...taskState.chatHistory.slice(0, -1).map(m => ({
+          role: m.sender === "student" ? "user" : "assistant",
+          content: m.text
+        }))
+      ];
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: apiMessages })
+        });
+        const data = await response.json();
+        
+        taskState.chatHistory.pop(); // 로딩 말풍선 제거
+
+        if (data.success && data.message && data.message.content) {
+          let aiReply = data.message.content;
+          const isMissionSuccess = aiReply.includes("[MISSION_SUCCESS]");
+          aiReply = aiReply.replace(/\[MISSION_SUCCESS\]|\[MISSION_CONTINUE\]/g, "").trim();
+
+          taskState.chatHistory.push({ sender: "persona", text: aiReply });
+
+          if (isMissionSuccess || (taskState.chatTurn >= 3 && (studentText.includes("헌법소원") || studentText.includes("청원") || studentText.includes("인권위") || studentText.includes("소송") || studentText.includes("진정") || studentText.includes("신고") || studentText.includes("고발") || studentText.includes("주민")))) {
+            completeChatMission();
+          }
+        } else {
+          throw new Error("API call failed");
+        }
+      } catch (err) {
+        console.warn("AI Chat API call error:", err);
+        taskState.chatHistory.pop(); // 로딩 말풍선 제거
+        
+        let replyText = "";
+        if (taskState.chatTurn === 1) {
+          replyText = `제 이야기 들어주셔서 마음이 한결 가벼워지네요... 🥺 혹시 제 상황이 헌법이 보장하는 어떤 기본권을 침해받은 걸까요?`;
+        } else if (taskState.chatTurn === 2) {
+          replyText = `아! 제가 침해당한 기본권에 대해 알려주셔서 감사해요. 그럼 저 같은 보통 시민이 이 문제를 해결하려면 어디에 청원하거나 대처할 수 있을까요?`;
+        } else {
+          replyText = `가르쳐주신 시민 참여 방법대로 꼭 당장 행동해 보겠습니다! 헌법이 절 지켜주는 울타리임을 배웠어요. 정말 고맙습니다! 🌸`;
+          completeChatMission();
+        }
+        taskState.chatHistory.push({ sender: "persona", text: replyText });
+      }
+
+      renderChatMessages();
+    }
+
+    // AI 미션 달성 판단 시 성찰 저널 진출 해금 및 안내 배너 표출
+    function completeChatMission() {
+      const banner = document.getElementById("chatCompletionBanner");
+      const btnNext = document.getElementById("btnNext");
+
+      if (banner) {
+        banner.style.display = "block";
+      }
+      if (btnNext) {
+        btnNext.style.animation = "pulse 1.5s infinite";
+        btnNext.classList.add("highlight");
       }
     }
 
-    function handleKeyPress(e) {
-      if (e.key === "Enter") {
-        sendCustomMessage();
+    // 마법사 단계 이동 및 버튼 레이블 통합 제어
+    function jumpToStep(targetStep) {
+      if (targetStep < 1 || targetStep > 3) return;
+      
+      document.getElementById(`stepSection_${taskState.currentStep}`).style.display = "none";
+      document.getElementById(`stepTab_${taskState.currentStep}`).classList.remove("active");
+      
+      for (let s = 1; s < targetStep; s++) {
+        document.getElementById(`stepTab_${s}`).classList.add("completed");
+      }
+
+      taskState.currentStep = targetStep;
+      document.getElementById(`stepSection_${targetStep}`).style.display = "block";
+      document.getElementById(`stepTab_${targetStep}`).classList.add("active");
+
+      const btnPrev = document.getElementById("btnPrev");
+      const btnNext = document.getElementById("btnNext");
+      btnPrev.style.display = targetStep > 1 ? "block" : "none";
+      
+      if (targetStep === 1) {
+        btnNext.textContent = "1단계 채점 후 다음으로 (2단계: AI 대화) ➡️";
+      } else if (targetStep === 2) {
+        btnNext.textContent = "성찰 저널로 이동 (3단계: 성찰) ➡️";
+      } else if (targetStep === 3) {
+        btnNext.textContent = "과제 최종 제출하기 🚀";
       }
     }
 
-    // 대화 마치기
-    function finishChat() {
-      const progress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
-      progress[ACTIVITY_ID] = "completed";
-      localStorage.setItem("sociallms_progress", JSON.stringify(progress));
+    function navigateStep(direction) {
+      if (taskState.currentStep === 1 && direction === 1) {
+        if (!taskState.quizGraded) {
+          const score = gradeStep1Quiz(false);
+          if (score !== null) {
+            const btnNext = document.getElementById("btnNext");
+            if (btnNext) btnNext.textContent = "2단계: AI 대화로 이동 ➡️";
+          }
+          return;
+        }
+        jumpToStep(2);
+        return;
+      }
+      if (taskState.currentStep === 3 && direction === 1) {
+        submitFinalTask();
+        return;
+      }
+      jumpToStep(taskState.currentStep + direction);
+    }
 
-      alert("병준쌤과 함께한 대화를 통해 헌법과 시민 참여를 깊이 있게 배웠기를 바래요! 참 잘했어요 👍");
+    // 퀴즈 선택 헬퍼
+    function selectQuizOption(evt, qNum, val, el) {
+      if (taskState.quizGraded) return;
+      if (evt && evt.stopPropagation) evt.stopPropagation();
+
+      const radio = el.querySelector(".quiz-option-input");
+      if (radio) radio.checked = true;
+
+      const parent = el.parentElement;
+      if (parent) {
+        parent.querySelectorAll(".quiz-option-label").forEach(l => l.style.borderColor = "rgba(0,0,0,0.05)");
+      }
+      el.style.borderColor = "var(--color-purple)";
+      taskState.quizAnswers[`q${qNum}`] = val;
+      saveDraft();
+    }
+
+    // Q5 텍스트 하이라이트 선택 헬퍼
+    function selectQ5Highlight(code, element) {
+      if (taskState.quizGraded) return;
+      const container = document.getElementById("q5HighlightContainer");
+      if (container) {
+        container.querySelectorAll(".highlight-phrase").forEach(el => {
+          el.style.background = "transparent";
+          el.style.borderColor = "transparent";
+          el.style.color = "var(--text-primary)";
+          el.style.fontWeight = "normal";
+        });
+      }
+
+      element.style.background = "#fff3bf";
+      element.style.borderColor = "#f59f00";
+      element.style.color = "#d9480f";
+      element.style.fontWeight = "bold";
+
+      taskState.quizAnswers.q5 = code;
+      saveDraft();
+    }
+
+    // 1단계 형성평가 채점 (선다형 3문항 + 상호작용형 2문항)
+    function gradeStep1Quiz(silentMode = false) {
+      let score = 0;
+
+      // Q1 (선다형 - 난이도 하)
+      const q1Checked = document.querySelector('input[name="q1"]:checked');
+      const q1Ans = q1Checked ? q1Checked.value : "";
+      const q1Correct = (q1Ans === "①");
+      if (q1Correct) score += 20;
+      const fb1 = document.getElementById("quizFeedback_1");
+      if (fb1) {
+        fb1.textContent = q1Correct ? "✅ 정답입니다! (난이도 하) 평등권의 기초 개념을 올바르게 이해하셨습니다." : "❌ 오답입니다. (정답: ① 평등권)";
+        fb1.className = q1Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb1.style.display = "block";
+      }
+
+      // Q2 (단답형 - 과잉금지)
+      const q2Raw = document.getElementById("q2_short_answer") ? document.getElementById("q2_short_answer").value.trim() : "";
+      const q2Clean = q2Raw.replace(/\s+/g, "");
+      const q2Correct = (q2Clean === "과잉금지" || q2Clean === "과잉금지의원칙" || q2Clean === "과잉금지원칙");
+      if (q2Correct) score += 20;
+      const fb2 = document.getElementById("quizFeedback_2");
+      if (fb2) {
+        fb2.textContent = q2Correct 
+          ? `✅ 정답입니다! (입력: ${q2Raw}) [정답 해설]: 헌법 제37조 제2항에서 '법률로써 제한할 수 있으며'는 기본권 제한 시 목적의 정당성, 수단의 적합성, 피해의 최소성, 법익의 균형성을 지켜야 한다는 '과잉금지의 원칙'을 의미합니다.`
+          : `❌ 오답입니다. (제출: "${q2Raw || '미입력'}" / 정답: "과잉금지") [정답 해설]: 헌법 제37조 제2항의 '법률로써 제한' 조항은 기본권 본질을 침해할 수 없도록 과도한 제한을 금하는 '과잉금지의 원칙'을 규정합니다.`;
+        fb2.className = q2Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb2.style.display = "block";
+      }
+
+      // Q3 (선다형 - ① 권리구제형 헌법소원)
+      const q3Checked = document.querySelector('input[name="q3"]:checked');
+      const q3Ans = q3Checked ? q3Checked.value : "";
+      const q3Correct = (q3Ans === "①");
+      if (q3Correct) score += 20;
+      const fb3 = document.getElementById("quizFeedback_3");
+      if (fb3) {
+        fb3.textContent = q3Correct 
+          ? "✅ 정답입니다! (선택: ① 권리구제형 헌법소원) [정답 해설]: 공권력의 행사/불행사로 기본권을 직접 침해당한 국민이 헌법재판소에 직접 구제를 청구하는 제도는 '권리구제형 헌법소원'입니다."
+          : `❌ 오답입니다. (선택: ${q3Ans || '미선택'} / 정답: ① 권리구제형 헌법소원) [정답 해설]: 공권력에 의한 직접 기본권 침해 구제 절차는 '권리구제형 헌법소원'에 해당합니다.`;
+        fb3.className = q3Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb3.style.display = "block";
+      }
+
+      // Q4 (상호작용형 1 - 짝맞추기 Matching)
+      const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
+      const m2 = document.getElementById("q4_match_2") ? document.getElementById("q4_match_2").value : "";
+      const m3 = document.getElementById("q4_match_3") ? document.getElementById("q4_match_3").value : "";
+      const m4 = document.getElementById("q4_match_4") ? document.getElementById("q4_match_4").value : "";
+
+      const q4Correct = (m1 === "청구권" && m2 === "평등권" && m3 === "자유권" && m4 === "사회권");
+      if (q4Correct) score += 20;
+      const fb4 = document.getElementById("quizFeedback_4");
+      if (fb4) {
+        fb4.textContent = q4Correct 
+          ? "✅ 정답입니다! (상호작용형 매칭) 기본권 4가지 종류와 실생활 침해 사례를 100% 완벽하게 짝지었습니다!" 
+          : `❌ 오답입니다. (정답: 1-청구권, 2-평등권, 3-자유권, 4-사회권 / 제출: 1-${m1||'미선택'}, 2-${m2||'미선택'}, 3-${m3||'미선택'}, 4-${m4||'미선택'})`;
+        fb4.className = q4Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb4.style.display = "block";
+      }
+
+      // Q5 (상호작용형 2 - 텍스트 하이라이트 Highlighting)
+      const q5Ans = taskState.quizAnswers.q5 || "";
+      const q5Correct = (q5Ans === "A");
+      if (q5Correct) score += 20;
+      const fb5 = document.getElementById("quizFeedback_5");
+      if (fb5) {
+        fb5.textContent = q5Correct
+          ? "✅ 정답입니다! (상호작용형 하이라이트) 지문 속 시민 불복종의 오개념 문장 [A]를 정확히 선택했습니다."
+          : `❌ 오답입니다. (정답: [A] 사익 증진 목적 문장 / 선택: [${q5Ans || '미선택'}])`;
+        fb5.className = q5Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb5.style.display = "block";
+      }
+
+      taskState.quizGraded = true;
+      saveDraft();
+
+      if (!silentMode) {
+        alert(`📝 1단계 다변화 형성평가 채점 완료: ${score}점입니다! 2단계 AI 페르소나 대화로 진행해 주세요. 🌿`);
+      }
+      return score;
+    }
+
+    // 📊 과업 3 AI 챗봇 3대 교육학적 루브릭 자동 채점기
+    function evaluateChatRubrics() {
+      const studentMsgs = taskState.chatHistory
+        .filter(m => m.sender === "student")
+        .map(m => m.text)
+        .join(" ");
+
+      // 1. 루브릭 1: 공감·경청성 (1턴 위로 및 감정 반응)
+      let rubricEmpathy = "미흡";
+      const empathyKw = ["속상", "억울", "힘들", "이해", "위로", "걱정", "안타깝", "공감", "힘내", "불편", "마음", "마음이", "힘드시", "안타까", "아쉬", "고충"];
+      let empScore = 0;
+      empathyKw.forEach(kw => { if (studentMsgs.includes(kw)) empScore++; });
+      if (empScore >= 2 || (studentMsgs.length >= 20 && empScore >= 1)) rubricEmpathy = "우수";
+      else if (empScore === 1 || studentMsgs.length >= 15) rubricEmpathy = "보통";
+
+      // 2. 루브릭 2: 기본권 진단성 (2턴 헌법상 기본권 명시)
+      let rubricDiagnosis = "미흡";
+      const diagKw = ["자유권", "평등권", "사회권", "청구권", "환경권", "주거권", "안전권", "노동권", "신체의 자유", "알권리", "행복추구권", "재산권", "기본권", "헌법", "인권"];
+      let diagScore = 0;
+      diagKw.forEach(kw => { if (studentMsgs.includes(kw)) diagScore++; });
+      if (diagScore >= 2 || (diagKw.some(kw => studentMsgs.includes(kw)) && studentMsgs.length >= 30)) rubricDiagnosis = "우수";
+      else if (diagScore === 1) rubricDiagnosis = "보통";
+
+      // 3. 루브릭 3: 솔루션 실천성 (3턴 구체적 헌법/법적/시민참여 수단 제안)
+      let rubricSolution = "미흡";
+      const solKw = ["헌법소원", "국민청원", "인권위", "국가인권위원회", "행정소송", "노동청", "주민청원", "시민단체", "법률구조공단", "진정", "신고", "청원", "고발", "연대", "소송", "주민"];
+      let solScore = 0;
+      solKw.forEach(kw => { if (studentMsgs.includes(kw)) solScore++; });
+      if (solScore >= 2 || (solKw.some(kw => studentMsgs.includes(kw)) && studentMsgs.length >= 40)) rubricSolution = "우수";
+      else if (solScore === 1) rubricSolution = "보통";
+
+      return { rubricEmpathy, rubricDiagnosis, rubricSolution };
+    }
+
+    // 최종 제출 처리 및 로컬 세션 100% 동기화
+    async function submitFinalTask() {
+      const reflText = document.getElementById("reflectionContent").value.trim();
+      if (reflText.length < 30) {
+        alert("3단계 성찰 저널을 최소 30자 이상 작성해 주세요! 📝");
+        return;
+      }
+
+      const score = gradeStep1Quiz(true);
+
+      const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
+      const m2 = document.getElementById("q4_match_2") ? document.getElementById("q4_match_2").value : "";
+      const m3 = document.getElementById("q4_match_3") ? document.getElementById("q4_match_3").value : "";
+      const m4 = document.getElementById("q4_match_4") ? document.getElementById("q4_match_4").value : "";
+      const q5Ans = taskState.quizAnswers.q5 || "미선택";
+
+      // 📊 과업 3 3대 영역 루브릭 정밀 채점
+      const { rubricEmpathy, rubricDiagnosis, rubricSolution } = evaluateChatRubrics();
+      let excelCount = 0;
+      if (rubricEmpathy === "우수") excelCount++;
+      if (rubricDiagnosis === "우수") excelCount++;
+      if (rubricSolution === "우수") excelCount++;
+
+      let tierName = "🥈 실버 뱃지";
+      if (excelCount === 3 && score >= 80) tierName = "💎 다이아몬드 마스터 뱃지";
+      else if (excelCount >= 2 && score >= 70) tierName = "🥇 골드 뱃지";
+      else if (excelCount >= 1 && score >= 60) tierName = "🥈 실버 뱃지";
+      else tierName = "🥉 동 뱃지";
+
+      // 로컬 진도, 점수, 뱃지 세션 100% 동기화
+      localStorage.setItem("sociallms_progress_c10102", "completed");
+      localStorage.setItem("sociallms_score_c10102", score);
+      localStorage.setItem("sociallms_badge_c10102", tierName);
+      
+      try {
+        const rawProg = localStorage.getItem("sociallms_progress");
+        const progObj = rawProg ? JSON.parse(rawProg) : {};
+        progObj["c10102_chatbot"] = "completed";
+        progObj["c10102"] = "completed";
+        localStorage.setItem("sociallms_progress", JSON.stringify(progObj));
+      } catch (e) {}
+
+      const chatTranscriptText = taskState.chatHistory
+        .map(m => (m.sender === "student" ? `[학생]: ${m.text}` : `[${taskState.currentPersona ? taskState.currentPersona.name : "가상시민"}]: ${m.text}`))
+        .join("\n");
+
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      if (savedProfile) {
+        try {
+          const p = JSON.parse(savedProfile);
+          if (!p.activities) p.activities = {};
+          p.activities["c10102"] = `${score}점`;
+          p.activities["과업 3: 헌법과 시민참여"] = `${score}점`;
+          p.activities["과업 3: 헌법과 시민참여_details"] = {
+            "형성평가점수": `${score}점`,
+            "Q4_짝맞추기": `1-${m1}, 2-${m2}, 3-${m3}, 4-${m4}`,
+            "Q5_하이라이트선택": q5Ans,
+            "대화진행턴": `${taskState.chatTurn}턴`,
+            "챗봇대화내역": chatTranscriptText,
+            "대화내역": chatTranscriptText,
+            "시민참여성찰저널": reflText,
+            "시민참여성찰답변": reflText,
+            "메타성찰답변": reflText,
+            "루브릭_공감성": rubricEmpathy,
+            "루브릭_기본권진단": rubricDiagnosis,
+            "루브릭_솔루션제안": rubricSolution
+          };
+          p.activities["헌법의 역할과 시민 참여 챗봇_details"] = p.activities["과업 3: 헌법과 시민참여_details"];
+          localStorage.setItem("sociallms_profile", JSON.stringify(p));
+        } catch(e) {}
+      }
+
+      const submissionPayload = {
+        action: "submit",
+        studentId: taskState.student.studentId || "1000",
+        studentName: taskState.student.name || "학생",
+        activityId: ACTIVITY_ID,
+        activityTitle: "과업 3: 헌법과 시민참여",
+        score: `${score}점`,
+        result: JSON.stringify({
+          "매칭페르소나": taskState.currentPersona ? taskState.currentPersona.name : "최민준",
+          "형성평가점수": `${score}점`,
+          "대화진행턴": `${taskState.chatTurn}턴`,
+          "챗봇대화내역": chatTranscriptText,
+          "대화내역": chatTranscriptText,
+          "시민참여성찰저널": reflText,
+          "Q4_짝맞추기": `1-${m1}, 2-${m2}, 3-${m3}, 4-${m4}`,
+          "Q5_하이라이트선택": q5Ans,
+          "시민참여성찰답변": reflText,
+          "메타성찰답변": reflText,
+          "루브릭_공감성": rubricEmpathy,
+          "루브릭_기본권진단": rubricDiagnosis,
+          "루브릭_솔루션제안": rubricSolution
+        })
+      };
+
+      try {
+        await fetch("/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(submissionPayload)
+        });
+
+        // 📝 메타인지 성찰 저널 탭으로도 이중 백업 전송
+        try {
+          await fetch("/api/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "submit",
+              studentId: taskState.student.studentId || "1000",
+              studentName: taskState.student.name || "학생",
+              activityTitle: "메타인지 성찰 저널",
+              score: "-",
+              result: JSON.stringify({
+                "과업명": "과업 3: 헌법과 시민참여",
+                "성찰답변": reflText,
+                "AI피드백": `과업 3 AI 대화 루브릭 평가 [공감:${rubricEmpathy} | 진단:${rubricDiagnosis} | 솔루션:${rubricSolution}]`,
+                "제출횟수": "1회"
+              })
+            })
+          });
+        } catch (metacogErr) {
+          console.warn("Metacognition central logging failed:", metacogErr);
+        }
+      } catch (e) {
+        console.warn("Offline submit fallback");
+      }
+
+      showBadgeAwardModal(score, tierName, { rubricEmpathy, rubricDiagnosis, rubricSolution });
+    }
+
+    // 뱃지 모달 표출
+    function showBadgeAwardModal(score, tierName, rubricResult) {
+      let icon = "🥉";
+      if (tierName.includes("다이아몬드")) icon = "💎";
+      else if (tierName.includes("골드")) icon = "🥇";
+      else if (tierName.includes("실버")) icon = "🥈";
+
+      document.getElementById("modalBadgeIcon").textContent = icon;
+      document.getElementById("modalBadgeTierName").textContent = tierName;
+      document.getElementById("modalTotalScoreText").textContent = `종합 평가 점수: ${score}점 | 3대 루브릭 [공감:${rubricResult.rubricEmpathy} | 진단:${rubricResult.rubricDiagnosis} | 솔루션:${rubricResult.rubricSolution}]`;
+      document.getElementById("badgeModalBackdrop").style.display = "flex";
+    }
+
+    function closeBadgeModal() {
+      document.getElementById("badgeModalBackdrop").style.display = "none";
       window.location.href = "../index.html";
+    }
+
+    function saveDraft() {
+      const draft = {
+        quizAnswers: taskState.quizAnswers,
+        quizGraded: taskState.quizGraded,
+        currentStep: taskState.currentStep,
+        reflectionContent: document.getElementById("reflectionContent").value
+      };
+      localStorage.setItem("sociallms_draft_c10102", JSON.stringify(draft));
+    }
+
+    function restoreDraft() {
+      const raw = localStorage.getItem("sociallms_draft_c10102");
+      if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        if (draft.reflectionContent) document.getElementById("reflectionContent").value = draft.reflectionContent;
+      } catch (e) {}
     }
   </script>
 </body>

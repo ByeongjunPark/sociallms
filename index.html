@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- SocialLMS Live Sync Release v2.5.0 (2026-08-17) -->
   <title>박병준 선생님의 통합사회 교실 🌸</title>
   <meta name="description" content="고등학교 통합사회 7개 성취기준에 맞춤화된 인터랙티브 배움 대시보드">
   <!-- Chart.js CDN 탑재 -->
@@ -752,6 +753,27 @@
         </div>
       </section>
 
+      <!-- 🏅 [학생 전용] 과업별 1:1 게이미피케이션 인권 배움 뱃지 수집 위젯 (독립 풀위드 카드) -->
+      <section style="margin-top: 20px; margin-bottom: 24px;">
+        <div class="card" style="padding: 24px; border-radius: 24px; background: rgba(255, 255, 255, 0.75); border: 1.5px solid rgba(184, 150, 219, 0.25); box-shadow: 0 6px 18px rgba(0,0,0,0.03); backdrop-filter: blur(12px);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-purple); margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
+                🏅 나의 인권 배움 뱃지 컬렉션
+              </h3>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">현재 오픈된 과업의 수행 완성도(정성·정량 성취 수준)에 따라 4단계 등급(🥉동 ➔ 🥈은 ➔ 🥇금 ➔ 💎다이아) 뱃지가 1:1로 수여됩니다.</span>
+            </div>
+            <span id="badgeCounterBadge" style="background: linear-gradient(135deg, var(--color-purple-soft), var(--color-purple)); color: white; padding: 6px 16px; border-radius: 14px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 3px 10px rgba(184, 150, 219, 0.35);">
+              획득 뱃지: 0 / 3개 🏅
+            </span>
+          </div>
+          
+          <div id="badgeGridContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+            <!-- JS renderBadgesWidget() 1과업 1뱃지 체계로 렌더링 -->
+          </div>
+        </div>
+      </section>
+      
       <!-- 🌟 [학생 전용] 사전 진단평가 결과/오답노트 & AI 메타인지 공부법 전용 대형 액션 카드 바 -->
       <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; margin-bottom: 24px;">
         <!-- 1. 사전 진단평가 채점 리포트 & 오답노트 카드 -->
@@ -829,6 +851,7 @@
             <option value="14">🏫 1학년 4반</option>
             <option value="15">🏫 1학년 5반</option>
             <option value="16">🏫 1학년 6반</option>
+            <option value="17">🏫 1학년 7반</option>
           </select>
           <button type="button" class="gen-btn" onclick="loadTeacherData()" style="background: rgba(184,150,219,0.15); color: var(--color-purple); font-size: 0.8rem; font-weight: 700; border-color: rgba(184,150,219,0.3); padding: 6px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s;">
             🔄 실시간 동기화
@@ -836,12 +859,13 @@
         </div>
 
         <!-- 교사용 대시보드 탭 버튼 -->
-        <div class="teacher-tabs" style="display: flex; gap: 8px;">
+        <div class="teacher-tabs" style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button id="tTabBtn_list" type="button" class="filter-chip active" onclick="switchTeacherTab('list')">👥 학생 목록 & 진도</button>
           <button id="tTabBtn_group" type="button" class="filter-chip" onclick="switchTeacherTab('group')">🤖 AI 스마트 모둠 편성</button>
           <button id="tTabBtn_stats" type="button" class="filter-chip" onclick="switchTeacherTab('stats')">📊 종합 성향 및 학업 통계</button>
           <button id="tTabBtn_tasks" type="button" class="filter-chip" onclick="switchTeacherTab('tasks')">📝 과업별 제출 & 정오답</button>
           <button id="tTabBtn_map" type="button" class="filter-chip" onclick="switchTeacherTab('map')">🗺️ 학급 커뮤니티 맵핑</button>
+          <button id="tTabBtn_unlock" type="button" class="filter-chip" onclick="switchTeacherTab('unlock')" style="color: var(--color-purple); font-weight: 800;">🔓 학급별 과업 해금 제어판</button>
         </div>
       </div>
 
@@ -852,13 +876,16 @@
             <span>👥 학급 학생 성취 현황 목록</span>
             <span style="font-size: 0.85rem; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 8px;">선택 반 학생 수: <strong id="tStudentCount" style="color: var(--color-purple);">0</strong>명</span>
           </h3>
+          <!-- 🏆 학급 뱃지 획득 종합 통계 보드 -->
+          <div id="teacherBadgesSummary" style="display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; background: rgba(184, 150, 219, 0.05); padding: 12px 18px; border-radius: 14px; border: 1px dashed var(--color-purple-soft); font-size: 0.82rem; font-weight: 700; align-items: center;"></div>
           <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
             <thead>
               <tr style="border-bottom: 2px solid rgba(0,0,0,0.06); color: var(--text-secondary); font-weight: 700;">
-                <th style="padding: 12px 8px; width: 20%;">학번</th>
-                <th style="padding: 12px 8px; width: 20%;">이름</th>
-                <th style="padding: 12px 8px; width: 15%;">캐릭터</th>
-                <th style="padding: 12px 8px; width: 30%;">관심 진로</th>
+                <th style="padding: 12px 8px; width: 15%;">학번</th>
+                <th style="padding: 12px 8px; width: 15%;">이름</th>
+                <th style="padding: 12px 8px; width: 10%;">캐릭터</th>
+                <th style="padding: 12px 8px; width: 25%;">관심 진로</th>
+                <th style="padding: 12px 8px; width: 20%;">획득 뱃지</th>
                 <th style="padding: 12px 8px; text-align: center; width: 15%;">가입 진단정보</th>
               </tr>
             </thead>
@@ -1075,6 +1102,35 @@
             학생들이 📍2단계 커뮤니티 맵핑 활동에서 등록한 실시간 장소 침해 현황 및 개선 아이디어가 지도에 표출됩니다.
           </p>
           <div id="teacherMap"></div>
+        </div>
+      </section>
+
+      <!-- [교사 탭 6] 🔓 학급별 전이과업 해금 제어판 -->
+      <section id="tSection_unlock" class="teacher-tab-section" style="display: none;">
+        <div class="card" style="padding: 28px; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-glass);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin: 0 0 4px 0;">
+                🔓 학급별 전이과제 해금 제어판
+              </h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                아직 진도가 나가지 않은 과업을 학생이 미리 보는 것을 방지하기 위해, 수업 진도에 맞춰 반별로 해금 체크를 설정하세요. 🌸
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="gen-btn" onclick="masterUnlockAllTasks()" style="background: rgba(43, 138, 62, 0.15); color: #2b8a3e; font-weight: 800; font-size: 0.8rem; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(43,138,62,0.3);">
+                🔓 전체 학급 모든 과업 해금
+              </button>
+              <button type="button" class="gen-btn" onclick="masterResetTasksUnlock()" style="background: rgba(224, 49, 49, 0.15); color: #e03131; font-weight: 800; font-size: 0.8rem; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(224,49,49,0.3);">
+                🔒 과업 1만 기본 해금 (초기화)
+              </button>
+            </div>
+          </div>
+
+          <!-- 학급별 해금 조작 카드 그리드 -->
+          <div id="unlockClassGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 20px;">
+            <!-- JS로 동적 렌더링 -->
+          </div>
         </div>
       </section>
     </div>

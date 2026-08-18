@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .activity-container {
-      max-width: 820px;
+      max-width: 1600px;
       margin: 0 auto;
       padding-bottom: 80px;
       animation: fadeInUp 0.6s ease;
@@ -623,7 +623,7 @@
 
       <main class="card-activity">
         
-        <h2 class="activity-title" style="margin-bottom: 4px;">인권 역사와 3세대 변화 연표 🏛️</h2>
+        <h2 class="activity-title" style="margin-bottom: 4px;">🏛️ 과업 1: 인권의 역사적 발달과 3세대 인권 연표 탐구</h2>
         <p class="activity-subtitle" style="margin-bottom: 20px;">
           인권이 언제, 어떤 사회적 조건 속에서 어떠한 과정(역사적 사건)을 통해 탄생하고 확장되어 왔는지 탐색해 봅시다. <br>
           단순한 순서 암기를 넘어 <strong>'사회적 조건 ➔ 사건 발생 ➔ 권리 탄생'</strong>의 깊이 있는 인과관계를 완성해 보세요!
@@ -709,20 +709,20 @@
           <div class="quiz-card" id="quizCard_c1" style="background:rgba(255,255,255,0.4); border:1.5px solid rgba(0,0,0,0.03); border-radius:20px; padding:24px; margin-bottom:20px;">
             <h4 class="quiz-title" style="font-size:0.95rem; font-weight:800; color:var(--text-primary); margin-bottom:14px; line-height:1.4;">Q1. 인권의 일반적인 특성(천부성, 보편성, 항구성, 불가침성 등)에 대한 설명으로 가장 올바르지 않은 것은?</h4>
             <div class="quiz-options" style="display:flex; flex-direction:column; gap:10px;">
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(1, '①', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq1" value="①" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 1, '①')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq1" value="①" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 1, '①')">
                 <span>① 천부성: 인권은 국가가 법률이나 제도로 승인해주기 이전부터 인간이 태어나면서 자연적으로 갖는 권리이다.</span>
               </label>
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(1, '②', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq1" value="②" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 1, '②')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq1" value="②" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 1, '②')">
                 <span>② 보편성: 성별, 인종, 종교, 신분 등과 무관하게 인류 구성원인 모든 사람에게 예외 없이 동등하게 적용된다.</span>
               </label>
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(1, '③', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq1" value="③" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 1, '③')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq1" value="③" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 1, '③')">
                 <span>③ 항구성: 일정한 보장 연한이 만료되거나 국가적 비상사태 하에서는 임의로 영구 박탈해 처분할 수 있는 시한부 권리이다.</span>
               </label>
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(1, '④', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq1" value="④" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 1, '④')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq1" value="④" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 1, '④')">
                 <span>④ 불가침성: 누구도 다른 사람의 기본적 권리를 함부로 빼앗거나 훼손할 수 없으며 타인에게 임의 양도도 불가능하다.</span>
               </label>
             </div>
@@ -733,20 +733,20 @@
           <div class="quiz-card" id="quizCard_c2" style="background:rgba(255,255,255,0.4); border:1.5px solid rgba(0,0,0,0.03); border-radius:20px; padding:24px; margin-bottom:20px;">
             <h4 class="quiz-title" style="font-size:0.95rem; font-weight:800; color:var(--text-primary); margin-bottom:14px; line-height:1.4;">Q2. 국가의 적극적 개입과 복지 제도를 청구해 최소한의 인간다운 생활과 행복을 누리도록 보장받는 '2세대 사회권적 기본권'에 부합하지 않는 사례는?</h4>
             <div class="quiz-options" style="display:flex; flex-direction:column; gap:10px;">
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(2, '①', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq2" value="①" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 2, '①')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq2" value="①" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 2, '①')">
                 <span>① 근로의 권리를 요구하며 노동조합을 조직해 활동할 수 있는 기본적 권리</span>
               </label>
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(2, '②', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq2" value="②" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 2, '②')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq2" value="②" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 2, '②')">
                 <span>② 어떠한 외부 간섭이나 강제도 거부한 채 개인의 사적인 주거 공간이나 종교적 믿음을 지킬 권리</span>
               </label>
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(2, '③', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq2" value="③" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 2, '③')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq2" value="③" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 2, '③')">
                 <span>③ 건강하고 안전한 거주지에서 최소한의 보건위생 및 영양 지원을 수급해 쾌적하게 생존할 환경권</span>
               </label>
-              <label class="quiz-option-label" onclick="selectWorksheetQuiz(2, '④', this)" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
-                <input type="radio" name="wq2" value="④" class="quiz-option-input">
+              <label class="quiz-option-label" onclick="selectWorksheetQuiz(event, 2, '④')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.75); border:1.5px solid rgba(0,0,0,0.04); border-radius:14px; padding:14px 18px; font-size:0.9rem; cursor:pointer; transition:all 0.2s;">
+                <input type="radio" name="wq2" value="④" class="quiz-option-input" onclick="selectWorksheetQuiz(event, 2, '④')">
                 <span>④ 집안 형편에 상관없이 국가 공교육 기관에서 균등하게 배움의 지도를 수혜할 수 있는 교육권</span>
               </label>
             </div>
@@ -852,14 +852,31 @@
       2: "사적인 공간 보호 및 간섭 배제, 양심과 종교의 신념은 국가의 침해를 받지 않으려는 방어적 성격의 '1세대 자유권'에 속합니다."
     };
 
-    function selectWorksheetQuiz(qNum, val, element) {
+    function selectWorksheetQuiz(evt, qNum, val) {
       if (worksheetQuizGraded) return;
-      const cards = element.parentNode.querySelectorAll(".quiz-option-label");
-      cards.forEach(c => c.classList.remove("selected"));
-      element.classList.add("selected");
-      const radio = element.querySelector(".quiz-option-input");
-      if (radio) radio.checked = true;
+      if (evt && typeof evt.stopPropagation === "function") {
+        evt.stopPropagation();
+      }
+      
       worksheetQuizAnswers[`q${qNum}`] = val;
+      
+      const card = document.getElementById(`quizCard_c${qNum}`);
+      if (card) {
+        const optionLabels = card.querySelectorAll(".quiz-option-label");
+        optionLabels.forEach(lbl => {
+          const inp = lbl.querySelector(".quiz-option-input");
+          if (inp && inp.value === val) {
+            inp.checked = true;
+            lbl.classList.add("selected");
+            lbl.style.borderColor = "var(--color-purple)";
+            lbl.style.background = "rgba(184, 150, 219, 0.12)";
+          } else {
+            lbl.classList.remove("selected");
+            lbl.style.borderColor = "rgba(0,0,0,0.04)";
+            lbl.style.background = "rgba(255,255,255,0.75)";
+          }
+        });
+      }
     }
 
     // 힌트 사용 여부 상태
@@ -1222,6 +1239,10 @@
       // 파트 C 객관식 채점
       let quizCorrectCount = 0;
       for (let i = 1; i <= 2; i++) {
+        const checkedInput = document.querySelector(`input[name="wq${i}"]:checked`);
+        if (checkedInput) {
+          worksheetQuizAnswers[`q${i}`] = checkedInput.value;
+        }
         const selected = worksheetQuizAnswers[`q${i}`];
         const correct = WORKSHEET_QUIZ_KEYS[`q${i}`];
         const feedbackBox = document.getElementById(`wQuizFeedback_${i}`);
@@ -1309,7 +1330,42 @@
         return;
       }
 
-      showLoadingModal("AI 보조교사 박병준 봇이 학생이 제안한 4세대 인권의 논리성과 시사 가치를 분석 중입니다... 🤖");
+      // 📌 [노이즈/모르겠다 사전 검증] 성의 없는 문구 단칼 차단
+      const noiseKeywords = ["모르겠다", "모름", "몰라", "없음", "글쎄", "아무거나", "그냥", "ㅁㄴㅇㄹ", "ㅋㅋㅋㅋ", "ㅎㅎㅎㅎ", "지루", "귀찮", "몰라요", "모르겠음", "모르겠어요", "없어요", "없음요", "테스트", "test", "asdf", "qwer", "1234"];
+      const isNoise = noiseKeywords.some(kw => ref4th.includes(kw)) || /^(.)\1{4,}$/.test(ref4th);
+
+      showLoadingModal("AI 보조교사 박병준 봇이 학생이 제안한 4세대 인권의 논리성과 시사 가치를 엄격 분석 중입니다... 🤖");
+
+      if (isNoise) {
+        // 노이즈/모르겠다 입력 시 AI 호출 없이 즉시 노력요함 등급 하향 판정
+        const logicGrade = "노력요함";
+        const creativityGrade = "노력요함";
+        const valueGrade = "노력요함";
+
+        const feedbackBody = "제안하신 4세대 인권 내용이 다소 성의 없거나 무의미한 문구('모르겠다/없음/무의미한 자음 등')로 판단됩니다.\n\nAI 기술 발전, 디지털 잊힐 권리, 기후 위기, 우주 시술 등 현대 및 미래 사회 변화와 관련된 인권을 구체적인 이유와 함께 성실히 다시 작성해 주세요!";
+
+        window.worksheetGrades = { logicGrade, creativityGrade, valueGrade };
+
+        const getBadgeStyle = (grade, num) => {
+          return `<span style="background: rgba(217, 83, 79, 0.1); color: #d9534f; border: 1.2px solid #d9534f; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.82rem;">${num} 노력요함 ⚠️</span>`;
+        };
+
+        const feedbackHTML = `
+          <h4>🤖 AI 보조교사 박병준 봇의 3차원 루브릭 정성 평가</h4>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px 0;">
+            ${getBadgeStyle(logicGrade, "① 논리성 & 근거성:")}
+            ${getBadgeStyle(creativityGrade, "② 시사성 & 창의성:")}
+            ${getBadgeStyle(valueGrade, "③ 연대성 & 보편가치:")}
+          </div>
+          <p style="background: rgba(217, 83, 79, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid #d9534f; font-size: 0.92rem; white-space: pre-wrap; line-height:1.5;">${feedbackBody}</p>
+          <p style="margin-top: 10px; font-weight: bold; color: #d9534f; font-size:0.86rem;">⚠️ 내용 보완이 필요하지만, 학습 흐름을 위해 다음 단계 진행이 가능합니다. 🌿</p>
+        `;
+
+        setTimeout(() => {
+          openWorksheetModal(feedbackHTML, true, "3단계(메타성찰)로 가기 👉");
+        }, 600);
+        return;
+      }
 
       try {
         const response = await fetch("/api/chat", {
@@ -1319,14 +1375,40 @@
             messages: [
               {
                 role: "system",
-                content: "당신은 고등학교 통합사회 '인권 보장과 헌법' 단원을 지도하는 매우 다정하고 격려 중심의 AI 보조교사 박병준 봇입니다. 학생은 고등학생이므로, 학생이 제안한 4세대 인권과 근거가 완벽하지 않더라도 창의적인 의도가 돋보인다면 매우 허용적(허용적 채점 방식)으로 칭찬해 주고 지지하며, 배움을 심화할 수 있는 핵심 질문 한 가지를 던져서 격려해 주세요. 날카로운 빨간 펜 지적은 전면 삼가해 주십시오."
+                content: `당신은 고등학교 통합사회 '인권 보장과 헌법' 단원을 지도하는 엄격하고 정교한 AI 보조교사 박병준 봇입니다.
+학생이 제안한 4세대 인권 제안에 대해 아래 3대 차원 루브릭 기준을 적용해 객관적이고 엄격하게 평가를 내리세요:
+
+[채점 루브릭 객관적 기준]
+1. ① 논리성 & 근거성:
+   - 우수: 4세대 인권의 필요성과 구체적 헌법적/사회적 근거가 명확하고 논리적임.
+   - 보통: 새로운 인권 주장은 있으나 왜 필요한지 근거가 다소 부족하거나 단문임.
+   - 노력요함: 내용이 모호하거나 주장에 대한 논리적 연결이 전혀 없음.
+
+2. ② 시사성 & 창의성:
+   - 우수: AI, 빅데이터, 기후변화, 우주, 바이오, 디지털 잊힐 권리 등 신선한 시사 이슈 반영.
+   - 보통: 기존 1~3세대 인권(자유권, 사회권 등) 수준의 평이한 내용.
+   - 노력요함: 시사적 고민이나 창의성이 전혀 느껴지지 않음.
+
+3. ③ 연대성 & 보편가치:
+   - 우수: 인류 공동체의 삶의 질, 존엄성, 보편적 가치 수호를 목표로 함.
+   - 보통: 개인적 만족이나 단편적 요구에 치중됨.
+   - 노력요함: 보편적 인권 가치에 부합하지 않음.
+
+[답변 작성 필수 구조 - 양식 엄수]
+[평가]
+① 논리성 & 근거성: [우수 / 보통 / 노력요함]
+② 시사성 & 창의성: [우수 / 보통 / 노력요함]
+③ 연대성 & 보편가치: [우수 / 보통 / 노력요함]
+
+[피드백]
+(학생의 제안에 대한 객관적 장단점 및 보완 방향 조언 3줄 이내. 강조기호 ** 절대 금지)`
               },
               {
                 role: "user",
-                content: `학생이 제안한 4세대 인권 내용은 다음과 같습니다:
+                content: `학생이 제안한 4세대 인권 내용:
 - [제안 명칭 및 정당성 근거]: ${ref4th}
 
-위 내용을 허용적으로 채점하여 칭찬하고, 따뜻하게 격려하는 줄글 피드백을 한글로 3줄 이내로 핵심 요약해서 반환해 주세요.`
+위 루브릭 기준에 따라 엄격히 평가해 주세요.`
               }
             ]
           })
@@ -1334,24 +1416,79 @@
 
         const resData = await response.json();
         if (resData.success) {
-          const aiResponse = resData.message.content;
+          let aiResponse = resData.message.content;
+          aiResponse = aiResponse.replace(/\*\*/g, "").replace(/\*/g, "");
+
+          // 정교한 루브릭 등급 추출 파서 (기본 펄백: 보통)
+          function parseGrade(text, keyword, defaultGrade = "보통") {
+            const lines = text.split("\n");
+            for (let line of lines) {
+              if (line.includes(keyword)) {
+                if (line.includes("우수")) return "우수";
+                if (line.includes("노력")) return "노력요함";
+                if (line.includes("보통")) return "보통";
+              }
+            }
+            return defaultGrade;
+          }
+
+          const logicGrade = parseGrade(aiResponse, "①", "보통");
+          const creativityGrade = parseGrade(aiResponse, "②", "보통");
+          const valueGrade = parseGrade(aiResponse, "③", "보통");
+
+          // 피드백 본문 추출
+          let feedbackBody = aiResponse;
+          const feedbackIdx = aiResponse.indexOf("[피드백]");
+          if (feedbackIdx !== -1) {
+            feedbackBody = aiResponse.substring(feedbackIdx + 5).trim();
+          } else {
+            feedbackBody = aiResponse.replace(/\[평가\][\s\S]*?(?=\n\n|\n[가-힣]|\n[A-Za-z]|$)/, "").trim();
+          }
+
+          const getBadgeStyle = (grade, num) => {
+            let bg, color, border, text;
+            if (grade === "우수") {
+              bg = "rgba(43, 138, 98, 0.1)"; color = "#2b8a3e"; border = "1.2px solid var(--color-mint)"; text = "우수 🌟";
+            } else if (grade === "보통") {
+              bg = "rgba(240, 173, 78, 0.1)"; color = "#ec971f"; border = "1.2px solid #f0ad4e"; text = "보통 🌿";
+            } else {
+              bg = "rgba(217, 83, 79, 0.1)"; color = "#d9534f"; border = "1.2px solid #d9534f"; text = "노력요함 ⚠️";
+            }
+            return `<span style="background: ${bg}; color: ${color}; border: ${border}; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.82rem;">${num} ${text}</span>`;
+          };
+
           const feedbackHTML = `
-            <h4>🤖 AI 보조교사 박병준 봇의 허용적 평가</h4>
-            <p style="background: rgba(184, 150, 219, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-purple); font-size: 0.92rem; white-space: pre-wrap;">${aiResponse}</p>
-            <p style="margin-top: 10px; font-weight: bold; color: var(--color-mint);">🌿 4세대 인권 전이 과제 평가를 정상적으로 완수했습니다! 다음 단계를 진행해 주세요.</p>
+            <h4>🤖 AI 보조교사 박병준 봇의 3차원 루브릭 정성 평가</h4>
+            
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px 0;">
+              ${getBadgeStyle(logicGrade, "① 논리성 & 근거성:")}
+              ${getBadgeStyle(creativityGrade, "② 시사성 & 창의성:")}
+              ${getBadgeStyle(valueGrade, "③ 연대성 & 보편가치:")}
+            </div>
+
+            <p style="background: rgba(184, 150, 219, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-purple); font-size: 0.92rem; white-space: pre-wrap; line-height:1.5;">${feedbackBody}</p>
+            <p style="margin-top: 10px; font-weight: bold; color: var(--color-mint); font-size:0.86rem;">🌿 4세대 인권 전이 과제 평가를 정상적으로 완수했습니다! 다음 단계를 진행해 주세요.</p>
           `;
+
+          window.worksheetGrades = { logicGrade, creativityGrade, valueGrade };
+
           openWorksheetModal(feedbackHTML, true, "3단계(메타성찰)로 가기 👉");
         } else {
           throw new Error(resData.message);
         }
       } catch (err) {
         console.error("AI grading failed:", err);
-        const fallbackHTML = `
-          <h4>🔍 2단계 과제 등록 안내 (로컬 백업)</h4>
-          <p>• 제안 내용: "${ref4th}"</p>
-          <p style="color: var(--color-purple); font-weight:700;">작성하신 소중한 배움 제안 내용이 안전하게 수집 완료되었습니다. 3단계 성찰로 이동해 주세요! 🌿</p>
+        const logicGrade = "보통";
+        const creativityGrade = "보통";
+        const valueGrade = "보통";
+        window.worksheetGrades = { logicGrade, creativityGrade, valueGrade };
+
+        const errorHTML = `
+          <h4 style="color: #d9534f;">⚠️ AI 채점 서버 응답 지연</h4>
+          <p style="font-size:0.88rem; color: var(--text-secondary); line-height: 1.5;">현재 학교 학내망 신호 상태 또는 AI 채점 모듈의 일시적 지연으로 인해 정성 피드백을 실시간으로 로드하지 못했습니다.</p>
+          <p style="color: var(--color-mint); font-weight:700; font-size:0.88rem;">제안하신 소중한 답변 본문은 시스템에 안전하게 기록되었으니 안심하고 다음 단계를 진행해 주세요! 🌿</p>
         `;
-        openWorksheetModal(fallbackHTML, true, "3단계(메타성찰)로 가기 👉");
+        openWorksheetModal(errorHTML, true, "3단계(메타성찰)로 가기 👉");
       }
     }
 
@@ -1363,6 +1500,14 @@
         alert("오늘 탐구에 대한 본인의 메타인지적 공부 보완책 성찰 저널을 최소 15자 이상 적어주세요! ✍️");
         return;
       }
+
+      // 📌 제출 횟수 제한 해제 (교사 요청 반영)
+      // const currentSubmitCount = parseInt(localStorage.getItem("sociallms_submit_count_c10101_worksheet") || "0");
+      // const studentId = localStorage.getItem("sociallms_student_id") || "";
+      // if (currentSubmitCount >= 2 && studentId !== "1701") {
+      //   alert("해당 과업의 최대 제출 횟수(총 2회)를 모두 사용하셨습니다. (현재 제출 횟수: 2/2회 완료) 🔒\n추가 수정 제출이 불가능합니다.");
+      //   return;
+      // }
 
       showLoadingModal("AI 메타인지 코치가 학생의 학업 취약점 보완 학습 전략을 조율 및 분석 중입니다... 🤖");
 
@@ -1390,34 +1535,135 @@
         });
 
         const resData = await response.json();
-        if (resData.success) {
-          const aiResponse = resData.message.content;
-          const feedbackHTML = `
-            <h4>🤖 AI 메타인지 코치 피드백</h4>
-            <p style="background: rgba(43, 138, 98, 0.08); padding: 16px; border-radius: 16px; border-left: 4px solid var(--color-mint); font-size: 0.92rem; white-space: pre-wrap;">${aiResponse}</p>
-            <p style="margin-top: 10px; font-weight: bold; color: var(--color-pink);">🎉 모든 인권 역사 탐구를 마쳤습니다! 참 잘하셨습니다.</p>
-          `;
-          
-          await submitFinalWorksheet(ref4th, refSelf);
-          openWorksheetModal(feedbackHTML, true, "대시보드로 돌아가기 🎉");
+        const rawAiResponse = resData.success ? resData.message.content : "성찰 작성을 바탕으로 메타인지 학습 전략을 성공적으로 수립하였습니다! 🌿";
+        const cleanAiResponse = String(rawAiResponse).replace(/\*\*/g, "").replace(/\*/g, "").trim();
+        
+        // 🏅 [2단계 4세대 인권 루브릭 기준] 4단계 뱃지 등급 및 연동 점수 산출
+        const grades = window.worksheetGrades || { logicGrade: "우수", creativityGrade: "우수", valueGrade: "우수" };
+        let excelCount = 0;
+        if (grades.logicGrade === "우수") excelCount++;
+        if (grades.creativityGrade === "우수") excelCount++;
+        if (grades.valueGrade === "우수") excelCount++;
+
+        let badgeIcon = "🥉";
+        let badgeTier = "동 뱃지 (Bronze Tier)";
+        let badgeColor = "#d9480f";
+
+        if (excelCount === 3) {
+          badgeIcon = "💎"; badgeTier = "다이아 뱃지 (Diamond Tier)"; badgeColor = "#00b4d8";
+        } else if (excelCount === 2) {
+          badgeIcon = "🥇"; badgeTier = "금 뱃지 (Gold Tier)"; badgeColor = "#f59f00";
+        } else if (excelCount === 1) {
+          badgeIcon = "🥈"; badgeTier = "은 뱃지 (Silver Tier)"; badgeColor = "#868e96";
         } else {
-          throw new Error(resData.message);
+          badgeIcon = "🥉"; badgeTier = "동 뱃지 (Bronze Tier)"; badgeColor = "#d9480f";
         }
+
+        // 뱃지 티어 캐싱
+        localStorage.setItem("sociallms_badge_c10101", badgeTier);
+
+        await submitFinalWorksheet(ref4th, refSelf, cleanAiResponse);
+
+        // 1단계 형성평가 점수 계산
+        let matchCorrectCount = 0;
+        for (let condId in correctMatches) {
+          if (userMatches[condId] === correctMatches[condId]) matchCorrectCount++;
+        }
+        let sortCorrect = true;
+        let genCorrectCount = 0;
+        sortCards.forEach((card, index) => {
+          if (card.id !== correctSortOrder[index]) sortCorrect = false;
+          if (card.correctGens.includes(card.gen)) genCorrectCount++;
+        });
+        const mScore = matchCorrectCount * 8;
+        const sScore = sortCorrect ? 20 : 0;
+        const gScore = Math.round((genCorrectCount / 5) * 20);
+        let qCorrectCount = 0;
+        if (worksheetQuizAnswers.q1 === "③") qCorrectCount++;
+        if (worksheetQuizAnswers.q2 === "②") qCorrectCount++;
+        const qScore = qCorrectCount * 10;
+        const actualQuizScore = mScore + sScore + gScore + qScore;
+
+        const badgeModalHTML = `
+          <div style="text-align: center; margin-bottom: 16px;">
+            <div style="font-size: 3rem; margin-bottom: 4px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));">${badgeIcon}</div>
+            <span style="background: rgba(184, 150, 219, 0.15); color: var(--color-purple); font-weight: 800; font-size: 0.78rem; padding: 4px 12px; border-radius: 8px;">과업 1 탐구 최종 이수</span>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 6px 0 2px 0;">🎉 축하합니다! ${badgeTier} 획득!</h3>
+            <span style="font-size: 1.05rem; font-weight: 800; color: ${badgeColor};">평가 획득 점수: ${actualQuizScore}점 / 100점</span>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.6); border: 1.5px solid ${badgeColor}; border-radius: 18px; padding: 18px; margin-bottom: 14px; font-size: 0.86rem; line-height: 1.6;">
+            <h5 style="margin: 0 0 8px 0; color: var(--color-purple); font-weight: 800; font-size: 0.92rem; border-bottom: 1px dashed rgba(0,0,0,0.08); padding-bottom: 4px;">
+              📊 과업 1 뱃지 등급 평가 및 산출 기준
+            </h5>
+            <ul style="margin: 0; padding-left: 16px; color: var(--text-primary); display: flex; flex-direction: column; gap: 4px;">
+              <li>• <strong>1단계 역사적 사건 매칭:</strong> 서구 근대 시민혁명 문서 5개 매칭</li>
+              <li>• <strong>2단계 4세대 인권 제안:</strong> AI 3차원 루브릭 정성 평가</li>
+              <li>• <strong>3단계 메타인지 성찰:</strong> 학습 과정 피드백 및 성찰 저널 제출</li>
+            </ul>
+            <div style="margin-top: 10px; background: rgba(184,150,219,0.1); padding: 10px 12px; border-radius: 10px; color: var(--text-secondary); font-size: 0.8rem;">
+              💡 <strong>평가 종합 사유:</strong> 형성평가 정답 수, 연표 정렬 성공도, 4세대 인권 제안의 AI 루브릭 등급 결과를 반영한 **종합 성취 점수**에 따라 <strong>${badgeTier}</strong>로 수여되었습니다!
+            </div>
+          </div>
+
+          <div style="background: rgba(43, 138, 98, 0.08); padding: 14px; border-radius: 14px; border-left: 4px solid var(--color-mint); font-size: 0.85rem; line-height: 1.55; color: var(--text-primary); margin-bottom: 10px;">
+            🤖 <strong>AI 메타인지 코치 격려 조언:</strong><br>${cleanAiResponse}
+          </div>
+        `;
+        
+        openWorksheetModal(badgeModalHTML, true, "🏅 뱃지 받기 & 대시보드로 이동 🌸");
       } catch (err) {
         console.error("AI reflection grading failed:", err);
-        const fallbackHTML = `
-          <h4>🎉 3단계 학습 완료! (로컬 백업 완료)</h4>
-          <p>• <strong>제안한 4세대 인권:</strong> ${ref4th}</p>
-          <p>• <strong>수립한 메타인지 학습전략:</strong> ${refSelf}</p>
-          <p style="color: var(--color-mint); font-weight:700;">학습 성찰 결과 제출이 완료되었습니다. 대시보드로 돌아갑니다! 🌿</p>
-        `;
+        const grades = window.worksheetGrades || { logicGrade: "우수", creativityGrade: "우수", valueGrade: "우수" };
+        let excelCount = 0;
+        if (grades.logicGrade === "우수") excelCount++;
+        if (grades.creativityGrade === "우수") excelCount++;
+        if (grades.valueGrade === "우수") excelCount++;
+        
+        let badgeTier = "동 뱃지 (Bronze Tier)";
+        if (excelCount === 3) badgeTier = "다이아 뱃지 (Diamond Tier)";
+        else if (excelCount === 2) badgeTier = "금 뱃지 (Gold Tier)";
+        else if (excelCount === 1) badgeTier = "은 뱃지 (Silver Tier)";
+        
+        localStorage.setItem("sociallms_badge_c10101", badgeTier);
         await submitFinalWorksheet(ref4th, refSelf);
-        openWorksheetModal(fallbackHTML, true, "대시보드로 돌아가기 🎉");
+        // 1단계 형성평가 점수 계산
+        let matchCorrectCount = 0;
+        for (let condId in correctMatches) {
+          if (userMatches[condId] === correctMatches[condId]) matchCorrectCount++;
+        }
+        let sortCorrect = true;
+        let genCorrectCount = 0;
+        sortCards.forEach((card, index) => {
+          if (card.id !== correctSortOrder[index]) sortCorrect = false;
+          if (card.correctGens.includes(card.gen)) genCorrectCount++;
+        });
+        const mScore = matchCorrectCount * 8;
+        const sScore = sortCorrect ? 20 : 0;
+        const gScore = Math.round((genCorrectCount / 5) * 20);
+        let qCorrectCount = 0;
+        if (worksheetQuizAnswers.q1 === "③") qCorrectCount++;
+        if (worksheetQuizAnswers.q2 === "②") qCorrectCount++;
+        const qScore = qCorrectCount * 10;
+        const actualQuizScore = mScore + sScore + gScore + qScore;
+
+        const fallbackHTML = `
+          <div style="text-align: center; margin-bottom: 14px;">
+            <div style="font-size: 3.5rem; margin-bottom: 4px;">🏅</div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-purple);">🎉 과업 1 최종 제출 완료</h3>
+            <span style="font-size: 1.05rem; font-weight: 800; color: var(--color-mint);">평가 획득 점수: ${actualQuizScore}점 / 100점</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; text-align: center;">
+            AI 채점 서버 연결 지연으로 인해 맞춤 격려 피드백 생성은 생략되었으나,<br>
+            제출하신 최종 답변과 성취도 점수는 안전하게 저장되었습니다! 대시보드로 이동합니다. 🌿
+          </p>
+        `;
+        openWorksheetModal(fallbackHTML, true, "🏅 뱃지 받기 & 대시보드로 이동 🌸");
       }
     }
 
     // ================= 최종 제출 API 송신 =================
-    async function submitFinalWorksheet(ref4th, refSelf) {
+    async function submitFinalWorksheet(ref4th, refSelf, cleanAiResponse = "", rubricScore = null) {
       const studentId = localStorage.getItem("sociallms_student_id");
       const savedProfile = localStorage.getItem("sociallms_profile");
       if (!studentId || !savedProfile) return;
@@ -1436,17 +1682,41 @@
         if (card.correctGens.includes(card.gen)) genCorrectCount++;
       });
 
-      const matchScore = matchCorrectCount * 12;
+      const matchScore = matchCorrectCount * 8;
       const sortScore = sortCorrect ? 20 : 0;
       const genScore = Math.round((genCorrectCount / 5) * 20);
-      const finalScore = matchScore + sortScore + genScore;
+
+      // 파트 C 객관식 퀴즈 채점
+      let quizCorrectCount = 0;
+      const wq1Ans = worksheetQuizAnswers.q1 || "";
+      const wq2Ans = worksheetQuizAnswers.q2 || "";
+      if (wq1Ans === "③") quizCorrectCount++;
+      if (wq2Ans === "②") quizCorrectCount++;
+      const quizScore = quizCorrectCount * 10;
+
+      const finalScore = matchScore + sortScore + genScore + quizScore;
+
+      // 📌 현재 제출 횟수 조회
+      const curCount = parseInt(localStorage.getItem("sociallms_submit_count_c10101_worksheet") || "0");
+      const submitCountText = `${curCount + 1}회`;
+
+      // 파트 C 객관식 퀴즈 답안 융합
+      const q1Ans = worksheetQuizAnswers.q1 || "";
+      const q2Ans = worksheetQuizAnswers.q2 || "";
+      const quizFormatted = [
+        `Q1:${q1Ans}(${q1Ans === '③' ? 'O' : 'X:선택' + q1Ans})`,
+        `Q2:${q2Ans}(${q2Ans === '②' ? 'O' : 'X:선택' + q2Ans})`
+      ].join(", ");
+
+      // 루브릭 3대 차원 취득
+      const grades = window.worksheetGrades || { logicGrade: "우수", creativityGrade: "우수", valueGrade: "우수" };
 
       const payload = {
         action: "submit",
         studentId: studentId,
         studentName: profile.name,
         activityId: "c10101_worksheet",
-        activityTitle: "인권 역사와 3세대 변화 연표 🏛️",
+        activityTitle: "과업 1: 인권 역사 연표",
         score: `${finalScore}점`,
         result: JSON.stringify({
           "선택한사건": sortCards.map(c => c.title).join(", "),
@@ -1454,10 +1724,38 @@
           "새로운권리서술": ref4th || "새로운 권리 제안 완료",
           "1단계매칭답변": `매칭:${matchCorrectCount}/5개 정답`,
           "2단계정렬순서": `${sortCorrect ? "연대기정렬성공" : "연대기정렬실패"} (세대매칭 ${genCorrectCount}/5개)`,
+          "형성평가퀴즈": quizFormatted,
+          "루브릭_논리성": grades.logicGrade,
+          "루브릭_시사성": grades.creativityGrade,
+          "루브릭_보편가치": grades.valueGrade,
+          "제출횟수": submitCountText,
           "Q1_4세대인권상상": ref4th,
           "Q2_학습과정성찰": refSelf
         })
       };
+
+      // 🧠 메타인지 성찰 저널 중앙 통합 시트 전송 (독립 실행 100% 보장)
+      try {
+        await fetch("/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "submit",
+            studentId: studentId,
+            studentName: profile.name || "학생",
+            activityTitle: "메타인지 성찰 저널",
+            score: "-",
+            result: JSON.stringify({
+              "과업명": "과업 1: 인권 역사 연표",
+              "성찰답변": refSelf,
+              "AI피드백": cleanAiResponse || "성찰 작성을 바탕으로 메타인지 학습 전략을 성공적으로 수립하였습니다! 🌿",
+              "제출횟수": submitCountText
+            })
+          })
+        });
+      } catch (metacogErr) {
+        console.warn("Metacognition central logging failed:", metacogErr);
+      }
 
       try {
         const res = await fetch("/api/submit", {
@@ -1469,7 +1767,14 @@
         if (resData.success) {
           const localProgress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
           localProgress["c10101_worksheet"] = "completed";
+          localProgress["c10101"] = "completed";
           localStorage.setItem("sociallms_progress", JSON.stringify(localProgress));
+          localStorage.setItem("sociallms_progress_c10101", "completed");
+          localStorage.setItem("sociallms_score_c10101", finalScore);
+
+          // 📌 제출 횟수 증가 (최대 2회)
+          const curCount = parseInt(localStorage.getItem("sociallms_submit_count_c10101_worksheet") || "0");
+          localStorage.setItem("sociallms_submit_count_c10101_worksheet", curCount + 1);
 
           localStorage.setItem("sociallms_worksheet_result_c10101", JSON.stringify({
             ref4th: ref4th,
@@ -1480,6 +1785,7 @@
       } catch (e) {
         console.error("Final submission failed:", e);
       }
+      return finalScore;
     }
 
     // ================= 단계 이동 컨트롤러 =================

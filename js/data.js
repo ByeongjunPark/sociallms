@@ -18,7 +18,7 @@ const CURRICULUM_DATA = [
     activities: [
       {
         id: "c10101_worksheet",
-        title: "인권 역사와 3세대 변화 연표 🏛️",
+        title: "🏛️ 과업 1: 인권의 역사적 발달과 3세대 인권 연표 탐구",
         description: "역사적 요구 조건과 사건을 연결하고, 인권 확장 연대기를 세대별로 재구성해보는 3단계 생각 전이 활동지",
         type: "worksheet",
         timeRequired: "15분",
@@ -42,7 +42,16 @@ const CURRICULUM_DATA = [
     category: "인권 보장과 헌법",
     color: "var(--color-purple)",
     bgGradient: "linear-gradient(135deg, #f8f0fc 0%, #ebd4fc 100%)",
-    activities: []
+    activities: [
+      {
+        id: "c10102_chatbot",
+        title: "💬 과업 3: 헌법의 역할과 시민 참여 (가상 시민 AI 대화)",
+        description: "학생의 희망 진로 1:1 맞춤 가상 시민의 고충을 대화로 경청하고, 침해 기본권 진단 및 헌법소원·청원 등 구체적 시민 참여 해결책을 제시하는 3단계 배움 모듈",
+        type: "chatbot",
+        timeRequired: "15분",
+        url: "activities/c10102_chatbot.html"
+      }
+    ]
   },
   {
     id: "10통사2-01-03",
