@@ -1498,44 +1498,62 @@ function filterTeacherClass() {
   }
 }
 
-// 🔑 구글 시트 Users 탭 C열 (3번째 컬럼 / 비밀번호) 정밀 파서 (메타데이터 키 인덱스 밀림 현상 100% 수복)
+// 🔑 구글 시트 Users 탭 C열 4자리 이모티콘 비밀번호(🐶🎈🍀🌟) 100% 정밀 파서 엔진
 function getStudentPasswordFromRow(s) {
   if (!s || typeof s !== "object") return "비밀번호 미설정";
 
-  // 1단계: 메타데이터 속성 제외 순수 시트 컬럼 키만 필터링
-  const sheetHeaderKeys = Object.keys(s).filter(k => {
-    const cleanK = k.toLowerCase().replace(/\s+/g, "");
-    return cleanK !== "activities" && 
-           cleanK !== "timestamp" && 
-           cleanK !== "gradeclass" && 
-           cleanK !== "rowidx" && 
-           cleanK !== "id" && 
-           cleanK !== "_id";
-  });
-
-  // 2단계: 헤더명에 "비밀번호", "비번", "password", "pw", "pin", "암호" 들어간 키 우선 탐색 (캐릭터 제외)
-  for (const k of sheetHeaderKeys) {
-    const cleanK = k.toLowerCase().replace(/\s+/g, "");
+  // 1단계: 헤더명에 "비밀번호", "비번", "password", "pw", "pin", "암호" 들어간 속성 우선 조회
+  for (const k of Object.keys(s)) {
+    const cleanK = String(k).toLowerCase().replace(/\s+/g, "");
     if ((cleanK.includes("비밀번호") || cleanK.includes("비번") || cleanK.includes("password") || cleanK.includes("pw") || cleanK.includes("pin") || cleanK.includes("암호")) && !cleanK.includes("캐릭터") && !cleanK.includes("emoji")) {
       const val = String(s[k] || "").trim();
       if (val && val !== "undefined" && val !== "null") {
-        // 단일 이모지(👧) 아바타 제외 필터
-        if (Array.from(val).length > 1 && val !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && val !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
+        const charArr = Array.from(val);
+        // 단일 이모지(👧) 배제 및 4자리 이모지/문자 암호 반환
+        if (charArr.length > 1 && val !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && val !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
           return val;
         }
       }
     }
   }
 
-  // 3단계: 순수 시트 3번째 컬럼 (Col C / index 2) 다이렉트 키 검색
-  if (sheetHeaderKeys.length >= 3) {
-    const colCKey = sheetHeaderKeys[2];
+  // 2단계: 4자리 이모티콘 비밀번호(🐶🎈🍀🌟, 🐰🎀🍓🍓 등 2개 이상의 이모지 조합) 전수 정밀 패턴 탐색
+  for (const [k, v] of Object.entries(s)) {
+    if (k === "activities" || k === "timestamp") continue;
+    const strV = String(v || "").trim();
+    if (strV && /\p{Extended_Pictographic}/u.test(strV)) {
+      const charArr = Array.from(strV);
+      // 이모지가 2개 이상 연속 조합된 경우(예: 🐶🎈🍀🌟) 무조건 C열 비밀번호로 직통 채택!
+      if (charArr.length >= 2 && strV !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && strV !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
+        return strV;
+      }
+    }
+  }
+
+  // 3단계: 메타데이터 제외 순수 시트 3번째 컬럼 (Col C / index 2) 다이렉트 추출
+  const cleanKeys = Object.keys(s).filter(k => 
+    k !== "activities" && k !== "timestamp" && k !== "gradeClass" && k !== "rowIdx" && k !== "id" && k !== "_id"
+  );
+
+  if (cleanKeys.length >= 3) {
+    const colCKey = cleanKeys[2];
     const colCVal = String(s[colCKey] || "").trim();
     if (colCVal && colCVal !== "undefined" && colCVal !== "null") {
-      // 1글자 캐릭터 이모지(👧) 및 학번/이름 동일값 배제
       if (Array.from(colCVal).length > 1 && colCVal !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && colCVal !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
         return colCVal;
       }
+    }
+  }
+
+  // 4단계: 순수 시트 3번째 값 (Col C / index 2 value) 다이렉트 추출
+  const cleanValues = Object.entries(s)
+    .filter(([k]) => k !== "activities" && k !== "timestamp" && k !== "gradeClass" && k !== "rowIdx" && k !== "id" && k !== "_id")
+    .map(([, v]) => String(v || "").trim());
+
+  if (cleanValues.length >= 3 && cleanValues[2]) {
+    const valC = cleanValues[2];
+    if (valC && valC !== "undefined" && valC !== "null" && Array.from(valC).length > 1) {
+      return valC;
     }
   }
 
