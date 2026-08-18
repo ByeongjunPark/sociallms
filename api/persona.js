@@ -81,17 +81,31 @@ export default async function handler(req, res) {
     };
 
     const getGrievance = (row) => {
-      const occ = row.occupation || "자영업";
-      if (occ.includes("하역") || occ.includes("단순") || occ.includes("노동")) {
-        return `고강도 과중 노동과 위험한 작업 환경으로 인해 헌법상 인간의 존엄성과 안전권, 인간다운 생활을 누릴 권리가 위협받고 있습니다.`;
+      const occ = String(row.occupation || "자영업");
+      const age = row.age || 35;
+
+      if (occ.includes("하역") || occ.includes("단순") || occ.includes("노동") || occ.includes("건설")) {
+        return `매일 밤샘 물류 작업을 하느라 휴식 시간도 부족하고, 낡은 안전 장비 때문에 다칠까 봐 늘 두려워요. 제대로 쉬지도 못하고 일만 하다 건강을 망칠까 봐 걱정입니다.`;
       }
-      if (occ.includes("회계") || occ.includes("사무") || occ.includes("개발")) {
-        return `주 60시간 이상의 과도한 연장 근무와 불투명한 임금 체계로 인해 헌법상 건강권과 정당한 노동의 대가를 받을 권리를 침해당하고 있습니다.`;
+      if (occ.includes("회계") || occ.includes("사무") || occ.includes("개발") || occ.includes("IT")) {
+        return `매주 60시간 넘게 야근을 강요당하고 포괄임금제라는 이유로 야간 수당도 제대로 받지 못하고 있어요. 이러다 정말 몸도 마음도 무너질 것 같은데 막막하네요.`;
       }
       if (occ.includes("교사") || occ.includes("강사") || occ.includes("교육")) {
-        return `악성 민원과 부당한 간섭으로 인해 교권 및 헌법상 안전하게 일할 권리가 심각하게 침해받고 있습니다.`;
+        return `수업 중 일어난 일에 대해 밤낮없는 학부모의 폭언과 무분별한 악성 민원에 시달려 정상적인 수업 진행이 너무 힘듭니다. 안전하고 정당하게 일할 환경이 간절합니다.`;
       }
-      return `현대 사회의 급격한 환경 변화와 제도적 미비로 인해 헌법상 행복추구권과 평등한 삶의 기회를 침해당하고 있습니다.`;
+      if (occ.includes("의사") || occ.includes("간호") || occ.includes("약사") || occ.includes("보건")) {
+        return `3교대 연속 근무로 밥 먹을 시간조차 없이 일하는데, 인력이 늘 부족해 환자 안전까지 우려돼요. 정당한 휴식과 안전한 근무 환경이 보장되면 좋겠습니다.`;
+      }
+      if (occ.includes("자영업") || occ.includes("상인") || occ.includes("매장")) {
+        return `인근 대형 상업 시설과 공사 현장의 극심한 소음과 미세먼지 피해로 손님이 끊겼는데, 사전 설명이나 보상 대책조차 없이 방치되어 너무 억울합니다.`;
+      }
+      if (occ.includes("작가") || occ.includes("디자인") || occ.includes("예술") || occ.includes("크리에이터")) {
+        return `제작사의 불공정 계약 요구로 제 작품 저작권을 뺏길 위기에 처했고, 불법 공유 사이트 무단 도용으로 정당한 수입을 받지 못해 생활고를 겪고 있어요.`;
+      }
+      if (age <= 26 || occ.includes("학생") || occ.includes("알바")) {
+        return `주 20시간 넘게 일했는데 아르바이트생이라는 이유로 주휴수당도 안 주고, 항의하자 사장님이 당장 나가라며 전화 한 통으로 부당하게 해고하셨어요.`;
+      }
+      return `주민들의 의견 수렴이나 사전 고지 없이 지역의 공공 버스 노선과 편의 시설이 전면 폐지되어 매일 출퇴근길에 큰 불편과 막막함을 겪고 있습니다.`;
     };
 
     const formattedPersona = {
