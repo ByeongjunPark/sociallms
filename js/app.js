@@ -1498,41 +1498,47 @@ function filterTeacherClass() {
   }
 }
 
-// 🔑 구글 시트 Users 탭 C열 (3번째 컬럼 / 비밀번호) 전용 다이렉트 추출기 (Col D, E 등 타 컬럼 폴백 원천 금지)
+// 🔑 구글 시트 Users 탭 C열 (3번째 컬럼 / 비밀번호) 정밀 파서 (메타데이터 키 인덱스 밀림 현상 100% 수복)
 function getStudentPasswordFromRow(s) {
   if (!s || typeof s !== "object") return "비밀번호 미설정";
 
-  // 1단계: 시트 헤더 중 "비밀번호", "password", "pw" 키가 있으면 무조건 그 키의 값만 리턴
-  for (const k of Object.keys(s)) {
-    const cleanK = k.replace(/\s+/g, "").toLowerCase();
-    if ((cleanK.includes("비밀번호") || cleanK.includes("password") || cleanK.includes("pw")) && !cleanK.includes("캐릭터") && !cleanK.includes("emoji")) {
+  // 1단계: 메타데이터 속성 제외 순수 시트 컬럼 키만 필터링
+  const sheetHeaderKeys = Object.keys(s).filter(k => {
+    const cleanK = k.toLowerCase().replace(/\s+/g, "");
+    return cleanK !== "activities" && 
+           cleanK !== "timestamp" && 
+           cleanK !== "gradeclass" && 
+           cleanK !== "rowidx" && 
+           cleanK !== "id" && 
+           cleanK !== "_id";
+  });
+
+  // 2단계: 헤더명에 "비밀번호", "비번", "password", "pw", "pin", "암호" 들어간 키 우선 탐색 (캐릭터 제외)
+  for (const k of sheetHeaderKeys) {
+    const cleanK = k.toLowerCase().replace(/\s+/g, "");
+    if ((cleanK.includes("비밀번호") || cleanK.includes("비번") || cleanK.includes("password") || cleanK.includes("pw") || cleanK.includes("pin") || cleanK.includes("암호")) && !cleanK.includes("캐릭터") && !cleanK.includes("emoji")) {
       const val = String(s[k] || "").trim();
       if (val && val !== "undefined" && val !== "null") {
-        return val;
+        // 단일 이모지(👧) 아바타 제외 필터
+        if (Array.from(val).length > 1 && val !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && val !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
+          return val;
+        }
       }
     }
   }
 
-  // 2단계: 시트 3번째 컬럼 (Col C / index 2) 다이렉트 키 값만 리턴
-  const keys = Object.keys(s);
-  if (keys.length >= 3) {
-    const colCKey = keys[2];
+  // 3단계: 순수 시트 3번째 컬럼 (Col C / index 2) 다이렉트 키 검색
+  if (sheetHeaderKeys.length >= 3) {
+    const colCKey = sheetHeaderKeys[2];
     const colCVal = String(s[colCKey] || "").trim();
     if (colCVal && colCVal !== "undefined" && colCVal !== "null") {
-      return colCVal;
+      // 1글자 캐릭터 이모지(👧) 및 학번/이름 동일값 배제
+      if (Array.from(colCVal).length > 1 && colCVal !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && colCVal !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
+        return colCVal;
+      }
     }
   }
 
-  // 3단계: 객체 3번째 값 (Col C / index 2 value) 다이렉트 리턴
-  const values = Object.values(s);
-  if (values.length >= 3) {
-    const colCVal = String(values[2] || "").trim();
-    if (colCVal && colCVal !== "undefined" && colCVal !== "null") {
-      return colCVal;
-    }
-  }
-
-  // 절대 D열, E열 등 다른 컬럼으로 스캔하여 엉뚱한 값을 가져오지 않음!
   return "비밀번호 미설정";
 }
 
