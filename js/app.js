@@ -1498,36 +1498,60 @@ function filterTeacherClass() {
   }
 }
 
-// 🔑 구글 시트 Users 탭 C열 (A열:학번, B열:이름, C열:비밀번호) 다이렉트 추출기
+// 🔑 구글 시트 Users 탭 비밀번호 추출기 (1글자 아바타 이모지 👧 100% 차단)
 function getStudentPasswordFromRow(s) {
   if (!s || typeof s !== "object") return "비밀번호 미설정";
 
-  // 1단계: 시트 헤더명 키 매칭 ("비밀번호", "password", "pw" 포함 및 "캐릭터", "emoji" 제외)
+  const isNotSingleAvatarEmoji = (val) => {
+    if (!val || typeof val !== "string") return false;
+    const trimmed = val.trim();
+    if (!trimmed || trimmed === "undefined" || trimmed === "null") return false;
+    if (trimmed === String(s["학번 (StudentID)"] || s["학번"] || "").trim()) return false;
+    if (trimmed === String(s["이름 (StudentName)"] || s["이름"] || "").trim()) return false;
+
+    // 🌟 핵심: 1글자 캐릭터 이모지(👧, 👦 등)는 D열 캐릭터 아바타이므로 원천 차단!
+    const charArray = Array.from(trimmed);
+    if (charArray.length <= 1) return false;
+
+    return true;
+  };
+
+  // 1단계: "비밀번호" / "password" / "pw" 키 우선 조회 (D열 "캐릭터", "emoji" 제외)
   for (const k of Object.keys(s)) {
     const cleanK = k.replace(/\s+/g, "").toLowerCase();
     if ((cleanK.includes("비밀번호") || cleanK.includes("password") || cleanK.includes("pw")) && !cleanK.includes("캐릭터") && !cleanK.includes("emoji")) {
       const val = String(s[k] || "").trim();
-      if (val && val !== "undefined" && val !== "null") {
+      if (isNotSingleAvatarEmoji(val)) {
         return val;
       }
     }
   }
 
-  // 2단계: C열 (3번째 컬럼 / index 2) 다이렉트 추출
+  // 2단계: C열 (3번째 컬럼 / index 2) 검사 (1글자 이모지 제외)
   const keys = Object.keys(s);
   if (keys.length >= 3) {
     const colCVal = String(s[keys[2]] || "").trim();
-    if (colCVal && colCVal !== "undefined" && colCVal !== "null") {
+    if (isNotSingleAvatarEmoji(colCVal)) {
       return colCVal;
     }
   }
 
-  // 3단계: C열 값 다이렉트 추출 (index 2 value)
-  const values = Object.values(s);
-  if (values.length >= 3) {
-    const valC = String(values[2] || "").trim();
-    if (valC && valC !== "undefined" && valC !== "null") {
-      return valC;
+  // 3단계: 4번째 컬럼 (Col D) 검사 (만약 시트 컬럼 위치가 바뀐 경우)
+  if (keys.length >= 4) {
+    const colDVal = String(s[keys[3]] || "").trim();
+    if (isNotSingleAvatarEmoji(colDVal)) {
+      return colDVal;
+    }
+  }
+
+  // 4단계: 객체의 모든 속성 값 중 1글자 이모지(👧)를 제외한 비밀번호 후보 전수 스캔
+  for (const [k, v] of Object.entries(s)) {
+    const cleanK = k.replace(/\s+/g, "").toLowerCase();
+    if (!cleanK.includes("학번") && !cleanK.includes("이름") && !cleanK.includes("캐릭터") && !cleanK.includes("emoji") && !cleanK.includes("시간") && !cleanK.includes("timestamp")) {
+      const val = String(v || "").trim();
+      if (isNotSingleAvatarEmoji(val)) {
+        return val;
+      }
     }
   }
 
