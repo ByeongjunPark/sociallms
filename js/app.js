@@ -1498,50 +1498,36 @@ function filterTeacherClass() {
   }
 }
 
-// 🔑 4자리 이모티콘 비밀번호(🐼🍒🐰🐼)와 단일 캐릭터 이모지(👧) 100% 구분 판별기
-function is4DigitEmojiPassword(val) {
-  if (!val || typeof val !== "string") return false;
-  const trimmed = val.trim();
-  if (!/\p{Extended_Pictographic}/u.test(trimmed)) return false;
-  // 단일 캐릭터 아바타 이모지(👧, 👦 등 Array.from 길이가 1인 경우) 원천 배제
-  const charArray = Array.from(trimmed);
-  return charArray.length >= 3;
-}
-
-// 🔑 구글 시트 Users 탭 C열 (4자리 이모티콘 비밀번호) 정밀 추출기
+// 🔑 구글 시트 Users 탭 C열 (A열:학번, B열:이름, C열:비밀번호) 다이렉트 추출기
 function getStudentPasswordFromRow(s) {
   if (!s || typeof s !== "object") return "비밀번호 미설정";
 
-  // 1단계: 4자리 이모티콘 패턴(Array.from 길이 >= 3) 값을 가진 속성 전수 스캔
-  for (const [k, v] of Object.entries(s)) {
-    if (typeof v === "string") {
-      const trimmed = v.trim();
-      const lowerK = k.toLowerCase();
-      if (!lowerK.includes("학번") && !lowerK.includes("이름") && !lowerK.includes("시간") && !lowerK.includes("timestamp")) {
-        if (is4DigitEmojiPassword(trimmed)) {
-          return trimmed;
-        }
-      }
-    }
-  }
-
-  // 2단계: 키 이름 매칭 ("비밀번호", "password", "pw")
+  // 1단계: 시트 헤더명 키 매칭 ("비밀번호", "password", "pw" 포함 및 "캐릭터", "emoji" 제외)
   for (const k of Object.keys(s)) {
-    const lowerK = k.toLowerCase().replace(/\s+/g, "");
-    if (lowerK.includes("비밀번호") || lowerK.includes("password") || lowerK.includes("pw")) {
+    const cleanK = k.replace(/\s+/g, "").toLowerCase();
+    if ((cleanK.includes("비밀번호") || cleanK.includes("password") || cleanK.includes("pw")) && !cleanK.includes("캐릭터") && !cleanK.includes("emoji")) {
       const val = String(s[k] || "").trim();
-      if (val && val !== "undefined" && val !== "null" && Array.from(val).length >= 2) {
+      if (val && val !== "undefined" && val !== "null") {
         return val;
       }
     }
   }
 
-  // 3단계: 시트 3~5번째 컬럼 위치 스캔 (단일 이모지 제외)
+  // 2단계: C열 (3번째 컬럼 / index 2) 다이렉트 추출
   const keys = Object.keys(s);
-  for (let i = 2; i < Math.min(keys.length, 6); i++) {
-    const val = String(s[keys[i]] || "").trim();
-    if (is4DigitEmojiPassword(val)) {
-      return val;
+  if (keys.length >= 3) {
+    const colCVal = String(s[keys[2]] || "").trim();
+    if (colCVal && colCVal !== "undefined" && colCVal !== "null") {
+      return colCVal;
+    }
+  }
+
+  // 3단계: C열 값 다이렉트 추출 (index 2 value)
+  const values = Object.values(s);
+  if (values.length >= 3) {
+    const valC = String(values[2] || "").trim();
+    if (valC && valC !== "undefined" && valC !== "null") {
+      return valC;
     }
   }
 
@@ -1926,20 +1912,25 @@ window.showSubjectiveDetailModalByIndex = function(idx) {
   showSubjectiveDetailModal(ans.sName, ans.gradeText, field1Title, ans.ref1, field2Title, ans.ref2);
 };
 
-// 🔑 학생 비밀번호 조회 관제 팝업 모달 (구글 시트 Users 탭 C열: 4자리 이모티콘 비밀번호)
+// 🔑 학생 비밀번호 조회 관제 팝업 모달 (구글 시트 Users 탭 C열 다이렉트)
 window.showStudentPasswordModal = function(sId, sName, password) {
   const modal = ensureTeacherCustomModal();
   const body = document.getElementById("teacherCustomModalBody");
   const actions = document.getElementById("teacherCustomModalActions");
 
-  // sId로 state.allStudents에서 학생 객체 직접 재조회 (4자리 이모티콘 비밀번호 정밀 추출)
-  let actualStudent = (state.allStudents || []).find(st => String(st["학번 (StudentID)"] || st["학번"] || "") === String(sId));
+  // sId로 state.allStudents에서 학생 객체 다이렉트 조회
+  let actualStudent = (state.allStudents || []).find(st => {
+    const sIdClean = String(sId || "").trim();
+    const idVal = String(st["학번 (StudentID)"] || st["학번"] || st[Object.keys(st)[0]] || "").trim();
+    return idVal === sIdClean;
+  });
+
   let cleanPw = "";
   if (actualStudent) {
     cleanPw = getStudentPasswordFromRow(actualStudent);
   }
-  if (!cleanPw || cleanPw === "비밀번호 미설정" || Array.from(cleanPw).length <= 1) {
-    if (password && Array.from(String(password).trim()).length > 1) {
+  if (!cleanPw || cleanPw === "비밀번호 미설정") {
+    if (password && String(password).trim() !== "" && password !== "undefined") {
       cleanPw = String(password).trim();
     } else {
       cleanPw = "비밀번호 미설정";
