@@ -80,33 +80,66 @@ export default async function handler(req, res) {
       return sex === "여자" ? "👩" : "👨";
     };
 
-    const getGrievance = (row) => {
-      const occ = String(row.occupation || "자영업");
+    // 🤖 Upstage Solar Pro AI 기반 개별 맞춤형 일상 고충 동적 생성 엔진
+    async function generateDynamicGrievanceWithSolar(row, name) {
+      const apiKey = process.env.UPSTAGE_API_KEY || "up_UIiScmFaZD3CfDoVFtJiTIjP9ATXp";
+      const occ = row.occupation || "자영업";
       const age = row.age || 35;
+      const sex = row.sex || "시민";
+      const loc = `${row.province || ''} ${row.district || ''}`.trim() || "대한민국";
+      const bg = row.bachelors_field !== "해당없음" ? row.bachelors_field : "";
+      const goals = row.career_goals_and_ambitions || row.cultural_background || "";
+      const personaDesc = row.persona || "";
 
-      if (occ.includes("하역") || occ.includes("단순") || occ.includes("노동") || occ.includes("건설")) {
-        return `매일 밤샘 물류 작업을 하느라 휴식 시간도 부족하고, 낡은 안전 장비 때문에 다칠까 봐 늘 두려워요. 제대로 쉬지도 못하고 일만 하다 건강을 망칠까 봐 걱정입니다.`;
+      const prompt = `[대한민국 실제 시민 페르소나 프로필 데이터]
+- 이름: ${name}
+- 나이/성별: ${age}세 ${sex}
+- 직업: ${occ}
+- 거주지: ${loc}
+- 전공/배경: ${bg}
+- 성향 및 가치관: ${goals}
+- 상세 신상 특징: ${personaDesc.substring(0, 250)}
+
+[요청 사항 - 개별 시민 맞춤형 일상 고충 사건 생성]
+위 시민의 나이, 직업, 거주지, 가치관, 생활 배경을 종합적으로 깊이 분석하여, 이 사람만이 일상에서 겪을 법한 구체적인 억울함과 고민 사건 1개를 1~2문장(최대 110자 이내)으로 생성하세요.
+
+[엄격한 3대 조건]:
+1. [스포일러 금지]: 절대로 '헌법상 기본권 침해', '자유권', '사회권', '헌법 제몇조'와 같은 교과서적/학술적 개념어를 먼저 포함하지 마세요!
+2. 마구 획일화된 템플릿 문장을 절대 쓰지 말고, 이 직업과 나이대의 실제 삶에서 발생하는 개별적이고 현실적인 사건(임금, 소음, 계약, 안전, 악성민원, 개인정보, 환경, 차별 등)을 다채롭게 생생한 구어체로 만드세요.
+3. 오직 생성된 1~2문장의 고충 텍스트만 다이렉트로 출력하세요. (서론, 부연설명, 따옴표 없이 오직 텍스트만 리턴)`;
+
+      try {
+        const response = await fetch("https://api.upstage.ai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey.trim()}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "solar-pro",
+            messages: [
+              { role: "system", content: "당신은 고등학교 사회 탐구 수업용 생생한 시민 고충 시나리오를 1:1 개별 맞춤 생성하는 노련한 에듀테크 AI 시나리오 작가입니다." },
+              { role: "user", content: prompt }
+            ]
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content.trim() : "";
+          if (content && content.length >= 10) {
+            return content.replace(/^["']|["']$/g, "").trim();
+          }
+        }
+      } catch (err) {
+        console.warn("Solar API dynamic grievance generation error:", err);
       }
-      if (occ.includes("회계") || occ.includes("사무") || occ.includes("개발") || occ.includes("IT")) {
-        return `매주 60시간 넘게 야근을 강요당하고 포괄임금제라는 이유로 야간 수당도 제대로 받지 못하고 있어요. 이러다 정말 몸도 마음도 무너질 것 같은데 막막하네요.`;
-      }
-      if (occ.includes("교사") || occ.includes("강사") || occ.includes("교육")) {
-        return `수업 중 일어난 일에 대해 밤낮없는 학부모의 폭언과 무분별한 악성 민원에 시달려 정상적인 수업 진행이 너무 힘듭니다. 안전하고 정당하게 일할 환경이 간절합니다.`;
-      }
-      if (occ.includes("의사") || occ.includes("간호") || occ.includes("약사") || occ.includes("보건")) {
-        return `3교대 연속 근무로 밥 먹을 시간조차 없이 일하는데, 인력이 늘 부족해 환자 안전까지 우려돼요. 정당한 휴식과 안전한 근무 환경이 보장되면 좋겠습니다.`;
-      }
-      if (occ.includes("자영업") || occ.includes("상인") || occ.includes("매장")) {
-        return `인근 대형 상업 시설과 공사 현장의 극심한 소음과 미세먼지 피해로 손님이 끊겼는데, 사전 설명이나 보상 대책조차 없이 방치되어 너무 억울합니다.`;
-      }
-      if (occ.includes("작가") || occ.includes("디자인") || occ.includes("예술") || occ.includes("크리에이터")) {
-        return `제작사의 불공정 계약 요구로 제 작품 저작권을 뺏길 위기에 처했고, 불법 공유 사이트 무단 도용으로 정당한 수입을 받지 못해 생활고를 겪고 있어요.`;
-      }
-      if (age <= 26 || occ.includes("학생") || occ.includes("알바")) {
-        return `주 20시간 넘게 일했는데 아르바이트생이라는 이유로 주휴수당도 안 주고, 항의하자 사장님이 당장 나가라며 전화 한 통으로 부당하게 해고하셨어요.`;
-      }
-      return `주민들의 의견 수렴이나 사전 고지 없이 지역의 공공 버스 노선과 편의 시설이 전면 폐지되어 매일 출퇴근길에 큰 불편과 막막함을 겪고 있습니다.`;
-    };
+
+      // Fallback if AI call fails
+      return `${occ} 일을 하며 일상생활 중 예기치 못한 불공정한 일 처리와 사각지대로 인해 밤마다 잠을 이루지 못하고 큰 어려움을 겪고 있습니다.`;
+    }
+
+    const dynamicGrievance = await generateDynamicGrievanceWithSolar(matchedRow, parsedName);
 
     const formattedPersona = {
       id: matchedRow.uuid || `nemotron_${randomOffset}`,
@@ -117,7 +150,7 @@ export default async function handler(req, res) {
       careerCategory: matchedRow.bachelors_field !== "해당없음" ? matchedRow.bachelors_field : (matchedRow.occupation || "일반"),
       emoji: getEmoji(matchedRow.occupation, matchedRow.sex),
       values: matchedRow.career_goals_and_ambitions || matchedRow.cultural_background || "존엄한 삶과 정의로운 사회 지향",
-      grievance: getGrievance(matchedRow),
+      grievance: dynamicGrievance,
       datasetSource: `HuggingFace nvidia/Nemotron-Personas-Korea (Row #${randomOffset})`,
       hfUuid: matchedRow.uuid
     };
