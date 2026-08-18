@@ -1666,9 +1666,13 @@ function renderTeacherStudentsTable() {
     return `
       <tr style="border-bottom: 1px solid rgba(0,0,0,0.04); transition: background 0.2s;">
         <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText} <span style="font-size:0.75rem; color:var(--text-secondary);">(${sId})</span></td>
-        <td style="padding: 14px 8px; font-weight: 700; cursor: pointer;" onclick="showStudentPasswordModal('${sId}', '${safeName}', '${safePassword}')" title="클릭 시 4자리 이모티콘 비밀번호 확인 🔑">
-          <span style="color: var(--color-purple); text-decoration: underline; text-underline-offset: 3px;">${sName}</span>
-          <span style="font-size: 0.72rem; color: #1971c2; font-weight: 800; display: inline-block; margin-left: 4px; background: rgba(25, 113, 194, 0.08); padding: 1px 6px; border-radius: 4px;">🔑 비번</span>
+        <td style="padding: 14px 8px; font-weight: 700;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span style="color: var(--color-purple); cursor:pointer; text-decoration: underline; text-underline-offset: 3px;" onclick="showStudentPasswordModal('${sId}', '${safeName}', '${safePassword}')" title="클릭 시 비밀번호 크게 보기 🔑">${sName}</span>
+            <span onclick="showStudentPasswordModal('${sId}', '${safeName}', '${safePassword}')" style="cursor:pointer; background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(147, 51, 234, 0.12) 100%); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.25); padding: 3px 10px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 4px;" title="클릭 시 비밀번호 관제 팝업 오픈">
+              🔐 <strong>${sPassword}</strong>
+            </span>
+          </div>
         </td>
         <td style="padding: 14px 8px; font-size: 1.15rem;">${sEmoji}</td>
         <td style="padding: 14px 8px; color: var(--text-secondary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width: 180px;" title="${career}">${career}</td>
