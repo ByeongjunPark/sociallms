@@ -3339,8 +3339,9 @@ function renderTasksSection() {
         subjectiveAnswers.push({
           gradeText,
           sName,
-          ref1: details["Q1_4세대인권상상"] || details["새로운권리서술"] || "미입력",
-          ref2: details["Q2_학습과정성찰"] || details["성찰답변"] || "미입력"
+          currentTask: "c10101",
+          ref1: details["Q1_4세대인권상상"] || details["새로운권리서술"] || details["Q1_4세대인권제안"] || "미입력",
+          ref2: details["Q2_학습과정성찰"] || details["성찰답변"] || details["메타성찰답변"] || "미입력"
         });
 
         // 📌 과업 1 (Q1~Q5) 정오답 파싱
@@ -3407,8 +3408,9 @@ function renderTasksSection() {
         subjectiveAnswers.push({
           gradeText,
           sName,
-          ref1: details["시민참여성찰답변"] || details["Q2_학습과정성찰"] || "성찰 미입력",
-          ref2: `💬 추천 챗봇: ${details["추천페르소나"] || details["챗봇페르소나"] || "기본 페르소나"}`
+          currentTask: "c10102",
+          ref1: details["챗봇대화내역"] || details["대화내역"] || details["G열"] || "💬 AI 챗봇 대화 기록 없음",
+          ref2: details["시민참여성찰저널"] || details["메타성찰답변"] || details["시민참여성찰답변"] || "성찰 저널 미입력"
         });
       } else {
         const quizRes = details["형성평가퀴즈"] || "";
@@ -3446,8 +3448,9 @@ function renderTasksSection() {
         subjectiveAnswers.push({
           gradeText,
           sName,
-          ref1: details["시민참여성찰답변"] || "답변 없음",
-          ref2: `📍 등록 핀 수: ${details["등록한핀개수"] || "0개"}`
+          currentTask: "c10201",
+          ref1: details["시민참여성찰답변"] || details["시민참여성찰저널"] || "시민참여 저널 미입력",
+          ref2: details["메타성찰답변"] || details["학습성찰"] || `📍 등록 핀 수: ${details["등록한핀개수"] || "0개"}`
         });
       }
     }
