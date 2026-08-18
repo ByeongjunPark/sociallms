@@ -1498,39 +1498,58 @@ function filterTeacherClass() {
   }
 }
 
-// 🔑 구글 시트 Users 탭 C열 4자리 이모티콘 비밀번호(🐶🎈🍀🌟) 100% 정밀 파서 엔진
+// 🔑 구글 시트 Users 탭 C열 4자리 비밀번호(🐶🎈🍀🌟) 100% 정밀 파서 (오답/퀴즈 문구 완전 차단)
 function getStudentPasswordFromRow(s) {
   if (!s || typeof s !== "object") return "비밀번호 미설정";
 
-  // 1단계: 헤더명에 "비밀번호", "비번", "password", "pw", "pin", "암호" 들어간 속성 우선 조회
+  const isTruePassword = (val) => {
+    if (!val || typeof val !== "string") return false;
+    const trimmed = val.trim();
+    if (!trimmed || trimmed === "undefined" || trimmed === "null") return false;
+
+    // ❌ 퀴즈 결과, 오답노트, 과업 데이터 문구 배제
+    if (trimmed.includes("오답") || trimmed.includes("정답") || trimmed.includes("퀴즈") || 
+        trimmed.includes("형성평가") || trimmed.includes("과업") || trimmed.includes("루브릭") || 
+        trimmed.includes("성찰") || trimmed.includes("제안") || trimmed.includes("맵핑") ||
+        trimmed.includes("Q1") || trimmed.includes("Q2") || trimmed.includes("Q3") || trimmed.includes("Q4") || trimmed.includes("Q5")) {
+      return false;
+    }
+
+    // 학번, 이름 동일값 배제
+    if (trimmed === String(s["학번 (StudentID)"] || s["학번"] || "").trim()) return false;
+    if (trimmed === String(s["이름 (StudentName)"] || s["이름"] || "").trim()) return false;
+
+    // 1글자 단일 아바타 이모지(👧) 배제
+    const charArr = Array.from(trimmed);
+    if (charArr.length <= 1) return false;
+
+    return true;
+  };
+
+  // 1단계: 헤더명에 "비밀번호", "password", "pw", "비번", "pin", "암호" 포함 키 다이렉트 조회
   for (const k of Object.keys(s)) {
+    if (k === "activities" || k === "timestamp") continue;
     const cleanK = String(k).toLowerCase().replace(/\s+/g, "");
     if ((cleanK.includes("비밀번호") || cleanK.includes("비번") || cleanK.includes("password") || cleanK.includes("pw") || cleanK.includes("pin") || cleanK.includes("암호")) && !cleanK.includes("캐릭터") && !cleanK.includes("emoji")) {
       const val = String(s[k] || "").trim();
-      if (val && val !== "undefined" && val !== "null") {
-        const charArr = Array.from(val);
-        // 단일 이모지(👧) 배제 및 4자리 이모지/문자 암호 반환
-        if (charArr.length > 1 && val !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && val !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
-          return val;
-        }
+      if (isTruePassword(val)) {
+        return val;
       }
     }
   }
 
-  // 2단계: 4자리 이모티콘 비밀번호(🐶🎈🍀🌟, 🐰🎀🍓🍓 등 2개 이상의 이모지 조합) 전수 정밀 패턴 탐색
+  // 2단계: 4자리 이모티콘 비밀번호(🐶🎈🍀🌟, 🐰🎀🍓🍓 등 순수 이모지 조합) 패턴 우선 탐색
   for (const [k, v] of Object.entries(s)) {
     if (k === "activities" || k === "timestamp") continue;
     const strV = String(v || "").trim();
     if (strV && /\p{Extended_Pictographic}/u.test(strV)) {
-      const charArr = Array.from(strV);
-      // 이모지가 2개 이상 연속 조합된 경우(예: 🐶🎈🍀🌟) 무조건 C열 비밀번호로 직통 채택!
-      if (charArr.length >= 2 && strV !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && strV !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
+      if (isTruePassword(strV)) {
         return strV;
       }
     }
   }
 
-  // 3단계: 메타데이터 제외 순수 시트 3번째 컬럼 (Col C / index 2) 다이렉트 추출
+  // 3단계: 메타데이터 제외 순수 시트 3번째 컬럼 (Col C / index 2) 키값 조회
   const cleanKeys = Object.keys(s).filter(k => 
     k !== "activities" && k !== "timestamp" && k !== "gradeClass" && k !== "rowIdx" && k !== "id" && k !== "_id"
   );
@@ -1538,21 +1557,19 @@ function getStudentPasswordFromRow(s) {
   if (cleanKeys.length >= 3) {
     const colCKey = cleanKeys[2];
     const colCVal = String(s[colCKey] || "").trim();
-    if (colCVal && colCVal !== "undefined" && colCVal !== "null") {
-      if (Array.from(colCVal).length > 1 && colCVal !== String(s["학번 (StudentID)"] || s["학번"] || "").trim() && colCVal !== String(s["이름 (StudentName)"] || s["이름"] || "").trim()) {
-        return colCVal;
-      }
+    if (isTruePassword(colCVal)) {
+      return colCVal;
     }
   }
 
-  // 4단계: 순수 시트 3번째 값 (Col C / index 2 value) 다이렉트 추출
+  // 4단계: 순수 시트 3번째 값 (Col C / index 2 value) 조회
   const cleanValues = Object.entries(s)
     .filter(([k]) => k !== "activities" && k !== "timestamp" && k !== "gradeClass" && k !== "rowIdx" && k !== "id" && k !== "_id")
     .map(([, v]) => String(v || "").trim());
 
   if (cleanValues.length >= 3 && cleanValues[2]) {
     const valC = cleanValues[2];
-    if (valC && valC !== "undefined" && valC !== "null" && Array.from(valC).length > 1) {
+    if (isTruePassword(valC)) {
       return valC;
     }
   }
