@@ -583,10 +583,72 @@
             3️⃣ <strong>[3턴: 솔루션 제안]</strong> 헌법소원, 국민청원, 시민단체 연대 등 구체적 해결책 알려주기
           </p>
 
-          <!-- 미션 완료 배너 -->
-          <div id="chatCompletionBanner" style="display: none; background: rgba(43, 138, 62, 0.1); border: 1.5px solid #2b8a3e; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; color: #2b8a3e; margin-bottom: 12px; text-align: center; animation: fadeInUp 0.3s ease;">
-            🎉 AI 페르소나 대화 미션 완수! [성찰 저널로 이동 ➡️] 버튼을 눌러 다음 단계로 진행하세요.
+          <!-- 미션 완료 및 3대 영역 루브릭 실시간 진단 결과 카드 배너 -->
+          <div id="chatCompletionBanner" style="display: none; background: rgba(184, 150, 219, 0.12); border: 2px solid var(--color-purple); padding: 16px 20px; border-radius: 20px; font-size: 0.88rem; margin-bottom: 14px; animation: fadeInUp 0.4s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px; margin-bottom: 12px;">
+              <strong style="color: var(--color-purple); font-size: 0.95rem;">📊 [2단계 AI 대화] 3대 영역 루브릭 실시간 진단 결과</strong>
+              <span style="background: #2b8a3e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.76rem; font-weight: 800;">대화 완수! 🎉</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px;" id="rubricStatusGrid">
+              <!-- JS completeChatMission() 동적 생성 -->
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); text-align: center; font-weight: 600;">
+              👉 아래 <strong>[성찰 저널로 이동 (3단계: 성찰) ➡️]</strong> 버튼을 눌러 최종 과제를 제출해 주세요!
+            </div>
           </div>
+
+          <!-- 챗봇 메시지 영역 -->
+          <div class="chat-window">
+            <div class="chat-messages" id="chatMessages">
+              <!-- JS 동적 생성 -->
+            </div>
+            <div class="chat-input-bar">
+              <input type="text" id="chatInput" onkeypress="handleChatKeyPress(event)" placeholder="좌측 페르소나에게 공감 및 시민 참여 해결책을 말해보세요..." autocomplete="off">
+              <button type="button" id="chatSendBtn" onclick="sendChatMessage()">전송 🚀</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- [3단계: 메타인지 성찰 저널] -->
+    <div class="card-activity" id="stepSection_3" style="display: none; padding: 28px;">
+      <h4 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 800; color: var(--color-purple);">
+        💡 [3단계] 헌법의 역할과 시민 참여 학습 과정 성찰 저널
+      </h4>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+        오늘 가상 시민 AI와의 대화를 통해 헌법이 왜 필요한지, 그리고 주권자인 시민으로서 어떤 방식으로 문제를 해결할 수 있는지 배운 점과 스스로의 공부 보완책을 서술해 주세요.
+      </p>
+
+      <textarea id="reflectionContent" rows="6" oninput="saveDraft()" style="width: 100%; border-radius: 16px; padding: 16px; font-family: var(--font-family-body); font-size: 0.9rem; line-height: 1.6; border: 1.5px solid rgba(0,0,0,0.08); outline: none;" placeholder="예: '헌법이 단순한 조문이 아니라 국민의 기본권을 지키는 울타리임을 알게 되었습니다. 불공정 노동 환경에 대해 국민신문고 청원과 시민단체 연대가 큰 힘이 됨을 느꼈으며, 차후에는 헌법소원 심판 절차를 더 탐구하겠습니다.' (최소 30글자 필수)"></textarea>
+    </div>
+
+    <!-- 통일된 마법사 하단 네비게이션 조작 바 -->
+    <div class="card-activity" style="padding: 18px 28px; margin-top: 20px;">
+      <div class="wizard-actions">
+        <button type="button" class="modal-btn secondary" id="btnPrev" onclick="navigateStep(-1)" style="display: none;">⬅️ 이전 단계</button>
+        <button type="button" class="modal-btn primary" id="btnNext" onclick="navigateStep(1)" style="margin-left: auto;">1단계 채점 후 다음으로 (2단계: AI 대화) ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⏳ 최종 제출 진행 중 Glassmorphism 로딩 모달 -->
+  <div id="submitLoadingModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 999999; align-items: center; justify-content: center;">
+    <div style="background: var(--bg-card); border-radius: 28px; padding: 40px 48px; border: 2px solid rgba(184, 150, 219, 0.4); text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; gap: 16px;">
+      <div style="font-size: 3.5rem; animation: pulse 1.2s infinite;">🌸</div>
+      <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--color-purple);">
+        선생님께 과제 제출 중입니다... ⏳
+      </h3>
+      <p style="margin: 0; font-size: 0.86rem; color: var(--text-secondary); line-height: 1.5;">
+        구글 시트 데이터베이스로 대화 내역과 루브릭 평가 결과 데이터를 동기화하고 있습니다.<br>잠시만 기다려 주세요!
+      </p>
+      <div class="loading-pulse-dots" style="display: flex; gap: 8px; justify-content: center; margin-top: 8px;">
+        <div class="loading-dot" style="width: 10px; height: 10px; background: var(--color-purple); border-radius: 50%; animation: pulse 1s infinite 0s;"></div>
+        <div class="loading-dot" style="width: 10px; height: 10px; background: var(--color-pink); border-radius: 50%; animation: pulse 1s infinite 0.2s;"></div>
+        <div class="loading-dot" style="width: 10px; height: 10px; background: var(--color-mint); border-radius: 50%; animation: pulse 1s infinite 0.4s;"></div>
+      </div>
+    </div>
+  </div>
 
           <!-- 챗봇 메시지 영역 -->
           <div class="chat-window">
@@ -1084,10 +1146,37 @@
       renderChatMessages();
     }
 
-    // AI 미션 달성 판단 시 성찰 저널 진출 해금 및 안내 배너 표출
+    // AI 미션 달성 판단 시 성찰 저널 진출 해금 및 3대 영역 루브릭 실시간 진단 결과 배너 표출
     function completeChatMission() {
       const banner = document.getElementById("chatCompletionBanner");
+      const grid = document.getElementById("rubricStatusGrid");
       const btnNext = document.getElementById("btnNext");
+
+      // 3대 영역 루브릭 실시간 평가
+      const { rubricEmpathy, rubricDiagnosis, rubricSolution } = evaluateChatRubrics();
+
+      const getBadgeTag = (val) => {
+        if (val === "우수") return `<span style="color:#00b4d8; font-weight:800;">우수 💎</span>`;
+        if (val === "보통") return `<span style="color:#f59f00; font-weight:800;">보통 🥇</span>`;
+        return `<span style="color:#d9480f; font-weight:800;">미흡 🥉</span>`;
+      };
+
+      if (grid) {
+        grid.innerHTML = `
+          <div style="background:var(--bg-card); padding:10px 14px; border-radius:14px; border:1px solid var(--border-glass); text-align:center;">
+            <span style="display:block; font-size:0.75rem; color:var(--text-secondary); font-weight:700; margin-bottom:4px;">1️⃣ 공감·경청성</span>
+            ${getBadgeTag(rubricEmpathy)}
+          </div>
+          <div style="background:var(--bg-card); padding:10px 14px; border-radius:14px; border:1px solid var(--border-glass); text-align:center;">
+            <span style="display:block; font-size:0.75rem; color:var(--text-secondary); font-weight:700; margin-bottom:4px;">2️⃣ 기본권 진단성</span>
+            ${getBadgeTag(rubricDiagnosis)}
+          </div>
+          <div style="background:var(--bg-card); padding:10px 14px; border-radius:14px; border:1px solid var(--border-glass); text-align:center;">
+            <span style="display:block; font-size:0.75rem; color:var(--text-secondary); font-weight:700; margin-bottom:4px;">3️⃣ 솔루션 실천성</span>
+            ${getBadgeTag(rubricSolution)}
+          </div>
+        `;
+      }
 
       if (banner) {
         banner.style.display = "block";
@@ -1185,31 +1274,36 @@
       saveDraft();
     }
 
-    // 1단계 형성평가 채점 (선다형 3문항 + 상호작용형 2문항)
-    function gradeStep1Quiz(silentMode = false) {
-      let score = 0;
+    // 1단계 형성평가 퀴즈 자동 채점
+    function gradeStep1Quiz(showAlert = true) {
+      const q1 = taskState.quizAnswers.q1 || (document.querySelector('input[name="q1"]:checked') ? document.querySelector('input[name="q1"]:checked').value : "");
+      const q2 = taskState.quizAnswers.q2 || (document.querySelector('input[name="q2"]:checked') ? document.querySelector('input[name="q2"]:checked').value : "");
+      const q3 = taskState.quizAnswers.q3 || (document.querySelector('input[name="q3"]:checked') ? document.querySelector('input[name="q3"]:checked').value : "");
+      const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
+      const m2 = document.getElementById("q4_match_2") ? document.getElementById("q4_match_2").value : "";
+      const m3 = document.getElementById("q4_match_3") ? document.getElementById("q4_match_3").value : "";
+      const m4 = document.getElementById("q4_match_4") ? document.getElementById("q4_match_4").value : "";
+      const q5 = taskState.quizAnswers.q5 || "";
 
-      // Q1 (선다형 - 난이도 하)
-      const q1Checked = document.querySelector('input[name="q1"]:checked');
-      const q1Ans = q1Checked ? q1Checked.value : "";
-      const q1Correct = (q1Ans === "①");
-      if (q1Correct) score += 20;
-      const fb1 = document.getElementById("quizFeedback_1");
-      if (fb1) {
-        fb1.textContent = q1Correct ? "✅ 정답입니다! (난이도 하) 평등권의 기초 개념을 올바르게 이해하셨습니다." : "❌ 오답입니다. (정답: ① 평등권)";
-        fb1.className = q1Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
-        fb1.style.display = "block";
+      if (!q1 || !q2 || !q3 || !m1 || !m2 || !m3 || !m4 || !q5) {
+        if (showAlert) alert("1단계 형성평가 5문항에 모두 답변해 주세요! 📝");
+        return null;
       }
 
-      // Q2 (단답형 - 과잉금지)
-      const q2Raw = document.getElementById("q2_short_answer") ? document.getElementById("q2_short_answer").value.trim() : "";
-      const q2Clean = q2Raw.replace(/\s+/g, "");
-      const q2Correct = (q2Clean === "과잉금지" || q2Clean === "과잉금지의원칙" || q2Clean === "과잉금지원칙");
-      if (q2Correct) score += 20;
+      let score = 0;
+      // Q1 정답: ② (20점)
+      const fb1 = document.getElementById("quizFeedback_1");
+      if (q1 === "②") {
+        score += 20;
+        fb1.className = "quiz-feedback correct";
+        fb1.innerHTML = "⭕ 정답입니다! (20점) - 국가 권력 남용 방지와 국민 기본권 보장은 헌법의 핵심 목적입니다.";
+      } else {
+        fb1.className = "quiz-feedback incorrect";
+        fb1.innerHTML = "❌ 오답입니다. 정답은 ②번(국가 권력 남용 방지 및 국민 기본권 보장)입니다.";
+      }
+
+      // Q2 정답: ③ (20점)
       const fb2 = document.getElementById("quizFeedback_2");
-      if (fb2) {
-        fb2.textContent = q2Correct 
-          ? `✅ 정답입니다! (입력: ${q2Raw}) [정답 해설]: 헌법 제37조 제2항에서 '법률로써 제한할 수 있으며'는 기본권 제한 시 목적의 정당성, 수단의 적합성, 피해의 최소성, 법익의 균형성을 지켜야 한다는 '과잉금지의 원칙'을 의미합니다.`
           : `❌ 오답입니다. (제출: "${q2Raw || '미입력'}" / 정답: "과잉금지") [정답 해설]: 헌법 제37조 제2항의 '법률로써 제한' 조항은 기본권 본질을 침해할 수 없도록 과도한 제한을 금하는 '과잉금지의 원칙'을 규정합니다.`;
         fb2.className = q2Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
         fb2.style.display = "block";
@@ -1310,6 +1404,10 @@
         return;
       }
 
+      // ⏳ 제출 진행 중 로딩 팝업 모달 표출
+      const loadingModal = document.getElementById("submitLoadingModal");
+      if (loadingModal) loadingModal.style.display = "flex";
+
       const score = gradeStep1Quiz(true);
 
       const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
@@ -1361,7 +1459,6 @@
             "Q5_하이라이트선택": q5Ans,
             "대화진행턴": `${taskState.chatTurn}턴`,
             "챗봇대화내역": chatTranscriptText,
-            "대화내역": chatTranscriptText,
             "시민참여성찰저널": reflText,
             "시민참여성찰답변": reflText,
             "메타성찰답변": reflText,
@@ -1386,7 +1483,6 @@
           "형성평가점수": `${score}점`,
           "대화진행턴": `${taskState.chatTurn}턴`,
           "챗봇대화내역": chatTranscriptText,
-          "대화내역": chatTranscriptText,
           "시민참여성찰저널": reflText,
           "Q4_짝맞추기": `1-${m1}, 2-${m2}, 3-${m3}, 4-${m4}`,
           "Q5_하이라이트선택": q5Ans,
