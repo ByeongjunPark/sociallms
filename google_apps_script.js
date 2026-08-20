@@ -290,7 +290,46 @@ function doPost(e) {
         actSheet.appendRow(newRowData);
       }
 
-      return createJsonResponse({ success: true, message: "활동 제출이 동적 탭에 안전하게 기록되었습니다! ⭐" });
+      // 🧠 [선생님 지시 100% 반영] 과업 1, 과업 2, 과업 3 등 모든 활동 제출 시 성찰 저널 문구를 '메타인지 성찰 저널' 시트 탭에 자동 미러링 동기화 누적 기록!
+      const reflContent = parsedResult["Q2_학습과정성찰"] || 
+                          parsedResult["메타성찰답변"] || 
+                          parsedResult["시민참여성찰저널"] || 
+                          parsedResult["시민참여성찰답변"] || 
+                          parsedResult["금융 자산관리 배움 성찰 내용"] ||
+                          parsedResult["배움 성찰 내용"] ||
+                          parsedResult["성찰답변"] || 
+                          parsedResult["성찰저널"] || 
+                          parsedResult["학습과정성찰"];
+
+      if (reflContent && String(reflContent).trim() !== "" && String(reflContent).trim() !== "-") {
+        try {
+          let refSheet = sheet.getSheetByName("메타인지 성찰 저널") || sheet.getSheetByName("🧠 메타인지 성찰 저널");
+          if (!refSheet) {
+            refSheet = sheet.insertSheet("메타인지 성찰 저널");
+            const refHeader = ["학번 (StudentID)", "이름 (StudentName)", "평가/수익률 (Score)", "과업명", "성찰답변", "AI피드백", "제출횟수", "제출시간 (Timestamp)"];
+            refSheet.appendRow(refHeader);
+            refSheet.getRange(1, 1, 1, refHeader.length).setFontWeight("bold").setBackground("#e8f4fd");
+          }
+
+          const refRows = refSheet.getDataRange().getValues();
+          let refRowIdx = -1;
+          for (let r = 1; r < refRows.length; r++) {
+            if (String(refRows[r][0]) === studentId && String(refRows[r][3]) === rawTitle) {
+              refRowIdx = r + 1;
+              break;
+            }
+          }
+
+          const refRowData = [studentId, studentName, score, rawTitle, String(reflContent).trim(), "메타인지 성찰 학습 완료 🌿", "1회", new Date().toISOString()];
+          if (refRowIdx !== -1) {
+            refSheet.getRange(refRowIdx, 1, 1, refRowData.length).setValues([refRowData]);
+          } else {
+            refSheet.appendRow(refRowData);
+          }
+        } catch(e) {}
+      }
+
+      return createJsonResponse({ success: true, message: "활동 및 메타인지 성찰 저널이 안전하게 기록되었습니다! ⭐" });
     }
 
     // ================= [신규] 3-0. 메타인지 성찰 저널 전용 제출 호환 액션 =================

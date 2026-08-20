@@ -4007,23 +4007,27 @@ function renderTasksSection() {
       </div>
     `;
   } else {
-    let cardTitle = "💡 학급 4세대 신규 인권 상상 제안 및 학습 과정 성찰 저널";
-    if (currentTask === "c10102") cardTitle = "💬 학급 AI 챗봇 대화 내역 모니터링 & 메타인지 성찰 저널 모음";
-    else if (currentTask === "c10201") cardTitle = "💡 학급 주거·안전·환경/소외 구역 시민 참여 성찰 저널 모음";
+    let cardTitle = "🧠 학급 메타인지 성찰 저널 누적 모음 (과업 1 · 과업 2 · 과업 3 통합)";
+    if (currentTask === "c10101") cardTitle = "🏛️ [과업 1] 학급 4세대 신규 인권 상상 제안 및 메타인지 성찰 저널";
+    else if (currentTask === "c10102") cardTitle = "💬 [과업 3] 학급 AI 챗봇 대화 내역 모니터링 & 헌법 구제 메타인지 성찰 저널";
+    else if (currentTask === "c10201") cardTitle = "🗺️ [과업 2] 학급 주거·안전·환경 시민 참여 메타인지 성찰 저널";
       
     window.subjectiveAnswersCache = subjectiveAnswers;
 
     const answerCards = subjectiveAnswers.map((ans, idx) => {
       const taskKind = ans.currentTask || currentTask;
+      let taskBadge = `<span style="font-size: 0.72rem; font-weight: 800; color: #7952b3; background: rgba(121,82,179,0.12); padding: 3px 8px; border-radius: 6px;">🏛️ 과업 1</span>`;
       let field1Title = "🏛️ 내가 상상하는 4세대 인권 제안";
-      let field2Title = "🌱 학습 과정에 대한 메타인지 성찰 저널";
+      let field2Title = "🧠 과업 1 학습 과정 메타인지 성찰 저널";
 
       if (taskKind === "c10102") {
+        taskBadge = `<span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25,113,194,0.12); padding: 3px 8px; border-radius: 6px;">💬 과업 3</span>`;
         field1Title = "💬 AI 챗봇과의 대화 내역 모니터링";
-        field2Title = "🌱 학습 과정에 대한 메타인지 성찰 저널";
-      } else if (taskKind === "c10201") {
+        field2Title = "🧠 과업 3 헌법 구제 메타인지 성찰 저널";
+      } else if (taskKind === "c10201" || taskKind === "c10303") {
+        taskBadge = `<span style="font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: rgba(43,138,62,0.12); padding: 3px 8px; border-radius: 6px;">🗺️ 과업 2</span>`;
         field1Title = "📝 시민 참여 성찰 저널 기록";
-        field2Title = "🌱 학습 과정에 대한 메타인지 성찰 저널";
+        field2Title = "🧠 과업 2 시민참여 메타인지 성찰 저널";
       }
       
       const displayRef1 = taskKind === "c10102"
@@ -4034,7 +4038,10 @@ function renderTasksSection() {
         <div onclick="showSubjectiveDetailModalByIndex(${idx})" style="background: rgba(255, 255, 255, 0.7); border: 1.5px solid rgba(184,150,219,0.3); padding: 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.02);" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--color-purple)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(184,150,219,0.3)';">
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 6px;">
             <strong style="font-size:0.85rem; color: var(--color-purple);">${ans.sName} <span style="font-size:0.72rem; color:var(--text-secondary); font-weight: normal;">(${ans.gradeText})</span></strong>
-            <span style="font-size: 0.72rem; font-weight: 800; color: var(--color-purple); background: rgba(184,150,219,0.15); padding: 3px 8px; border-radius: 6px;">🔍 ${taskKind === "c10102" ? "챗봇 대화/성찰 크게보기" : "상세 성찰 크게보기"}</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+              ${taskBadge}
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--color-purple); background: rgba(184,150,219,0.15); padding: 3px 8px; border-radius: 6px;">🔍 크게보기</span>
+            </div>
           </div>
           <div>
             <span style="font-size: 0.72rem; font-weight:700; color: var(--text-secondary); display:block; margin-bottom: 2px;">${field1Title}:</span>
