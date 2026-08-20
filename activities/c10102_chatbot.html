@@ -984,11 +984,10 @@
             if (sId.length === 4) studentClass = sId.substring(0, 2);
           } catch(e) {}
         }
-        const config = rawUnlocked ? JSON.parse(rawUnlocked) : { "all": ["c10101"] };
-        const allUnlocked = config["all"] || [];
+        const config = rawUnlocked ? JSON.parse(rawUnlocked) : {};
         const classUnlocked = config[studentClass] || [];
-        if (!allUnlocked.includes("c10102") && !classUnlocked.includes("c10102")) {
-          alert("🔒 박병준 선생님이 아직 본 학급 수업 진도에 맞춰 이 과업을 해금하지 않으셨습니다. 대시보드로 이동합니다! 🌸");
+        if (!classUnlocked.includes("c10102") && !classUnlocked.includes("c10102_chatbot")) {
+          alert(`🔒 박병준 선생님이 아직 1학년 ${parseInt(studentClass.substring(1))}반 수업 진도에 맞춰 과업 3을 해금하지 않으셨습니다. 대시보드로 이동합니다. 🌸`);
           window.location.href = "../index.html";
           return;
         }

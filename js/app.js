@@ -4765,11 +4765,14 @@ async function fetchUnlockConfigFromServer() {
     const data = await response.json();
     if (data.success && data.config) {
       const defaultConfig = {
-        "all": ["c10101"],
         "11": ["c10101"], "12": ["c10101"], "13": ["c10101"], "14": ["c10101"], "15": ["c10101"],
-        "16": ["c10101"], "17": ["c10101"], "18": ["c10101"], "19": ["c10101"], "110": ["c10101"]
+        "16": ["c10101"], "17": ["c10101"]
       };
       const merged = { ...defaultConfig, ...data.config };
+      delete merged["18"];
+      delete merged["19"];
+      delete merged["110"];
+      delete merged["all"];
       localStorage.setItem("sociallms_unlocked_activities", JSON.stringify(merged));
       renderStandards();
       const unlockGrid = document.getElementById("unlockClassGrid");
@@ -4783,7 +4786,6 @@ async function fetchUnlockConfigFromServer() {
 // 학급별 해금 설정 가져오기 (기본값: 과업1만 해금)
 function getUnlockedActivitiesConfig() {
   const defaultConfig = {
-    "all": ["c10101"],
     "11": ["c10101"], "12": ["c10101"], "13": ["c10101"], "14": ["c10101"], "15": ["c10101"],
     "16": ["c10101"], "17": ["c10101"]
   };
@@ -4792,6 +4794,10 @@ function getUnlockedActivitiesConfig() {
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
+      delete parsed["18"];
+      delete parsed["19"];
+      delete parsed["110"];
+      delete parsed["all"];
       return { ...defaultConfig, ...parsed };
     } catch(e) {}
   }
@@ -4799,6 +4805,10 @@ function getUnlockedActivitiesConfig() {
 }
 
 async function saveUnlockedActivitiesConfig(config) {
+  delete config["18"];
+  delete config["19"];
+  delete config["110"];
+  delete config["all"];
   localStorage.setItem("sociallms_unlocked_activities", JSON.stringify(config));
   if (unlockBroadcastChannel) {
     unlockBroadcastChannel.postMessage({ type: "UNLOCK_UPDATED" });
@@ -4870,10 +4880,10 @@ function extractClassCodeFromProfile(parsedProfile) {
     }
   }
 
-  return "all";
+  return "11";
 }
 
-// 특정 학생 학급에 대해 과업이 해금되어 있는지 검사
+// 특정 학생 학급에 대해 과업이 해금되어 있는지 검사 (선생님 체크박스 연동 100% 엄격 적용)
 function isActivityUnlockedForStudent(activityId) {
   const baseId = getBaseTaskId(activityId);
 
@@ -4889,13 +4899,8 @@ function isActivityUnlockedForStudent(activityId) {
   const studentClass = extractClassCodeFromProfile(parsedProfile);
   const config = getUnlockedActivitiesConfig();
   
-  const allUnlocked = config["all"] || [];
   const classUnlocked = config[studentClass] || [];
-
-  return allUnlocked.includes(baseId) || 
-         classUnlocked.includes(baseId) || 
-         allUnlocked.includes(activityId) || 
-         classUnlocked.includes(activityId);
+  return classUnlocked.includes(baseId) || classUnlocked.includes(activityId);
 }
 
 // 교사 대시보드 - 학급별 해금 컨트롤 UI 렌더링
