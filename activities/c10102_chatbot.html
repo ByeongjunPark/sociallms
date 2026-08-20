@@ -1395,13 +1395,37 @@
 
     function handleQ6LeftClick(id, element) {
       if (taskState.quizGraded) return;
+
+      // 만약 이미 연결된 선이 있는 항목을 클릭하면 해당 선 개별 취소
+      if (q6State.connections[id]) {
+        delete q6State.connections[id];
+        if (q6State.selectedLeftId === id) q6State.selectedLeftId = null;
+        renderQ6SvgLines();
+        saveDraft();
+        return;
+      }
+
       document.querySelectorAll(".q6-left-item").forEach(el => {
-        el.style.borderColor = "rgba(0,0,0,0.08)";
+        const elId = el.getAttribute("data-id");
+        if (!q6State.connections[elId]) {
+          el.style.borderColor = "rgba(0,0,0,0.08)";
+          el.style.background = "rgba(255,255,255,0.95)";
+        }
         el.style.boxShadow = "none";
       });
+
       element.style.borderColor = "var(--color-purple)";
       element.style.boxShadow = "0 0 12px rgba(121, 82, 179, 0.25)";
       q6State.selectedLeftId = id;
+    }
+
+    function removeQ6SingleConnection(id, evt) {
+      if (evt) evt.stopPropagation();
+      if (taskState.quizGraded) return;
+      delete q6State.connections[id];
+      if (q6State.selectedLeftId === id) q6State.selectedLeftId = null;
+      renderQ6SvgLines();
+      saveDraft();
     }
 
     function handleQ6RightClick(targetType, element) {
@@ -1415,7 +1439,11 @@
       q6State.selectedLeftId = null;
 
       document.querySelectorAll(".q6-left-item").forEach(el => {
-        el.style.borderColor = "rgba(0,0,0,0.08)";
+        const elId = el.getAttribute("data-id");
+        if (!q6State.connections[elId]) {
+          el.style.borderColor = "rgba(0,0,0,0.08)";
+          el.style.background = "rgba(255,255,255,0.95)";
+        }
         el.style.boxShadow = "none";
       });
 
@@ -1431,6 +1459,8 @@
         el.style.borderColor = "rgba(0,0,0,0.08)";
         el.style.background = "rgba(255,255,255,0.95)";
         el.style.boxShadow = "none";
+        const oldBtn = el.querySelector(".q6-cancel-badge");
+        if (oldBtn) oldBtn.remove();
       });
       renderQ6SvgLines();
       saveDraft();
@@ -1443,6 +1473,18 @@
 
       const containerRect = container.getBoundingClientRect();
       let svgHtml = "";
+
+      // 미연결 항목 스타일 및 이전 뱃지 정리
+      container.querySelectorAll(".q6-left-item").forEach(el => {
+        const elId = el.getAttribute("data-id");
+        if (!q6State.connections[elId] && q6State.selectedLeftId !== elId) {
+          el.style.borderColor = "rgba(0,0,0,0.08)";
+          el.style.background = "rgba(255,255,255,0.95)";
+          el.style.boxShadow = "none";
+          const oldBtn = el.querySelector(".q6-cancel-badge");
+          if (oldBtn) oldBtn.remove();
+        }
+      });
 
       Object.entries(q6State.connections).forEach(([leftId, targetType]) => {
         const leftEl = container.querySelector(`.q6-left-item[data-id="${leftId}"]`);
@@ -1473,6 +1515,18 @@
 
           leftEl.style.borderColor = color;
           leftEl.style.background = `${color}0d`;
+
+          // 개별 연결선 취소 [선 취소 ✕] 뱃지 동적 배치
+          let cancelBadge = leftEl.querySelector(".q6-cancel-badge");
+          if (!cancelBadge) {
+            cancelBadge = document.createElement("span");
+            cancelBadge.className = "q6-cancel-badge";
+            cancelBadge.style.cssText = `position: absolute; top: 8px; right: 14px; font-size: 0.7rem; font-weight: 800; background: ${color}; color: #ffffff; padding: 2px 8px; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform 0.2s; z-index: 10;`;
+            cancelBadge.title = "이 연결선만 개별 취소하기";
+            cancelBadge.onclick = (e) => removeQ6SingleConnection(leftId, e);
+            leftEl.appendChild(cancelBadge);
+          }
+          cancelBadge.innerHTML = `선 취소 ✕`;
         }
       });
 
