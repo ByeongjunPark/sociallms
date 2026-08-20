@@ -524,7 +524,7 @@
           <span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25, 113, 194, 0.1); padding: 3px 8px; border-radius: 6px;">인터랙티브 선 잇기 (난이도: 중상)</span>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 14px 0; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; line-height: 1.55;">
-          📌 좌측의 <strong>헌법 조항 카드(6개)</strong>를 클릭한 후, 오른쪽에 올바르게 연관된 <strong>자유권의 3대 세부 유형(신체적/정신적/사회·경제적 자유)</strong>을 클릭하여 <strong>선으로 연결</strong>하시오! (골고루 잘 섞여 있습니다 🔀)
+          📌 좌측의 <strong>헌법 조항 카드(6개)</strong>를 클릭한 후, 오른쪽에 올바르게 연관된 <strong>자유권의 3대 세부 유형(신체적/정신적/사회·경제적 자유)</strong>을 클릭하여 <strong>선으로 연결</strong>하시오!
         </p>
 
         <!-- 선 잇기 인터랙티브 캔버스 가두리 영역 -->
@@ -1848,6 +1848,9 @@
           "시민참여성찰저널": reflText,
           "Q4_짝맞추기": `1-${m1}, 2-${m2}, 3-${m3}, 4-${m4}`,
           "Q5_하이라이트선택": q5Ans,
+          "Q6_선잇기내역": JSON.stringify(q6State.connections),
+          "Q6_선잇기정답수": `${q6MatchedCount}/6개`,
+          "Q7_국민투표서술답안": q7Ans,
           "시민참여성찰답변": reflText,
           "메타성찰답변": reflText,
           "루브릭_공감성": rubricEmpathy,

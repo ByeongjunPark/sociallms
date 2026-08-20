@@ -3411,6 +3411,21 @@ function renderTasksSection() {
           ref1: details["챗봇대화내역"] || details["대화내역"] || details["G열"] || "💬 AI 챗봇 대화 기록 없음",
           ref2: details["시민참여성찰저널"] || details["메타성찰답변"] || details["시민참여성찰답변"] || "성찰 저널 미입력"
         });
+
+        // 📊 Q6 6대 조항별 선 잇기 정답률 통계 집계
+        const q6Data = details["Q6_선잇기내역"];
+        if (q6Data) {
+          try {
+            const c = typeof q6Data === "string" ? JSON.parse(q6Data) : q6Data;
+            qTotals[5]++;
+            if (c.p1 === "신체적 자유") qChoiceCounts[5]["p1"] = (qChoiceCounts[5]["p1"] || 0) + 1;
+            if (c.p2 === "정신적 자유") qChoiceCounts[5]["p2"] = (qChoiceCounts[5]["p2"] || 0) + 1;
+            if (c.p3 === "사회·경제적 자유") qChoiceCounts[5]["p3"] = (qChoiceCounts[5]["p3"] || 0) + 1;
+            if (c.p4 === "신체적 자유") qChoiceCounts[5]["p4"] = (qChoiceCounts[5]["p4"] || 0) + 1;
+            if (c.p5 === "정신적 자유") qChoiceCounts[5]["p5"] = (qChoiceCounts[5]["p5"] || 0) + 1;
+            if (c.p6 === "사회·경제적 자유") qChoiceCounts[5]["p6"] = (qChoiceCounts[5]["p6"] || 0) + 1;
+          } catch(e) {}
+        }
       } else {
         const quizRes = details["형성평가퀴즈"] || "";
         const parts = quizRes.split(",");
@@ -3721,14 +3736,19 @@ function renderTasksSection() {
                   explanation: "시민 불복종은 사익 목적이 아닌 사회 전체의 정당성과 공익을 목적으로 해야 하며 비폭력, 최후수단성, 처벌감수성을 갖추어야 합니다."
                 },
                 { 
-                  title: "Q6. [자유권 세부 유형 매칭] 헌법 조항 ↔ 자유권 3대 유형 1:1 연결", 
-                  question: "1-헌법12조(신체적자유), 2-헌법19조/21조(정신적자유), 3-헌법15조/23조(사회·경제적자유)",
+                  title: "Q6. [실감형 선 잇기] 헌법 조항 6개 ↔ 자유권 3대 유형 (조항별 개별 정답률 분석)", 
+                  question: "①신체적자유, ②정신적자유, ③사회경제적자유, ④신체적자유, ⑤정신적자유, ⑥사회경제적자유",
                   options: {
-                    "성공": "3/3개 자유권 세부 유형 1:1 매칭 성공 (신체적·정신적·사회경제적 자유)",
-                    "부분": "일부 매칭 성공"
+                    "p1": "① 헌법 제12조 1항 [신체의 자유 & 적법절차] ➔ (정답: 신체적 자유)",
+                    "p2": "② 헌법 제21조 1항 [언론·출판·집회·결사의 자유] ➔ (정답: 정신적 자유)",
+                    "p3": "③ 헌법 제23조 1항 [국민의 재산권 보장] ➔ (정답: 사회·경제적 자유)",
+                    "p4": "④ 헌법 제12조 4항 [체포·구속 시 변호인 조력권] ➔ (정답: 신체적 자유)",
+                    "p5": "⑤ 헌법 제19조/20조 [양심의 자유 & 종교의 자유] ➔ (정답: 정신적 자유)",
+                    "p6": "⑥ 헌법 제15조/14조 [직업선택 & 거주이전의 자유] ➔ (정답: 사회·경제적 자유)"
                   },
-                  correct: "성공",
-                  explanation: "헌법 조항별 자유권의 세부 유형을 정확히 연결하였습니다."
+                  isAllCorrectCheck: true,
+                  correct: "all",
+                  explanation: "6개 헌법 조항별로 학생이 정확한 자유권 세부 유형(신체적/정신적/사회·경제적 자유)으로 선을 이어 맞추었는지 개별 정답률을 분석합니다."
                 },
                 { 
                   title: "Q7. [AI 실시간 채점 서술형] 헌법상 국민투표 2대 조항 (제72조 vs 제130조) 실시 요건 비교", 
@@ -3747,7 +3767,7 @@ function renderTasksSection() {
                 const optCounts = qChoiceCounts[idx] || {};
 
                 const choicesHtml = Object.keys(q.options).map(cKey => {
-                  const isAns = cKey === q.correct;
+                  const isAns = q.isAllCorrectCheck ? true : (cKey === q.correct);
                   let cCnt = optCounts[cKey] || 0;
                   if (cKey === "성공" && optCounts["성공"] === undefined) cCnt = qCorrects[idx] || submitCount;
                   const cPct = total > 0 ? Math.round((cCnt / total) * 100) : 0;
