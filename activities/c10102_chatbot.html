@@ -517,10 +517,71 @@
         <div class="quiz-feedback" id="quizFeedback_5"></div>
       </div>
 
-      <!-- 1단계 채점 전용 명시적 버튼 (5개 문항 최하단 배치) -->
+      <!-- Q6: [상호작용형 짝맞추기 - 난이도 중상] 자유권의 3대 세부 유형 매칭 -->
+      <div class="quiz-card" id="quizCard_6">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q6. [자유권 세부 유형 매칭] 헌법 조항 ↔ 자유권 3대 유형 1:1 연결</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25, 113, 194, 0.1); padding: 3px 8px; border-radius: 6px;">상호작용형 (드롭다운 매칭 - 난이도: 중상)</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 12px 0; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; line-height: 1.55;">
+          📌 아래 3가지 헌법 조항에 올바르게 매칭되는 자유권의 세부 유형(<strong>신체적 자유, 정신적 자유, 사회·경제적 자유</strong>)을 고르시오.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">1) 헌법 제12조 1항: 모든 국민은 신체의 자유를 가지며 적법절차에 의하지 않고는 처벌·강제노역 금지</span>
+            <select id="q6_match_1" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 자유권 유형 선택 --</option>
+              <option value="신체적 자유">신체적 자유</option>
+              <option value="정신적 자유">정신적 자유</option>
+              <option value="사회·경제적 자유">사회·경제적 자유</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">2) 헌법 제19조/제21조: 양심의 자유, 언론·출판 및 집회·결사의 자유 보장</span>
+            <select id="q6_match_2" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 자유권 유형 선택 --</option>
+              <option value="신체적 자유">신체적 자유</option>
+              <option value="정신적 자유">정신적 자유</option>
+              <option value="사회·경제적 자유">사회·경제적 자유</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
+            <span style="font-size: 0.85rem; color: var(--text-primary);">3) 헌법 제15조/제23조: 직업선택의 자유 및 국민의 재산권 보장</span>
+            <select id="q6_match_3" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
+              <option value="">-- 자유권 유형 선택 --</option>
+              <option value="신체적 자유">신체적 자유</option>
+              <option value="정신적 자유">정신적 자유</option>
+              <option value="사회·경제적 자유">사회·경제적 자유</option>
+            </select>
+          </div>
+        </div>
+        <div class="quiz-feedback" id="quizFeedback_6"></div>
+      </div>
+
+      <!-- Q7: [AI 서술형 채점 - 난이도 중상] 헌법상 국민투표 2대 조항 (제72조 vs 제130조) 실시 요건 비교 -->
+      <div class="quiz-card" id="quizCard_7">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Q7. [AI 실시간 채점 서술형] 헌법상 국민투표 2대 조항 (제72조 vs 제130조) 실시 요건 비교 서술</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #7952b3; background: rgba(121, 82, 179, 0.1); padding: 3px 8px; border-radius: 6px;">Upstage Solar Pro3 AI 채점 (서술형 - 난이도: 중상)</span>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px 0; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 12px; line-height: 1.6;">
+          📌 <strong>[제시문 A: 헌법 제72조]</strong> "대통령은 필요하다고 인정할 때에는 외교·국방·통일 기타 국가안위에 관한 중요정책을 국민투표에 붙일 수 있다."<br><br>
+          📌 <strong>[제시문 B: 헌법 제130조 제2항]</strong> "헌법개정안은 국회가 의결한 후 30일 이내에 국민투표에 붙여 국회의원선거권자 과반수의 투표와 투표자 과반수의 찬성을 얻어야 한다."
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 10px; font-weight: 600;">
+          💡 제시문 A(헌법 제72조)와 제시문 B(헌법 제130조 제2항)에서 규정하는 국민투표 실시 요건의 결정적 차이점(의무적/필수적 vs 선택적/임의적)을 비교하여 서술하시오.
+        </p>
+        <textarea id="q7_essay_answer" oninput="saveDraft()" rows="3" style="width: 100%; border-radius: 12px; padding: 12px 14px; font-family: var(--font-family-body); font-size: 0.88rem; line-height: 1.6; border: 1.5px solid var(--color-purple); outline: none; background: var(--bg-card);" placeholder="답안 예시: '헌법개정(제130조)은 국회 의결 후 반드시 거쳐야 하는 의무적(필수적) 국민투표인 반면, 외교·국방·통일 등 국가 안위 중요 정책(제72조)은 대통령의 필요 판단에 따른 선택적(임의적) 국민투표라는 차이가 있습니다.'"></textarea>
+        <div class="quiz-feedback" id="quizFeedback_7"></div>
+      </div>
+
+      <!-- 1단계 채점 전용 명시적 버튼 (7개 문항 최하단 배치) -->
       <div style="text-align: center; margin-top: 24px; margin-bottom: 12px;">
         <button type="button" onclick="gradeStep1Quiz(false)" style="background: linear-gradient(135deg, var(--color-purple) 0%, #818cf8 100%); color: white; border: none; padding: 14px 28px; border-radius: 16px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 14px rgba(168,130,220,0.35); transition: all 0.25s ease;">
-          📝 1단계 형성평가 제출 및 채점하기 🔍
+          📝 1단계 형성평가 (총 7문항) 제출 및 채점하기 🔍
         </button>
       </div>
     </div>
@@ -1274,91 +1335,180 @@
       saveDraft();
     }
 
-    // 1단계 형성평가 퀴즈 자동 채점
-    function gradeStep1Quiz(showAlert = true) {
-      const q1 = taskState.quizAnswers.q1 || (document.querySelector('input[name="q1"]:checked') ? document.querySelector('input[name="q1"]:checked').value : "");
-      const q2 = taskState.quizAnswers.q2 || (document.querySelector('input[name="q2"]:checked') ? document.querySelector('input[name="q2"]:checked').value : "");
-      const q3 = taskState.quizAnswers.q3 || (document.querySelector('input[name="q3"]:checked') ? document.querySelector('input[name="q3"]:checked').value : "");
+    // Q7 국민투표 실시 요건 비교 서술형 AI & NLP 지능형 채점기
+    async function evaluateQ7ReferendumAnswerWithSolar(q7Ans) {
+      if (!q7Ans || q7Ans.trim().length < 5) return false;
+
+      const cleanText = q7Ans.replace(/\s+/g, "");
+      const hasMust = (cleanText.includes("필수") || cleanText.includes("의무") || cleanText.includes("반드시") || cleanText.includes("확정"));
+      const hasOption = (cleanText.includes("선택") || cleanText.includes("임의") || cleanText.includes("재량") || cleanText.includes("붙일수있다") || cleanText.includes("필요하다고인정"));
+
+      // 1차: 의무/필수 vs 선택/임의 키워드 동시 포착 시 직통 정답 판정
+      if (hasMust && hasOption) {
+        return true;
+      }
+
+      // 2차: Upstage Solar Pro AI API 연동 의미론적 유사 정답 채점
+      try {
+        const prompt = `당신은 대한민국 고등학교 통합사회 헌법 서술형 채점 전문 교사입니다.
+학생이 작성한 아래 답안을 심사하여 정답 여부를 판정하세요.
+
+[제시문 및 서술 문제]
+- 제시문 A(헌법 제72조): 외교/국방/통일 기타 국가안위 중요정책 국민투표
+- 제시문 B(헌법 제130조 제2항): 헌법개정안 국민투표
+
+[학생 작성 답안]: "${q7Ans}"
+
+[채점 및 정답 인정 키포인트 뉘앙스]:
+헌법 개정은 국회 의결 후 반드시 거쳐야 하는 '의무적·필수적 국민투표'인 반면, 국가 안위 중요 정책은 대통령의 판단에 따른 '선택적·임의적 국민투표'라는 핵심 차이점 뉘앙스가 담겨 있으면 유연하게 정답으로 인정하세요.
+
+반드시 JSON 단 한 줄 포맷으로만 응답하세요:
+{"isCorrect": true} 또는 {"isCorrect": false}`;
+
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+
+        const data = await response.json();
+        if (data.success && data.message && data.message.content) {
+          const content = String(data.message.content);
+          if (content.includes('"isCorrect": true') || content.includes('"isCorrect":true') || content.includes("true")) {
+            return true;
+          }
+        }
+      } catch (err) {
+        console.warn("Solar Pro Q7 AI evaluation fallback:", err);
+      }
+
+      return (hasMust || hasOption);
+    }
+
+    // 1단계 형성평가 퀴즈 자동 채점 (Q1~Q7 총 7개 문항)
+    async function gradeStep1Quiz(showAlert = true) {
+      const q1Checked = document.querySelector('input[name="q1"]:checked');
+      const q1 = q1Checked ? q1Checked.value : (taskState.quizAnswers.q1 || "");
+      const q2Raw = document.getElementById("q2_short_answer") ? document.getElementById("q2_short_answer").value.trim() : "";
+      const q3Checked = document.querySelector('input[name="q3"]:checked');
+      const q3Ans = q3Checked ? q3Checked.value : (taskState.quizAnswers.q3 || "");
+      
       const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
       const m2 = document.getElementById("q4_match_2") ? document.getElementById("q4_match_2").value : "";
       const m3 = document.getElementById("q4_match_3") ? document.getElementById("q4_match_3").value : "";
       const m4 = document.getElementById("q4_match_4") ? document.getElementById("q4_match_4").value : "";
+      
       const q5 = taskState.quizAnswers.q5 || "";
 
-      if (!q1 || !q2 || !q3 || !m1 || !m2 || !m3 || !m4 || !q5) {
-        if (showAlert) alert("1단계 형성평가 5문항에 모두 답변해 주세요! 📝");
+      const q6_m1 = document.getElementById("q6_match_1") ? document.getElementById("q6_match_1").value : "";
+      const q6_m2 = document.getElementById("q6_match_2") ? document.getElementById("q6_match_2").value : "";
+      const q6_m3 = document.getElementById("q6_match_3") ? document.getElementById("q6_match_3").value : "";
+
+      const q7Ans = document.getElementById("q7_essay_answer") ? document.getElementById("q7_essay_answer").value.trim() : "";
+
+      if (!q1 || !q2Raw || !q3Ans || !m1 || !m2 || !m3 || !m4 || !q5 || !q6_m1 || !q6_m2 || !q6_m3 || !q7Ans) {
+        if (showAlert) alert("1단계 형성평가 7개 문항(객관식, 단답형, 짝맞추기, 형광펜, AI 서술형)에 모두 답변해 주세요! 📝");
         return null;
       }
 
-      let score = 0;
-      // Q1 정답: ② (20점)
+      let correctCount = 0;
+
+      // Q1 (선다형 - ① 평등권)
+      const q1Correct = (q1 === "①");
+      if (q1Correct) correctCount++;
       const fb1 = document.getElementById("quizFeedback_1");
-      if (q1 === "②") {
-        score += 20;
-        fb1.className = "quiz-feedback correct";
-        fb1.innerHTML = "⭕ 정답입니다! (20점) - 국가 권력 남용 방지와 국민 기본권 보장은 헌법의 핵심 목적입니다.";
-      } else {
-        fb1.className = "quiz-feedback incorrect";
-        fb1.innerHTML = "❌ 오답입니다. 정답은 ②번(국가 권력 남용 방지 및 국민 기본권 보장)입니다.";
+      if (fb1) {
+        fb1.textContent = q1Correct 
+          ? "⭕ 정답입니다! [정답 해설]: 평등권은 성별, 종교, 장애, 사회적 신분 등에 의하여 차별받지 않고 균등한 대우를 받을 권리입니다."
+          : `❌ 오답입니다. (선택: ${q1 || '미선택'} / 정답: ① 평등권) [정답 해설]: 부당한 차별을 받지 않을 권리는 평등권에 해당합니다.`;
+        fb1.className = q1Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb1.style.display = "block";
       }
 
-      // Q2 정답: ③ (20점)
+      // Q2 (단답형 - 과잉금지의 원칙)
+      const cleanQ2 = q2Raw.replace(/\s+/g, "");
+      const q2Correct = (cleanQ2.includes("과잉금지") || cleanQ2.includes("과잉금지의원칙"));
+      if (q2Correct) correctCount++;
       const fb2 = document.getElementById("quizFeedback_2");
-          : `❌ 오답입니다. (제출: "${q2Raw || '미입력'}" / 정답: "과잉금지") [정답 해설]: 헌법 제37조 제2항의 '법률로써 제한' 조항은 기본권 본질을 침해할 수 없도록 과도한 제한을 금하는 '과잉금지의 원칙'을 규정합니다.`;
+      if (fb2) {
+        fb2.textContent = q2Correct
+          ? "⭕ 정답입니다! [정답 해설]: 국민의 기본권 제한 시 과도한 침해를 금지하는 헌법상 한계 원칙은 '과잉금지의 원칙'입니다."
+          : `❌ 오답입니다. (제출: "${q2Raw || '미입력'}" / 정답: "과잉금지의 원칙")`;
         fb2.className = q2Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
         fb2.style.display = "block";
       }
 
       // Q3 (선다형 - ① 권리구제형 헌법소원)
-      const q3Checked = document.querySelector('input[name="q3"]:checked');
-      const q3Ans = q3Checked ? q3Checked.value : "";
       const q3Correct = (q3Ans === "①");
-      if (q3Correct) score += 20;
+      if (q3Correct) correctCount++;
       const fb3 = document.getElementById("quizFeedback_3");
       if (fb3) {
         fb3.textContent = q3Correct 
-          ? "✅ 정답입니다! (선택: ① 권리구제형 헌법소원) [정답 해설]: 공권력의 행사/불행사로 기본권을 직접 침해당한 국민이 헌법재판소에 직접 구제를 청구하는 제도는 '권리구제형 헌법소원'입니다."
-          : `❌ 오답입니다. (선택: ${q3Ans || '미선택'} / 정답: ① 권리구제형 헌법소원) [정답 해설]: 공권력에 의한 직접 기본권 침해 구제 절차는 '권리구제형 헌법소원'에 해당합니다.`;
+          ? "⭕ 정답입니다! [정답 해설]: 공권력의 행사/불행사로 기본권을 직접 침해당한 국민이 헌재에 구제를 청구하는 제도는 '권리구제형 헌법소원'입니다."
+          : `❌ 오답입니다. (선택: ${q3Ans || '미선택'} / 정답: ① 권리구제형 헌법소원)`;
         fb3.className = q3Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
         fb3.style.display = "block";
       }
 
-      // Q4 (상호작용형 1 - 짝맞추기 Matching)
-      const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
-      const m2 = document.getElementById("q4_match_2") ? document.getElementById("q4_match_2").value : "";
-      const m3 = document.getElementById("q4_match_3") ? document.getElementById("q4_match_3").value : "";
-      const m4 = document.getElementById("q4_match_4") ? document.getElementById("q4_match_4").value : "";
-
+      // Q4 (짝맞추기 - 청구권, 평등권, 자유권, 사회권)
       const q4Correct = (m1 === "청구권" && m2 === "평등권" && m3 === "자유권" && m4 === "사회권");
-      if (q4Correct) score += 20;
+      if (q4Correct) correctCount++;
       const fb4 = document.getElementById("quizFeedback_4");
       if (fb4) {
         fb4.textContent = q4Correct 
-          ? "✅ 정답입니다! (상호작용형 매칭) 기본권 4가지 종류와 실생활 침해 사례를 100% 완벽하게 짝지었습니다!" 
-          : `❌ 오답입니다. (정답: 1-청구권, 2-평등권, 3-자유권, 4-사회권 / 제출: 1-${m1||'미선택'}, 2-${m2||'미선택'}, 3-${m3||'미선택'}, 4-${m4||'미선택'})`;
+          ? "⭕ 정답입니다! (상호작용형 매칭) 기본권 4가지 종류와 실생활 침해 사례를 100% 완벽하게 매칭하였습니다!" 
+          : `❌ 오답입니다. (정답: 1-청구권, 2-평등권, 3-자유권, 4-사회권)`;
         fb4.className = q4Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
         fb4.style.display = "block";
       }
 
-      // Q5 (상호작용형 2 - 텍스트 하이라이트 Highlighting)
-      const q5Ans = taskState.quizAnswers.q5 || "";
-      const q5Correct = (q5Ans === "A");
-      if (q5Correct) score += 20;
+      // Q5 (형광펜 - [A])
+      const q5Correct = (q5 === "A");
+      if (q5Correct) correctCount++;
       const fb5 = document.getElementById("quizFeedback_5");
       if (fb5) {
         fb5.textContent = q5Correct
-          ? "✅ 정답입니다! (상호작용형 하이라이트) 지문 속 시민 불복종의 오개념 문장 [A]를 정확히 선택했습니다."
-          : `❌ 오답입니다. (정답: [A] 사익 증진 목적 문장 / 선택: [${q5Ans || '미선택'}])`;
+          ? "⭕ 정답입니다! (상호작용형 하이라이트) 지문 속 시민 불복종의 오개념 문장 [A](사익 증진 목적)를 정확히 하이라이트 하였습니다."
+          : `❌ 오답입니다. (정답: [A] 사익 증진 목적 문장)`;
         fb5.className = q5Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
         fb5.style.display = "block";
       }
 
+      // Q6 (신규: 자유권 3대 세부 유형 매칭)
+      const q6Correct = (q6_m1 === "신체적 자유" && q6_m2 === "정신적 자유" && q6_m3 === "사회·경제적 자유");
+      if (q6Correct) correctCount++;
+      const fb6 = document.getElementById("quizFeedback_6");
+      if (fb6) {
+        fb6.textContent = q6Correct
+          ? "⭕ 정답입니다! (자유권 세부 유형 매칭) 헌법 조항과 자유권 3대 유형(신체적, 정신적, 사회·경제적 자유)을 완벽히 연결했습니다!"
+          : `❌ 오답입니다. (정답: 1-신체적 자유, 2-정신적 자유, 3-사회·경제적 자유 / 제출: 1-${q6_m1||'미선택'}, 2-${q6_m2||'미선택'}, 3-${q6_m3||'미선택'})`;
+        fb6.className = q6Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb6.style.display = "block";
+      }
+
+      // Q7 (신규: AI 실시간 채점 서술형 - 국민투표 비교)
+      const q7Correct = await evaluateQ7ReferendumAnswerWithSolar(q7Ans);
+      if (q7Correct) correctCount++;
+      const fb7 = document.getElementById("quizFeedback_7");
+      if (fb7) {
+        fb7.textContent = q7Correct
+          ? `⭕ [Upstage Solar Pro3 AI 교사 실시간 정답 판정]: 정답입니다! [AI 피드백]: 헌법개정(제130조)은 의무적(필수적) 국민투표인 반면, 국가안위 중요정책(제72조)은 대통령 판단에 따른 선택적(임의적) 국민투표라는 핵심 차이점 뉘앙스를 완벽히 파악하였습니다.`
+          : `❌ [Upstage Solar Pro3 AI 교사 채점 소견]: 보완이 필요합니다. [AI 피드백]: 헌법개정은 '반드시 거쳐야 하는 의무적(필수적) 국민투표'이고, 중요 정책은 '대통령 재량에 따른 선택적(임의적) 국민투표'라는 핵심 차이점이 명시되어야 정답으로 인정됩니다.`;
+        fb7.className = q7Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
+        fb7.style.display = "block";
+      }
+
+      const score = Math.round((correctCount / 7) * 100);
+
       taskState.quizGraded = true;
       saveDraft();
 
-      if (!silentMode) {
-        alert(`📝 1단계 다변화 형성평가 채점 완료: ${score}점입니다! 2단계 AI 페르소나 대화로 진행해 주세요. 🌿`);
+      if (showAlert) {
+        alert(`📝 1단계 형성평가 7문항 채점 완료: ${score}점 (${correctCount}/7문항 정답)입니다! 2단계 AI 페르소나 대화로 진행해 주세요. 🌿`);
       }
+
       return score;
     }
 
