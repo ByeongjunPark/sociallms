@@ -4883,12 +4883,9 @@ function extractClassCodeFromProfile(parsedProfile) {
   return "11";
 }
 
-// 특정 학생 학급에 대해 과업이 해금되어 있는지 검사 (선생님 체크박스 연동 100% 엄격 적용)
+// 특정 학생 학급에 대해 과업이 해금되어 있는지 검사 (과업 1, 2, 3 전체 선생님 체크박스 연동 100% 엄격 적용)
 function isActivityUnlockedForStudent(activityId) {
   const baseId = getBaseTaskId(activityId);
-
-  // 과업 1 (c10101)은 기본적으로 항상 해금
-  if (baseId === "c10101") return true;
 
   const savedProfile = localStorage.getItem("sociallms_profile");
   let parsedProfile = {};

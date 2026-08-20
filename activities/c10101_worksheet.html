@@ -918,6 +918,34 @@
     };
 
     window.addEventListener("load", () => {
+      // 🔒 박병준 선생님 교사 해금 제어 연동 보안 가드
+      const savedRole = localStorage.getItem("sociallms_role");
+      if (savedRole !== "teacher") {
+        const savedProfile = localStorage.getItem("sociallms_profile");
+        const savedStudentId = localStorage.getItem("sociallms_student_id");
+        if (!savedProfile || !savedStudentId) {
+          alert("🔒 회원 로그인 후 이용 가능합니다.");
+          window.location.href = "../index.html";
+          return;
+        }
+
+        let studentClass = "11";
+        try {
+          const p = JSON.parse(savedProfile);
+          const sId = String(p["학번 (StudentID)"] || p.studentId || "");
+          if (sId.length >= 4) studentClass = sId.substring(0, 2);
+        } catch(e) {}
+
+        const rawUnlocked = localStorage.getItem("sociallms_unlocked_activities");
+        const config = rawUnlocked ? JSON.parse(rawUnlocked) : {};
+        const classUnlocked = config[studentClass] || [];
+        if (!classUnlocked.includes("c10101") && !classUnlocked.includes("c10101_worksheet")) {
+          alert(`🔒 박병준 선생님이 아직 1학년 ${parseInt(studentClass.substring(1))}반 수업 진도에 맞춰 과업 1을 해금하지 않으셨습니다. 대시보드로 이동합니다. 🌸`);
+          window.location.href = "../index.html";
+          return;
+        }
+      }
+
       loadUserProfile();
       shuffleMatchingCards(); // 1단계 카드 랜덤 셔플링 실행 🧩
       renderSortCards();
