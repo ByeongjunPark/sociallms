@@ -517,47 +517,93 @@
         <div class="quiz-feedback" id="quizFeedback_5"></div>
       </div>
 
-      <!-- Q6: [상호작용형 짝맞추기 - 난이도 중상] 자유권의 3대 세부 유형 매칭 -->
-      <div class="quiz-card" id="quizCard_6">
+      <!-- Q6: [실감형 선 잇기] 헌법 조항 6개 ↔ 자유권 3대 세부 유형 1:1 선 잇기 -->
+      <div class="quiz-card" id="quizCard_6" style="position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <strong>Q6. [자유권 세부 유형 매칭] 헌법 조항 ↔ 자유권 3대 유형 1:1 연결</strong>
-          <span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25, 113, 194, 0.1); padding: 3px 8px; border-radius: 6px;">상호작용형 (드롭다운 매칭 - 난이도: 중상)</span>
+          <strong>Q6. [실감형 선 잇기] 헌법 조항 6개 ↔ 자유권 3대 세부 유형 1:1 선 잇기</strong>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #1971c2; background: rgba(25, 113, 194, 0.1); padding: 3px 8px; border-radius: 6px;">인터랙티브 선 잇기 (난이도: 중상)</span>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 12px 0; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; line-height: 1.55;">
-          📌 아래 3가지 헌법 조항에 올바르게 매칭되는 자유권의 세부 유형(<strong>신체적 자유, 정신적 자유, 사회·경제적 자유</strong>)을 고르시오.
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 14px 0; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; line-height: 1.55;">
+          📌 좌측의 <strong>헌법 조항 카드(6개)</strong>를 클릭한 후, 오른쪽에 올바르게 연관된 <strong>자유권의 3대 세부 유형(신체적/정신적/사회·경제적 자유)</strong>을 클릭하여 <strong>선으로 연결</strong>하시오! (골고루 잘 섞여 있습니다 🔀)
         </p>
 
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
-            <span style="font-size: 0.85rem; color: var(--text-primary);">1) 헌법 제12조 1항: 모든 국민은 신체의 자유를 가지며 적법절차에 의하지 않고는 처벌·강제노역 금지</span>
-            <select id="q6_match_1" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
-              <option value="">-- 자유권 유형 선택 --</option>
-              <option value="신체적 자유">신체적 자유</option>
-              <option value="정신적 자유">정신적 자유</option>
-              <option value="사회·경제적 자유">사회·경제적 자유</option>
-            </select>
+        <!-- 선 잇기 인터랙티브 캔버스 가두리 영역 -->
+        <div id="q6ConnectingContainer" style="position: relative; display: grid; grid-template-columns: 1fr 220px; gap: 40px; min-height: 480px; padding: 10px 0;">
+          <!-- SVG 실시간 그려지는 연결선 선화 레이어 -->
+          <svg id="q6SvgLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;">
+            <!-- JS dynamic lines -->
+          </svg>
+
+          <!-- 좌측: 헌법 조항 노드 6개 (뒤섞인 순서) -->
+          <div style="display: flex; flex-direction: column; gap: 12px; z-index: 6;">
+            <div class="q6-left-item" data-id="p1" onclick="handleQ6LeftClick('p1', this)" style="background: rgba(255,255,255,0.95); border: 2px solid rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: all 0.25s; position: relative;">
+              <strong style="color: var(--color-purple); font-size: 0.84rem; display: block; margin-bottom: 2px;">[조항 ①] 헌법 제12조 1항</strong>
+              <span style="font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">"모든 국민은 신체의 자유를 가지며, 적법 절차에 의하지 않고는 처벌·강제노역 금지"</span>
+              <div class="q6-pin-right" style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--color-purple); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            </div>
+
+            <div class="q6-left-item" data-id="p2" onclick="handleQ6LeftClick('p2', this)" style="background: rgba(255,255,255,0.95); border: 2px solid rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: all 0.25s; position: relative;">
+              <strong style="color: var(--color-purple); font-size: 0.84rem; display: block; margin-bottom: 2px;">[조항 ②] 헌법 제21조 1항</strong>
+              <span style="font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">"모든 국민은 언론·출판의 자유와 집회·결사의 자유를 가진다."</span>
+              <div class="q6-pin-right" style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--color-purple); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            </div>
+
+            <div class="q6-left-item" data-id="p3" onclick="handleQ6LeftClick('p3', this)" style="background: rgba(255,255,255,0.95); border: 2px solid rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: all 0.25s; position: relative;">
+              <strong style="color: var(--color-purple); font-size: 0.84rem; display: block; margin-bottom: 2px;">[조항 ③] 헌법 제23조 1항</strong>
+              <span style="font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">"모든 국민의 재산권은 보장된다. 그 내용과 한계는 법률로 정한다."</span>
+              <div class="q6-pin-right" style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--color-purple); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            </div>
+
+            <div class="q6-left-item" data-id="p4" onclick="handleQ6LeftClick('p4', this)" style="background: rgba(255,255,255,0.95); border: 2px solid rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: all 0.25s; position: relative;">
+              <strong style="color: var(--color-purple); font-size: 0.84rem; display: block; margin-bottom: 2px;">[조항 ④] 헌법 제12조 4항</strong>
+              <span style="font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">"누구든지 체포 또는 구속을 당한 때에는 즉시 변호인의 조력을 받을 권리를 가진다."</span>
+              <div class="q6-pin-right" style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--color-purple); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            </div>
+
+            <div class="q6-left-item" data-id="p5" onclick="handleQ6LeftClick('p5', this)" style="background: rgba(255,255,255,0.95); border: 2px solid rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: all 0.25s; position: relative;">
+              <strong style="color: var(--color-purple); font-size: 0.84rem; display: block; margin-bottom: 2px;">[조항 ⑤] 헌법 제19조 및 제20조 1항</strong>
+              <span style="font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">"모든 국민은 양심의 자유와 종교의 자유를 가진다."</span>
+              <div class="q6-pin-right" style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--color-purple); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            </div>
+
+            <div class="q6-left-item" data-id="p6" onclick="handleQ6LeftClick('p6', this)" style="background: rgba(255,255,255,0.95); border: 2px solid rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 14px; cursor: pointer; transition: all 0.25s; position: relative;">
+              <strong style="color: var(--color-purple); font-size: 0.84rem; display: block; margin-bottom: 2px;">[조항 ⑥] 헌법 제15조 및 제14조</strong>
+              <span style="font-size: 0.82rem; color: var(--text-primary); line-height: 1.45;">"모든 국민은 직업선택의 자유와 거주·이전의 자유를 가진다."</span>
+              <div class="q6-pin-right" style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--color-purple); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+            </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
-            <span style="font-size: 0.85rem; color: var(--text-primary);">2) 헌법 제19조/제21조: 양심의 자유, 언론·출판 및 집회·결사의 자유 보장</span>
-            <select id="q6_match_2" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
-              <option value="">-- 자유권 유형 선택 --</option>
-              <option value="신체적 자유">신체적 자유</option>
-              <option value="정신적 자유">정신적 자유</option>
-              <option value="사회·경제적 자유">사회·경제적 자유</option>
-            </select>
-          </div>
+          <!-- 우측: 자유권 3대 세부 유형 타겟 뱃지 3개 -->
+          <div style="display: flex; flex-direction: column; justify-content: space-around; gap: 16px; z-index: 6;">
+            <div class="q6-right-target" data-type="신체적 자유" onclick="handleQ6RightClick('신체적 자유', this)" style="background: linear-gradient(135deg, rgba(25, 113, 194, 0.1) 0%, rgba(255,255,255,0.95) 100%); border: 2px solid #1971c2; padding: 24px 16px; border-radius: 18px; text-align: center; cursor: pointer; transition: all 0.25s; position: relative;">
+              <div class="q6-pin-left" style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: #1971c2; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+              <div style="font-size: 1.8rem; margin-bottom: 4px;">🧘‍♂️</div>
+              <strong style="color: #1971c2; font-size: 0.95rem; display: block;">신체적 자유</strong>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">적법절차·변호인조력</span>
+            </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06);">
-            <span style="font-size: 0.85rem; color: var(--text-primary);">3) 헌법 제15조/제23조: 직업선택의 자유 및 국민의 재산권 보장</span>
-            <select id="q6_match_3" onchange="saveDraft()" style="font-family: var(--font-family-body); font-size: 0.85rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--border-glass); background: var(--bg-card); outline: none; cursor: pointer;">
-              <option value="">-- 자유권 유형 선택 --</option>
-              <option value="신체적 자유">신체적 자유</option>
-              <option value="정신적 자유">정신적 자유</option>
-              <option value="사회·경제적 자유">사회·경제적 자유</option>
-            </select>
+            <div class="q6-right-target" data-type="정신적 자유" onclick="handleQ6RightClick('정신적 자유', this)" style="background: linear-gradient(135deg, rgba(121, 82, 179, 0.1) 0%, rgba(255,255,255,0.95) 100%); border: 2px solid #7952b3; padding: 24px 16px; border-radius: 18px; text-align: center; cursor: pointer; transition: all 0.25s; position: relative;">
+              <div class="q6-pin-left" style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: #7952b3; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+              <div style="font-size: 1.8rem; margin-bottom: 4px;">💡</div>
+              <strong style="color: #7952b3; font-size: 0.95rem; display: block;">정신적 자유</strong>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">양심·언론·집회·종교</span>
+            </div>
+
+            <div class="q6-right-target" data-type="사회·경제적 자유" onclick="handleQ6RightClick('사회·경제적 자유', this)" style="background: linear-gradient(135deg, rgba(43, 138, 62, 0.1) 0%, rgba(255,255,255,0.95) 100%); border: 2px solid #2b8a3e; padding: 24px 16px; border-radius: 18px; text-align: center; cursor: pointer; transition: all 0.25s; position: relative;">
+              <div class="q6-pin-left" style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: #2b8a3e; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>
+              <div style="font-size: 1.8rem; margin-bottom: 4px;">💼</div>
+              <strong style="color: #2b8a3e; font-size: 0.95rem; display: block;">사회·경제적 자유</strong>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">재산권·직업·거주이전</span>
+            </div>
           </div>
         </div>
+
+        <div style="text-align: right; margin-top: 10px;">
+          <button type="button" onclick="clearQ6Connections()" style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); padding: 4px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+            🧹 연결선 초기화
+          </button>
+        </div>
+
         <div class="quiz-feedback" id="quizFeedback_6"></div>
       </div>
 
@@ -1335,6 +1381,106 @@
       saveDraft();
     }
 
+    // 🎨 Q6 실감형 SVG 선 잇기 상호작용 엔진
+    const q6State = {
+      selectedLeftId: null,
+      connections: {} // { p1: "신체적 자유", p2: "정신적 자유", ... }
+    };
+
+    const Q6_COLOR_MAP = {
+      "신체적 자유": "#1971c2",
+      "정신적 자유": "#7952b3",
+      "사회·경제적 자유": "#2b8a3e"
+    };
+
+    function handleQ6LeftClick(id, element) {
+      if (taskState.quizGraded) return;
+      document.querySelectorAll(".q6-left-item").forEach(el => {
+        el.style.borderColor = "rgba(0,0,0,0.08)";
+        el.style.boxShadow = "none";
+      });
+      element.style.borderColor = "var(--color-purple)";
+      element.style.boxShadow = "0 0 12px rgba(121, 82, 179, 0.25)";
+      q6State.selectedLeftId = id;
+    }
+
+    function handleQ6RightClick(targetType, element) {
+      if (taskState.quizGraded) return;
+      if (!q6State.selectedLeftId) {
+        alert("👈 먼저 좌측의 헌법 조항 카드(①~⑥) 중 하나를 선택해 주세요!");
+        return;
+      }
+
+      q6State.connections[q6State.selectedLeftId] = targetType;
+      q6State.selectedLeftId = null;
+
+      document.querySelectorAll(".q6-left-item").forEach(el => {
+        el.style.borderColor = "rgba(0,0,0,0.08)";
+        el.style.boxShadow = "none";
+      });
+
+      renderQ6SvgLines();
+      saveDraft();
+    }
+
+    function clearQ6Connections() {
+      if (taskState.quizGraded) return;
+      q6State.connections = {};
+      q6State.selectedLeftId = null;
+      document.querySelectorAll(".q6-left-item").forEach(el => {
+        el.style.borderColor = "rgba(0,0,0,0.08)";
+        el.style.background = "rgba(255,255,255,0.95)";
+        el.style.boxShadow = "none";
+      });
+      renderQ6SvgLines();
+      saveDraft();
+    }
+
+    function renderQ6SvgLines() {
+      const svg = document.getElementById("q6SvgLayer");
+      const container = document.getElementById("q6ConnectingContainer");
+      if (!svg || !container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      let svgHtml = "";
+
+      Object.entries(q6State.connections).forEach(([leftId, targetType]) => {
+        const leftEl = container.querySelector(`.q6-left-item[data-id="${leftId}"]`);
+        const rightEl = container.querySelector(`.q6-right-target[data-type="${targetType}"]`);
+
+        if (leftEl && rightEl) {
+          const lPin = leftEl.querySelector(".q6-pin-right") || leftEl;
+          const rPin = rightEl.querySelector(".q6-pin-left") || rightEl;
+
+          const lRect = lPin.getBoundingClientRect();
+          const rRect = rPin.getBoundingClientRect();
+
+          const x1 = lRect.left + lRect.width / 2 - containerRect.left;
+          const y1 = lRect.top + lRect.height / 2 - containerRect.top;
+          const x2 = rRect.left + rRect.width / 2 - containerRect.left;
+          const y2 = rRect.top + rRect.height / 2 - containerRect.top;
+
+          const color = Q6_COLOR_MAP[targetType] || "#7952b3";
+          const controlDist = Math.abs(x2 - x1) * 0.45;
+
+          svgHtml += `
+            <path d="M ${x1} ${y1} C ${x1 + controlDist} ${y1}, ${x2 - controlDist} ${y2}, ${x2} ${y2}" 
+                  stroke="${color}" stroke-width="4" fill="none" stroke-linecap="round" 
+                  style="filter: drop-shadow(0px 3px 6px ${color}66); transition: all 0.3s;" />
+            <circle cx="${x1}" cy="${y1}" r="6" fill="${color}" stroke="#ffffff" stroke-width="2" />
+            <circle cx="${x2}" cy="${y2}" r="6" fill="${color}" stroke="#ffffff" stroke-width="2" />
+          `;
+
+          leftEl.style.borderColor = color;
+          leftEl.style.background = `${color}0d`;
+        }
+      });
+
+      svg.innerHTML = svgHtml;
+    }
+
+    window.addEventListener("resize", renderQ6SvgLines);
+
     // Q7 국민투표 실시 요건 비교 서술형 AI & NLP 지능형 채점기
     async function evaluateQ7ReferendumAnswerWithSolar(q7Ans) {
       if (!q7Ans || q7Ans.trim().length < 5) return false;
@@ -1402,14 +1548,11 @@
       
       const q5 = taskState.quizAnswers.q5 || "";
 
-      const q6_m1 = document.getElementById("q6_match_1") ? document.getElementById("q6_match_1").value : "";
-      const q6_m2 = document.getElementById("q6_match_2") ? document.getElementById("q6_match_2").value : "";
-      const q6_m3 = document.getElementById("q6_match_3") ? document.getElementById("q6_match_3").value : "";
-
+      const q6ConnCount = Object.keys(q6State.connections).length;
       const q7Ans = document.getElementById("q7_essay_answer") ? document.getElementById("q7_essay_answer").value.trim() : "";
 
-      if (!q1 || !q2Raw || !q3Ans || !m1 || !m2 || !m3 || !m4 || !q5 || !q6_m1 || !q6_m2 || !q6_m3 || !q7Ans) {
-        if (showAlert) alert("1단계 형성평가 7개 문항(객관식, 단답형, 짝맞추기, 형광펜, AI 서술형)에 모두 답변해 주세요! 📝");
+      if (!q1 || !q2Raw || !q3Ans || !m1 || !m2 || !m3 || !m4 || !q5 || q6ConnCount < 4 || !q7Ans) {
+        if (showAlert) alert("1단계 형성평가 7개 문항(객관식, 단답형, 짝맞추기, 형광펜, 6대조항 선잇기, AI 서술형)에 모두 답변해 주세요! 📝\n(Q6 선 잇기는 최소 4개 이상 연결해야 채점됩니다)");
         return null;
       }
 
@@ -1476,14 +1619,29 @@
         fb5.style.display = "block";
       }
 
-      // Q6 (신규: 자유권 3대 세부 유형 매칭)
-      const q6Correct = (q6_m1 === "신체적 자유" && q6_m2 === "정신적 자유" && q6_m3 === "사회·경제적 자유");
+      // Q6 (신규: 6개 조항 실감형 선 잇기 매칭)
+      const c = q6State.connections;
+      const q6CorrectAnswers = {
+        p1: "신체적 자유",
+        p2: "정신적 자유",
+        p3: "사회·경제적 자유",
+        p4: "신체적 자유",
+        p5: "정신적 자유",
+        p6: "사회·경제적 자유"
+      };
+
+      let q6MatchedCount = 0;
+      Object.keys(q6CorrectAnswers).forEach(key => {
+        if (c[key] === q6CorrectAnswers[key]) q6MatchedCount++;
+      });
+
+      const q6Correct = (q6MatchedCount >= 5); // 6개 중 5개 이상 정답 시 인가!
       if (q6Correct) correctCount++;
       const fb6 = document.getElementById("quizFeedback_6");
       if (fb6) {
         fb6.textContent = q6Correct
-          ? "⭕ 정답입니다! (자유권 세부 유형 매칭) 헌법 조항과 자유권 3대 유형(신체적, 정신적, 사회·경제적 자유)을 완벽히 연결했습니다!"
-          : `❌ 오답입니다. (정답: 1-신체적 자유, 2-정신적 자유, 3-사회·경제적 자유 / 제출: 1-${q6_m1||'미선택'}, 2-${q6_m2||'미선택'}, 3-${q6_m3||'미선택'})`;
+          ? `⭕ 정답입니다! (선 잇기 정답률: ${q6MatchedCount}/6개 완벽 연결) 헌법 조항 6개와 자유권 3대 세부 유형(신체적, 정신적, 사회·경제적 자유)을 완벽하게 연결하였습니다!`
+          : `❌ 보완이 필요합니다. (선 잇기 정답률: ${q6MatchedCount}/6개 / 현재 연결: ${q6ConnCount}/6개) [정답 안내]: ①·④신체적 자유, ②·⑤정신적 자유, ③·⑥사회·경제적 자유입니다. [연결선 초기화] 후 다시 시도해보세요!`;
         fb6.className = q6Correct ? "quiz-feedback correct" : "quiz-feedback incorrect";
         fb6.style.display = "block";
       }
