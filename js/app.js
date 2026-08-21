@@ -1117,7 +1117,24 @@ function renderStandards() {
     card.className = "standard-card";
     card.style.setProperty("--accent-color", item.color);
     
-    const hasActivities = item.activities && item.activities.length > 0;
+    const savedProfile = localStorage.getItem("sociallms_profile");
+    let parsedProfile = {};
+    if (savedProfile) {
+      try { parsedProfile = JSON.parse(savedProfile); } catch(e) {}
+    }
+    const studentClass = extractClassCodeFromProfile(parsedProfile);
+    const role = localStorage.getItem("sociallms_role");
+
+    // 🔒 1~6반 학생들에게는 수행평가 전용(experimentalClassOnly) 과업 카드 아예 표출 금지 (7반 전용)
+    const filteredActivities = (item.activities || []).filter(act => {
+      if (act.experimentalClassOnly) {
+        if (role === "teacher") return true;
+        return studentClass === act.experimentalClassOnly; // Only '17'!
+      }
+      return true;
+    });
+
+    const hasActivities = filteredActivities && filteredActivities.length > 0;
 
     if (hasActivities) {
       card.addEventListener("click", (e) => {
@@ -1138,22 +1155,25 @@ function renderStandards() {
             <span>✨ 배움 활동 목록</span>
           </div>
           <div class="activity-list">
-            ${item.activities.map(act => {
+            ${filteredActivities.map(act => {
               const baseId = getBaseTaskId(act.id);
               const status = state.progress[act.id] || state.progress[baseId] || "not_started";
               const isComingSoon = act.type === "coming_soon";
               const isUnlocked = isActivityUnlockedForStudent(act.id);
               const isCompleted = (status === "completed") || (localStorage.getItem(`sociallms_progress_${baseId}`) === "completed");
 
-              let statusText = "시작하기";
-              let statusClass = "";
+              let statusText = "시작하기 🌸";
+              let statusClass = "available";
 
               if (isCompleted) {
-                statusText = "완료됨 🌿";
+                statusText = "제출 완료 🌿";
                 statusClass = "completed";
               } else if (status === "in_progress") {
                 statusText = "진행중 📝";
                 statusClass = "in_progress";
+              } else if (!isUnlocked) {
+                statusText = "해금 대기 중 🔒";
+                statusClass = "locked";
               }
 
               if (isComingSoon) {
@@ -1163,7 +1183,7 @@ function renderStandards() {
 
               let actionControlHtml = "";
               if (!isUnlocked) {
-                actionControlHtml = `<button type="button" class="activity-action-btn" style="background: rgba(0,0,0,0.05); color: var(--text-secondary); cursor: not-allowed;">🔒 진도 대기 중</button>`;
+                actionControlHtml = `<button type="button" onclick="startStudentActivity('${act.id}', '${act.url}', event)" class="activity-action-btn" style="background: rgba(0,0,0,0.05); color: var(--text-secondary); cursor: not-allowed;">🔒 진도 대기 중</button>`;
               } else if (isCompleted) {
                 actionControlHtml = `
                   <div style="display: flex; gap: 8px; align-items: center;" onclick="event.stopPropagation();">
@@ -1176,7 +1196,7 @@ function renderStandards() {
                   </div>
                 `;
               } else {
-                actionControlHtml = `<button type="button" class="activity-action-btn">${statusText}</button>`;
+                actionControlHtml = `<button type="button" onclick="startStudentActivity('${act.id}', '${act.url}', event)" class="activity-action-btn" style="cursor: pointer;">${statusText}</button>`;
               }
 
               return `
