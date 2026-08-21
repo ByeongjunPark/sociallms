@@ -453,7 +453,7 @@ function doPost(e) {
         const headers = rows[0].map(h => String(h).trim());
         const idIdx = headers.findIndex(h => h.startsWith("학번"));
         const scoreIdx = headers.findIndex(h => h.startsWith("평가/수익률"));
-        const pinsIdx = headers.findIndex(h => h.startsWith("등록된핀개수") || h.startsWith("등록된 핀"));
+        const pinsIdx = headers.findIndex(h => h.includes("핀") || h.startsWith("등록한핀개수") || h.startsWith("등록된핀개수"));
 
         if (idIdx !== -1) {
           for (let i = 1; i < rows.length; i++) {

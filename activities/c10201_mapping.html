@@ -1830,9 +1830,16 @@
         if (data.success && data.pins) {
           mappingState.allPins = data.pins;
           
-          // 내 마커 개수 동적 재산출
-          const myPins = data.pins.filter(p => String(p.studentId) === String(mappingState.student.studentId));
-          mappingState.myPinsCount = myPins.length;
+          // 내 마커 개수 동적 재산출 (학번 또는 이름 일치 시 반영 및 로컬 상태 보존)
+          const myPins = data.pins.filter(p => {
+            const curId = mappingState.student && mappingState.student.studentId ? String(mappingState.student.studentId).replace(/[^0-9]/g, "") : "";
+            const pinId = p.studentId ? String(p.studentId).replace(/[^0-9]/g, "") : "";
+            const curName = mappingState.student && mappingState.student.name ? String(mappingState.student.name).trim() : "";
+            const pinName = p.studentName ? String(p.studentName).trim() : "";
+            return (curId && pinId && curId === pinId) || (curName && pinName && curName === pinName);
+          });
+          mappingState.myPinsCount = Math.max(myPins.length, mappingState.myPinsCount || 0);
+          localStorage.setItem("sociallms_pins_count_c10201", mappingState.myPinsCount);
           updatePinCounterText();
 
           // 마커 다시 그리기
@@ -1964,6 +1971,8 @@
         "Q4_핫스팟클릭": q4Ans,
         "Q5_범주분류": `1-${c1}, 2-${c2}, 3-${c3}, 4-${c4}`,
         "등록한핀개수": `${mappingState.myPinsCount}개`,
+        "등록된핀개수": `${mappingState.myPinsCount}개`,
+        "등록된 핀 개수": `${mappingState.myPinsCount}개`,
         "시민참여성찰답변": refText,
         "메타성찰답변": refText,
         "제출횟수": submitCountText

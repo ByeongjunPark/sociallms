@@ -5217,7 +5217,7 @@ window.openStudentSubmissionModal = function(activityId, evt) {
     actTitle = "🗺️ 과업 2: 현대 인권 커뮤니티 맵핑 제출 내역";
     const d = (subData && subData.details) || {};
     const quizRes = d["형성평가퀴즈"] || "형성평가 완료";
-    const pinCnt = d["등록한핀개수"] || "3개";
+    const pinCnt = d["등록한핀개수"] || d["등록된핀개수"] || d["등록된 핀 개수"] || (localStorage.getItem("sociallms_pins_count_c10201") ? localStorage.getItem("sociallms_pins_count_c10201") + "개" : "3개");
     const refEssay = d["시민참여성찰답변"] || d["시민참여성찰저널"] || "시민 참여 성찰 기록";
 
     contentHtml = `
