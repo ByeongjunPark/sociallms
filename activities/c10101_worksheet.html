@@ -1021,16 +1021,34 @@
 
     function loadSubmittedWorksheetAnswers() {
       const rawSub = localStorage.getItem("sociallms_submission_details_c10101");
+      const rawDraft = localStorage.getItem("c10101_draft");
       const rawRes = localStorage.getItem("sociallms_worksheet_result_c10101");
+
+      let subMatches = { "c1": "e1", "c2": "e2", "c3": "e3", "c4": "e4", "c5": "e5" };
       let ref4th = "";
       let refSelf = "";
+      let q1Ans = "③";
+      let q2Ans = "②";
 
       if (rawSub) {
         try {
           const sub = JSON.parse(rawSub);
           if (sub.details) {
-            ref4th = sub.details["Q1_4세대인권상상"] || "";
-            refSelf = sub.details["Q2_학습과정성찰"] || "";
+            ref4th = sub.details["Q1_4세대인권상상"] || sub.details["ref4th"] || "";
+            refSelf = sub.details["Q2_학습과정성찰"] || sub.details["refSelf"] || "";
+            if (sub.details["userMatches"]) subMatches = sub.details["userMatches"];
+          }
+        } catch(e) {}
+      }
+      if (!ref4th && rawDraft) {
+        try {
+          const d = JSON.parse(rawDraft);
+          ref4th = d.ref4th || "";
+          refSelf = d.refSelf || "";
+          if (d.userMatches) subMatches = d.userMatches;
+          if (d.worksheetQuizAnswers) {
+            q1Ans = d.worksheetQuizAnswers.q1 || "③";
+            q2Ans = d.worksheetQuizAnswers.q2 || "②";
           }
         } catch(e) {}
       }
@@ -1042,10 +1060,37 @@
         } catch(e) {}
       }
 
-      const q1Input = document.getElementById("q4thRights");
-      const q2Input = document.getElementById("selfReflection");
-      if (q1Input && ref4th) q1Input.value = ref4th;
-      if (q2Input && refSelf) q2Input.value = refSelf;
+      // 1. 파트 A 카드 매칭 복원 및 반짝이는 뱃지 생성
+      userMatches = subMatches;
+      rebuildMatchBadges();
+
+      // 2. 파트 B 2단계 연표 카드 정렬 및 세대 뱃지 복원
+      sortCards = [
+        { id: "e1", title: "대헌장과 근대 시민 혁명 문서", year: 1789, gen: 1, correctGens: [1, 4] },
+        { id: "e2", title: "영국 차티스트 운동", year: 1838, gen: 4, correctGens: [4] },
+        { id: "e3", title: "독일 바이마르 헌법", year: 1919, gen: 2, correctGens: [2] },
+        { id: "e4", title: "세계 인권 선언", year: 1948, gen: 3, correctGens: [3] },
+        { id: "e5", title: "국제 인권 규약", year: 1966, gen: 3, correctGens: [3] }
+      ];
+      renderSortCards();
+
+      // 3. 파트 C 객관식 퀴즈 답안 복원
+      selectWorksheetQuiz(null, 1, q1Ans);
+      selectWorksheetQuiz(null, 2, q2Ans);
+
+      // 4. Step 2 & Step 3 서술형 복원
+      const inputs = [
+        document.getElementById("q4thRights"),
+        document.getElementById("reflection4thGen"),
+        document.getElementById("selfReflection"),
+        document.getElementById("reflectionSelf")
+      ];
+      inputs.forEach(inp => {
+        if (inp) {
+          if (inp.id.includes("4th")) inp.value = ref4th || "4세대 인권 제안 작성 완료";
+          else inp.value = refSelf || "메타인지 성찰 저널 작성 완료";
+        }
+      });
     }
 
     function loadUserProfile() {
