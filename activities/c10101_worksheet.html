@@ -946,10 +946,107 @@
         }
       }
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const isViewMode = urlParams.get("mode") === "view";
+
+      if (isViewMode || localStorage.getItem("sociallms_progress_c10101") === "completed") {
+        renderSubmissionViewBanner("c10101", "📜 과업 1: 인권의 역사적 발달과 3세대 연표 탐구");
+        loadSubmittedWorksheetAnswers();
+      } else {
+        restoreDraft();
+      }
+
       loadUserProfile();
       shuffleMatchingCards(); // 1단계 카드 랜덤 셔플링 실행 🧩
       renderSortCards();
     });
+
+    function renderSubmissionViewBanner(activityId, titleText) {
+      const mainContainer = document.querySelector(".activity-container");
+      if (!mainContainer || document.getElementById("submissionViewBanner")) return;
+
+      const rawScore = localStorage.getItem(`sociallms_score_${activityId}`) || "100점";
+      
+      const banner = document.createElement("div");
+      banner.id = "submissionViewBanner";
+      banner.style.cssText = `
+        background: linear-gradient(135deg, rgba(184,150,219,0.2) 0%, rgba(102,217,232,0.2) 100%);
+        border: 2px solid var(--color-purple);
+        border-radius: 24px;
+        padding: 18px 24px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 24px rgba(184,150,219,0.25);
+        gap: 16px;
+        flex-wrap: wrap;
+      `;
+      
+      banner.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="font-size: 2.2rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));">📋</div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <span style="background: var(--color-purple); color: white; font-weight: 800; font-size: 0.78rem; padding: 3px 10px; border-radius: 8px;">📋 나의 제출 내역 열람 모드</span>
+              <span style="font-weight: 800; color: var(--color-purple); font-size: 0.85rem;">💯 최근 제출 점수: ${rawScore}</span>
+            </div>
+            <h4 style="margin: 0 0 2px 0; font-size: 1.05rem; font-weight: 800; color: var(--text-primary);">${titleText}</h4>
+            <p style="margin: 0; font-size: 0.82rem; color: var(--text-secondary);">선생님께 제출한 답안 및 성찰 저널이 문제 해결 화면에 그대로 복원되었습니다.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="gen-btn" onclick="window.location.href='../index.html'" style="background: white; border: 1.5px solid var(--border-glass); color: var(--text-primary); font-weight: 800; padding: 10px 18px; border-radius: 14px; cursor: pointer;">🏠 대시보드로</button>
+          <button type="button" class="gen-btn" onclick="retakeTaskFromBanner('${activityId}')" style="background: var(--color-pink); color: white; border: none; font-weight: 800; padding: 10px 18px; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(255,133,162,0.45);">🔄 다시 풀어보기</button>
+        </div>
+      `;
+
+      mainContainer.insertBefore(banner, mainContainer.firstChild);
+    }
+
+    function retakeTaskFromBanner(activityId) {
+      if (confirm(`🔄 [과업 다시 풀어보기]\n\n기존 구글 시트에 작성된 선생님 제출 기록은 안전하게 보존되며, 깨끗한 새 화면에서 처음부터 다시 도전할 수 있습니다. 정말 다시 풀어보시겠습니까?`)) {
+        localStorage.removeItem(`c10101_draft`);
+        localStorage.removeItem(`c10201_draft`);
+        localStorage.removeItem(`c10102_draft`);
+        localStorage.removeItem(`sociallms_draft_${activityId}`);
+        
+        const localProgress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+        localProgress[activityId] = "in_progress";
+        localStorage.setItem("sociallms_progress", JSON.stringify(localProgress));
+        
+        window.location.href = window.location.pathname;
+      }
+    }
+
+    function loadSubmittedWorksheetAnswers() {
+      const rawSub = localStorage.getItem("sociallms_submission_details_c10101");
+      const rawRes = localStorage.getItem("sociallms_worksheet_result_c10101");
+      let ref4th = "";
+      let refSelf = "";
+
+      if (rawSub) {
+        try {
+          const sub = JSON.parse(rawSub);
+          if (sub.details) {
+            ref4th = sub.details["Q1_4세대인권상상"] || "";
+            refSelf = sub.details["Q2_학습과정성찰"] || "";
+          }
+        } catch(e) {}
+      }
+      if (!ref4th && rawRes) {
+        try {
+          const res = JSON.parse(rawRes);
+          ref4th = res.ref4th || "";
+          refSelf = res.refSelf || "";
+        } catch(e) {}
+      }
+
+      const q1Input = document.getElementById("q4thRights");
+      const q2Input = document.getElementById("selfReflection");
+      if (q1Input && ref4th) q1Input.value = ref4th;
+      if (q2Input && refSelf) q2Input.value = refSelf;
+    }
 
     function loadUserProfile() {
       const savedProfile = localStorage.getItem("sociallms_profile");

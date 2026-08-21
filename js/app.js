@@ -1166,11 +1166,11 @@ function renderStandards() {
                 actionControlHtml = `<button type="button" class="activity-action-btn" style="background: rgba(0,0,0,0.05); color: var(--text-secondary); cursor: not-allowed;">🔒 진도 대기 중</button>`;
               } else if (isCompleted) {
                 actionControlHtml = `
-                  <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation();">
-                    <button type="button" onclick="openStudentSubmissionModal('${act.id}', event)" class="gen-btn" style="background: rgba(184, 150, 219, 0.18); color: var(--color-purple); font-weight: 800; font-size: 0.76rem; padding: 6px 12px; border-radius: 10px; border: 1.5px solid rgba(184, 150, 219, 0.35); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                  <div style="display: flex; gap: 8px; align-items: center;" onclick="event.stopPropagation();">
+                    <button type="button" onclick="viewStudentSubmissionPage('${act.id}', '${act.url}', event)" class="gen-btn" style="background: rgba(184, 150, 219, 0.2); color: var(--color-purple); font-weight: 800; font-size: 0.78rem; padding: 7px 14px; border-radius: 12px; border: 1.5px solid rgba(184, 150, 219, 0.4); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                       📋 제출 내역 보기
                     </button>
-                    <button type="button" onclick="retakeStudentActivity('${act.id}', '${act.url}', event)" class="gen-btn" style="background: rgba(255, 133, 162, 0.18); color: var(--color-pink); font-weight: 800; font-size: 0.76rem; padding: 6px 12px; border-radius: 10px; border: 1.5px solid rgba(255, 133, 162, 0.35); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                    <button type="button" onclick="retakeStudentActivity('${act.id}', '${act.url}', event)" class="gen-btn" style="background: rgba(255, 133, 162, 0.2); color: var(--color-pink); font-weight: 800; font-size: 0.78rem; padding: 7px 14px; border-radius: 12px; border: 1.5px solid rgba(255, 133, 162, 0.4); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                       🔄 다시 풀어보기
                     </button>
                   </div>
@@ -1180,7 +1180,7 @@ function renderStandards() {
               }
 
               return `
-                <a href="${act.url}" class="activity-item ${isComingSoon || !isUnlocked ? 'disabled' : ''} ${isCompleted ? 'completed-item' : ''}" data-act-id="${act.id}" onclick="onActivityClick('${act.id}', '${act.type}', event)">
+                <div class="activity-item ${isComingSoon || !isUnlocked ? 'disabled' : ''} ${isCompleted ? 'completed-item' : ''}" data-act-id="${act.id}" onclick="onActivityCardClick('${act.id}', '${act.url}', ${isUnlocked}, ${isCompleted}, event)" style="cursor: pointer;">
                   <div class="activity-info">
                     <div class="activity-title-wrapper">
                       <span class="activity-name">${act.title}</span>
@@ -1195,7 +1195,7 @@ function renderStandards() {
                     <span class="status-indicator ${statusClass}"></span>
                     ${actionControlHtml}
                   </div>
-                </a>
+                </div>
               `;
             }).join("")}
           </div>
@@ -5108,9 +5108,30 @@ function masterResetTasksUnlock() {
   alert("🔒 전체 학급(1~7반)의 전이과제를 초기화하고 [과업 1]만 해금 상태로 변경했습니다! 🌸");
 }
 
-// =========================================================================
-// 📋 [학생 전용] 제출 내역 보기 팝업 모달 & 🔄 과업 다시 풀어보기 엔진
-// =========================================================================
+window.onActivityCardClick = function(activityId, url, isUnlocked, isCompleted, evt) {
+  if (evt && evt.target && (evt.target.tagName === "BUTTON" || evt.target.closest("button"))) {
+    return;
+  }
+  if (!isUnlocked) {
+    alert("🔒 박병준 선생님이 아직 본 학급 수업 진도에 맞춰 이 과업을 해금하지 않으셨습니다. 수업 시간을 기다려 주세요! 🌸");
+    return;
+  }
+  if (isCompleted) {
+    viewStudentSubmissionPage(activityId, url, evt);
+  } else {
+    window.location.href = url;
+  }
+};
+
+window.viewStudentSubmissionPage = function(activityId, url, evt) {
+  if (evt) {
+    if (evt.preventDefault) evt.preventDefault();
+    if (evt.stopPropagation) evt.stopPropagation();
+  }
+  const targetUrl = (url || getActivityUrl(activityId)) + "?mode=view";
+  window.location.href = targetUrl;
+};
+
 function getActivityUrl(activityId) {
   if (!activityId) return "index.html";
   if (activityId.includes("c10101")) return "activities/c10101_worksheet.html";
