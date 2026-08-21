@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏛️ [수행평가 2차시] 비판적 피드백 수용 & 최종 제안서 (AI 도움 X) (50분)</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .performance-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 20px 80px 20px;
+    }
+    
+    .session-badge-bar {
+      background: linear-gradient(135deg, rgba(255,133,162,0.2) 0%, rgba(184,150,219,0.2) 100%);
+      border: 2px solid var(--color-pink);
+      border-radius: 20px;
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 26px;
+      padding: 30px;
+      margin-bottom: 26px;
+      box-shadow: var(--shadow-primary);
+    }
+
+    .acceptance-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border-glass);
+      margin-bottom: 24px;
+    }
+    .acceptance-table th {
+      background: rgba(184,150,219,0.18);
+      color: var(--color-purple);
+      font-weight: 800;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+    .acceptance-table td {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border-glass);
+      background: var(--bg-card);
+      font-size: 0.88rem;
+    }
+
+    .no-ai-banner {
+      background: linear-gradient(135deg, #fff0f6 0%, #ffe3e3 100%);
+      border: 2px solid var(--color-pink);
+      border-radius: 20px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="performance-container">
+    <!-- 헤더 영역 -->
+    <header style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span id="studentBadge" style="background: rgba(184,150,219,0.15); color: var(--color-purple); font-weight: 800; font-size: 0.9rem; padding: 6px 18px; border-radius: 14px;">
+          👧 1학년 7반 학생 (가상 실험 전용 모듈)
+        </span>
+        <button type="button" class="gen-btn" onclick="window.location.href='../index.html'" style="background: rgba(0,0,0,0.05); font-size: 0.82rem; font-weight: 700; padding: 8px 16px; border-radius: 12px;">
+          🏠 대시보드로 이동
+        </button>
+      </div>
+      
+      <div class="session-badge-bar">
+        <div>
+          <span style="background: var(--color-pink); color: white; font-weight: 800; font-size: 0.82rem; padding: 4px 12px; border-radius: 8px;">2차시 전용 [50분]</span>
+          <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--color-purple); margin: 4px 0 2px 0;">
+            🏛️ [수행평가 2차시] 비판적 피드백 수용 & 최종 제안서 (AI 도움 X)
+          </h2>
+          <p style="margin: 0; font-size: 0.86rem; color: var(--text-secondary);">
+            1차시 반대자 AI 피드백 연동 ➔ 수용 여부 주도적 결정표 ➔ AI 도움 없는 최종 제안서 작성 (교사 100점 만점 정밀 루브릭 채점)
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Step 4: 1차시 반대자 AI 피드백 연동 & 주도적 수용 결정표 -->
+    <div class="step-card">
+      <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+        <span>4️⃣</span> 1차시 반대자 AI 피드백 수용 여부 주도적 결정 및 판단 근거 작성
+      </h3>
+      <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 18px;">
+        지난 1차시에 반대자 AI 챗봇(지자체 예산과장)으로부터 받은 실제 피드백 지적 내용이 아래 연동되었습니다. 각 항목별 [100% 수용 / 부분 수용 / 거부 및 반박] 여부를 결정하고 명확한 논리적 근거를 작성하세요.
+      </p>
+
+      <div style="background: rgba(214, 51, 132, 0.08); border-left: 4px solid #d63384; padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; font-size: 0.88rem;">
+        <strong style="color: #d63384;">📥 1차시 반대자 AI(박재정 과장) 실제 피드백 연동 내용:</strong>
+        <div id="linkedOpponentFeedback" style="margin-top: 8px; color: var(--text-primary); line-height: 1.6; font-weight: 600;">
+          (1차시 제출 내역을 불러오는 중입니다...)
+        </div>
+      </div>
+
+      <table class="acceptance-table">
+        <thead>
+          <tr>
+            <th style="width: 32%;">1차시 반대자 AI 주요 피드백 지적 내용</th>
+            <th style="width: 25%;">수용 여부 결정</th>
+            <th style="width: 43%;">수용/거부 판단의 명확한 논리적 근거 서술</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. 예산 과다 투입 및 지자체 재정적 부담 지적</strong></td>
+            <td>
+              <select id="accSelect1" style="width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-glass); font-weight: 700;">
+                <option value="부분 수용">부분 수용 (Recommended)</option>
+                <option value="100% 수용">100% 수용</option>
+                <option value="거부 및 반박">거부 및 반박</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" id="accReason1" placeholder="예: 시 전역 즉시 시행 대신 1년 간 시범 구역 운영으로 예산 70% 절감 수용" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border-glass);">
+            </td>
+          </tr>
+          <tr>
+            <td><strong>2. 소상공인/자영업자 규제 반발 및 실현가능성 지적</strong></td>
+            <td>
+              <select id="accSelect2" style="width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-glass); font-weight: 700;">
+                <option value="부분 수용">부분 수용 (Recommended)</option>
+                <option value="100% 수용">100% 수용</option>
+                <option value="거부 및 반박">거부 및 반박</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" id="accReason2" placeholder="예: 단속 일변도 대신 착한 사업장 세제 혜택 부여 인센티브 방식으로 보완 수용" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border-glass);">
+            </td>
+          </tr>
+          <tr>
+            <td><strong>3. 법적 근거 및 시민 참여 수단 현실성 지적</strong></td>
+            <td>
+              <select id="accSelect3" style="width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-glass); font-weight: 700;">
+                <option value="부분 수용">부분 수용 (Recommended)</option>
+                <option value="100% 수용">100% 수용</option>
+                <option value="거부 및 반박">거부 및 반박</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" id="accReason3" placeholder="예: 지자체 주민조례발안제 및 헌법 제32조 노동권 근거로 법적 정합성 보완" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border-glass);">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Step 5: AI 도움 없는 최종 제안서 작성 (6대 항목 전문) -->
+    <div class="step-card">
+      <div class="no-ai-banner">
+        <div style="font-size: 2.2rem;">🚨</div>
+        <div>
+          <strong style="color: #c92a2a; font-size: 0.98rem;">[2차시 최종 제안서 작성 규칙 - AI 도움 금지]</strong>
+          <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">
+            본 최종 제안서 단계에서는 생성형 AI의 도움(버튼) 없이, <strong>학습자 본인의 교과 지식과 주도적 사고만으로 6대 항목 전문을 완성</strong>합니다!
+          </p>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 16px 0;">
+        ✍️ [최종안] 인권 문제 해결 제안서 전문 (교사 100점 만점 정밀 루브릭 평가 연동)
+      </h3>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">1. 최종 제안서 제목:</label>
+        <input type="text" id="finalTitle" placeholder="최종 제안서 제목을 입력하세요..." style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.9rem;">
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">2. 대상 지역 및 실생활 인권 침해 현황 분석:</label>
+        <textarea id="finalSec1" rows="3" placeholder="대상 지역과 당사자가 겪는 구체적인 침해 사례를 성실하게 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">3. 헌법 상 기본권 맥락 도출 타당성 (교사 루브릭 15점):</label>
+        <textarea id="finalSec2" rows="3" placeholder="헌법 제10조(인간의 존엄성) 및 관련 기본권(자유권, 사회권, 노동권 등) 침해 맥락을 교과 개념에 맞게 연계해 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">4. 교과 지식 기반 반대자 설득 및 피드백 수용 반영 내역 (교사 루브릭 35점):</label>
+        <textarea id="finalSec3" rows="4" placeholder="반대자 AI의 비판 논리를 어떻게 교과 지식으로 설득했으며, 예산/현실성 지적을 어떻게 합리적으로 수용 및 보완했는지 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">5. 최종 인권 개선 대안, 시민 참여 수단 및 실현 가능성 (교사 루브릭 50점):</label>
+        <textarea id="finalSec4" rows="4" placeholder="주민조례 발안, 청원, 지자체 정책 제안 등 실현 가능한 대안과 구체적 행정/재정적 실행 방안을 제시하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
+      </div>
+
+      <button type="button" class="gen-btn" onclick="submitSession2()" style="width: 100%; background: linear-gradient(135deg, #7952b3 0%, #4c6ef5 100%); color: white; border: none; font-weight: 800; padding: 16px; border-radius: 18px; font-size: 1.05rem; box-shadow: 0 8px 24px rgba(121,82,179,0.4); cursor: pointer;">
+        🚀 [수행평가 2차시 최종 제출] 박병준 선생님께 제출하고 평가 대기하기 🌸
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      student: { studentId: "", name: "", gradeClass: "" }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 보안 가드: 1학년 7반 (17) 전용
+      const role = localStorage.getItem("sociallms_role");
+      if (role !== "teacher") {
+        const savedProfile = localStorage.getItem("sociallms_profile");
+        const savedStudentId = localStorage.getItem("sociallms_student_id");
+        if (!savedProfile || !savedStudentId) {
+          alert("🔒 회원 로그인 후 이용 가능합니다.");
+          window.location.href = "../index.html";
+          return;
+        }
+
+        let studentClass = "11";
+        try {
+          const p = JSON.parse(savedProfile);
+          const sId = String(p["학번 (StudentID)"] || p.studentId || "");
+          if (sId.length >= 4) studentClass = sId.substring(0, 2);
+        } catch(e) {}
+
+        if (studentClass !== "17") {
+          alert(`🔒 본 수행평가는 박병준 선생님의 가상 실험 학급(1학년 7반) 전용 프로젝트입니다. 대시보드로 이동합니다. 🌸`);
+          window.location.href = "../index.html";
+          return;
+        }
+      }
+
+      loadProfile();
+      loadSession1DataIntoSession2();
+    });
+
+    function loadProfile() {
+      const savedProfile = localStorage.getItem("sociallms_profile");
+      const badge = document.getElementById("studentBadge");
+      if (savedProfile && badge) {
+        const p = JSON.parse(savedProfile);
+        state.student = {
+          studentId: p["학번 (StudentID)"] || p.studentId || "1701",
+          name: p["이름 (StudentName)"] || p.name || "학생",
+          gradeClass: p.gradeClass || "1학년 7반"
+        };
+        badge.textContent = `👧 ${state.student.gradeClass} ${state.student.name} 학생 (수행평가 2차시)`;
+      }
+    }
+
+    function loadSession1DataIntoSession2() {
+      const raw = localStorage.getItem("c10103_session1_data");
+      const box = document.getElementById("linkedOpponentFeedback");
+      if (!raw) {
+        box.innerHTML = `<span style="color:#d9534f;">⚠️ 1차시 수행 내역이 발견되지 않았습니다. [수행평가 1차시] 카드를 먼저 완료해 주세요!</span>`;
+        return;
+      }
+
+      try {
+        const s1 = JSON.parse(raw);
+        const opponentMsgs = (s1.opponentChatHistory || []).filter(m => m.role === "assistant").map(m => m.content);
+        if (opponentMsgs.length > 0) {
+          box.innerHTML = opponentMsgs.map((m, idx) => `<div>• 피드백 ${idx+1}: "${m}"</div>`).join("");
+        } else {
+          box.innerHTML = `<div>• 피드백 1: "예산 과다 투입 및 지자체 시 재정적 부담 우려"</div><div>• 피드백 2: "소상공인/자영업자 규제 반발 및 실현가능성 부족 우려"</div>`;
+        }
+
+        if (s1.prepData) {
+          document.getElementById("finalSec1").value = `[대상 위치]: ${s1.prepData.loc || ""}\n[침해 분야]: ${s1.prepData.cat || ""}\n[침해 현황]: ${s1.prepData.desc || ""}`;
+        }
+        if (s1.draftData && s1.draftData.sec2) {
+          document.getElementById("finalSec2").value = s1.draftData.sec2;
+        }
+      } catch(e) {}
+    }
+
+    async function submitSession2() {
+      const title = document.getElementById("finalTitle").value.trim();
+      const s1 = document.getElementById("finalSec1").value.trim();
+      const s2 = document.getElementById("finalSec2").value.trim();
+      const s3 = document.getElementById("finalSec3").value.trim();
+      const s4 = document.getElementById("finalSec4").value.trim();
+
+      if (!title || s1.length < 15 || s2.length < 15 || s3.length < 15 || s4.length < 15) {
+        alert("최종 제안서의 모든 영역을 성실하게 최소 15자 이상 작성해 주세요! ✍️");
+        return;
+      }
+
+      const acc1 = document.getElementById("accSelect1").value;
+      const r1 = document.getElementById("accReason1").value;
+      const acc2 = document.getElementById("accSelect2").value;
+      const r2 = document.getElementById("accReason2").value;
+      const acc3 = document.getElementById("accSelect3").value;
+      const r3 = document.getElementById("accReason3").value;
+
+      const submissionPayload = {
+        activityId: "c10103_p2",
+        activityTitle: "🏛️ [수행평가 2차시] 비판적 피드백 수용 & 최종 제안서",
+        score: "교사 채점 대기 ⏳",
+        timestamp: new Date().toISOString(),
+        status: "submitted",
+        details: {
+          "최종제목": title,
+          "1_침해현황분석": s1,
+          "2_헌법상기본권맥락": s2,
+          "3_피드백수용및설득내역": `[피드백1:${acc1}] ${r1}\n[피드백2:${acc2}] ${r2}\n[피드백3:${acc3}] ${r3}\n\n[설득내력]: ${s3}`,
+          "4_최종대안및실현가능성": s4,
+          "피드백결정표": `1-${acc1}(${r1}), 2-${acc2}(${r2}), 3-${acc3}(${r3})`
+        }
+      };
+
+      localStorage.setItem("sociallms_submission_details_c10103_p2", JSON.stringify(submissionPayload));
+      localStorage.setItem("sociallms_submission_details_c10103", JSON.stringify(submissionPayload));
+      localStorage.setItem("sociallms_progress_c10103_p2", "completed");
+
+      const localProg = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+      localProg["c10103_p2"] = "completed";
+      localProg["c10103"] = "completed";
+      localStorage.setItem("sociallms_progress", JSON.stringify(localProg));
+
+      try {
+        await fetch("/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "submit",
+            studentId: state.student.studentId || "1701",
+            studentName: state.student.name || "박병순",
+            activityTitle: "과업 4 수행평가 2차시",
+            score: "교사 채점 대기 ⏳",
+            result: JSON.stringify(submissionPayload.details)
+          })
+        });
+      } catch(e) {}
+
+      alert("🎉 수행평가 프로젝트가 박병준 선생님께 최종 제출되었습니다!\n\n선생님이 교사 대시보드에서 100점 만점 6대 루브릭 채점 및 피드백을 완료하시면, 대시보드에서 성적표와 피드백을 수령하실 수 있습니다. 🌸");
+      window.location.href = "../index.html";
+    }
+  </script>
+</body>
+</html>

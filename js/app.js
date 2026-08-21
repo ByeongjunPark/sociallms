@@ -4860,7 +4860,9 @@ function getBaseTaskId(activityId) {
   if (activityId.includes("c10101")) return "c10101";
   if (activityId.includes("c10201")) return "c10201";
   if (activityId.includes("c10102")) return "c10102";
-  if (activityId.includes("c10103")) return "c10103";
+  if (activityId.includes("c10103_p1")) return "c10103_p1";
+  if (activityId.includes("c10103_p2")) return "c10103_p2";
+  if (activityId.includes("c10103")) return "c10103_p1";
   return activityId;
 }
 

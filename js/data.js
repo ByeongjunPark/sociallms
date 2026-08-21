@@ -63,12 +63,21 @@ const CURRICULUM_DATA = [
     bgGradient: "linear-gradient(135deg, #eef7ff 0%, #d0ebff 100%)",
     activities: [
       {
-        id: "c10103_performance",
-        title: "🏛️ [수행평가] AI 챗봇 다각적 대화 기반 인권 개선 제안서 프로젝트",
-        description: "1차시: 인권 문제 선정 ➔ 당사자 AI 대화 ➔ AI 협력 초안 산출 ➔ 반대자 AI 비판 대화 | 2차시: 피드백 수용성 평가 ➔ AI 도움 없는 최종 제안서 산출 (100점 만점 6대 루브릭)",
+        id: "c10103_p1",
+        title: "🏛️ [수행평가 1차시] AI 협력 탐구 & 제안서 초안 깎기 (50분)",
+        description: "사전 인권 침해 서술 ➔ 당사자 AI 챗봇 1:1 대화 ➔ AI 제안서 초안 산출 & 프롬프트 수정 ➔ 비판적 반대자 AI 대화",
+        type: "performance",
+        timeRequired: "50분 (1차시)",
+        url: "activities/c10103_p1.html",
+        experimentalClassOnly: "17"
+      },
+      {
+        id: "c10103_p2",
+        title: "🏛️ [수행평가 2차시] 비판적 피드백 수용 & 최종 제안서 (AI 도움 X) (50분)",
+        description: "1차시 반대자 AI 피드백 연동 ➔ 수용 여부 주도적 결정표 ➔ AI 도움 없는 최종 제안서 작성 (교사 100점 루브릭 채점)",
         type: "performance",
         timeRequired: "50분 (2차시)",
-        url: "activities/c10103_performance.html",
+        url: "activities/c10103_p2.html",
         experimentalClassOnly: "17"
       }
     ]
