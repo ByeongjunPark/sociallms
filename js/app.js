@@ -5281,27 +5281,77 @@ window.openStudentSubmissionModal = function(activityId, evt) {
   } else if (baseId === "c10103") {
     actTitle = "🏛️ 과업 4: [수행평가] AI 챗봇 다각적 대화 인권 제안서 제출 내역";
     const d = (subData && subData.details) || {};
-    const totalScore = d["총점_100점"] || (subData ? subData.score : "95점");
-    const finalTitle = d["최종제목"] || "실생활 인권 개선 제안서";
+    const role = localStorage.getItem("sociallms_role");
+    const isTeacher = role === "teacher";
+
+    const savedRubricScores = localStorage.getItem("sociallms_teacher_rubric_c10103") || "{}";
+    let rubric = {};
+    try { rubric = JSON.parse(savedRubricScores); } catch(e) {}
+
+    const totalScore = rubric.totalScore ? `${rubric.totalScore}점` : (subData && subData.score ? subData.score : "교사 채점 대기 ⏳");
+    const teacherFeedback = rubric.feedback || "선생님의 정밀 정성 피드백이 준비 중입니다. 교사 채점 완료 후 확인 가능합니다.";
 
     contentHtml = `
       <div style="background: rgba(121, 82, 179, 0.08); border: 1.5px solid rgba(121, 82, 179, 0.3); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span style="font-weight: 800; color: var(--color-purple); font-size: 0.95rem;">🏆 수행평가 6대 평가 루브릭 총점</span>
-          <strong style="font-size: 1.2rem; color: var(--color-purple); font-weight: 900;">${totalScore} / 100점 만점</strong>
+          <strong style="font-size: 1.25rem; color: var(--color-purple); font-weight: 900;">${totalScore} / 100점 만점</strong>
         </div>
-        <div style="font-size: 0.78rem; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-          <div>• 기본권 맥락: ${d["헌법상기본권맥락_15점"] || "15점"}</div>
-          <div>• 교과지식 설득: ${d["교과지식설득_20점"] || "20점"}</div>
-          <div>• 피드백 수용성: ${d["피드백수용성_15점"] || "15점"}</div>
-          <div>• 정합·논리·실현: 50점 만점 평가완료</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+          <div>• 기본권 맥락: ${rubric.s1 || 15}점 / 15점</div>
+          <div>• 교과지식 설득: ${rubric.s2 || 20}점 / 20점</div>
+          <div>• 피드백 수용성: ${rubric.s3 || 15}점 / 15점</div>
+          <div>• 교과정합성: ${rubric.s4 || 15}점 / 15점</div>
+          <div>• 제안서 논리성: ${rubric.s5 || 20}점 / 20점</div>
+          <div>• 실현 가능성: ${rubric.s6 || 15}점 / 15점</div>
         </div>
       </div>
 
       <div style="margin-bottom: 12px;">
         <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">📜 최종 제출 제안서 제목:</strong>
-        <p style="margin: 0; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.88rem; font-weight: 800; color: var(--color-purple);">${finalTitle}</p>
+        <p style="margin: 0; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.88rem; font-weight: 800; color: var(--color-purple);">${d["최종제목"] || "실생활 인권 개선 제안서"}</p>
       </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">📍 1. 침해 현황 및 헌법상 기본권 맥락:</strong>
+        <p style="margin: 0; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; white-space: pre-wrap;">${d["2_헌법상기본권맥락"] || d["1_침해현황분석"] || "기록 있음"}</p>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">💡 2. 피드백 수용 여부 결정 및 설득 내역:</strong>
+        <p style="margin: 0; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; white-space: pre-wrap;">${d["3_피드백수용및설득내역"] || "기록 있음"}</p>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">🚀 3. 최종 대안 및 실현 가능성:</strong>
+        <p style="margin: 0; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; white-space: pre-wrap;">${d["4_최종대안및실현가능성"] || "기록 있음"}</p>
+      </div>
+
+      ${isTeacher ? `
+        <div style="background: #f8f0fc; border: 2px solid var(--color-purple); padding: 18px; border-radius: 18px; margin-top: 16px;">
+          <h4 style="margin: 0 0 10px 0; color: var(--color-purple); font-weight: 800; font-size: 0.98rem; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 6px;">
+            👩‍🏫 박병준 선생님 직권 6대 루브릭 정밀 채점 & 피드백 부여 폼
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem; margin-bottom: 12px;">
+            <div>기본권 맥락: <select id="tScore1" style="font-weight:700;"><option value="15">15점 (우수)</option><option value="12">12점 (보통)</option><option value="9">9점 (미흡)</option><option value="5">5점 (노력요함)</option></select></div>
+            <div>교과지식 설득: <select id="tScore2" style="font-weight:700;"><option value="20">20점 (우수)</option><option value="17">17점 (보통)</option><option value="14">14점 (미흡)</option><option value="10">10점 (노력요함)</option></select></div>
+            <div>피드백 수용성: <select id="tScore3" style="font-weight:700;"><option value="15">15점 (우수)</option><option value="12">12점 (보통)</option><option value="9">9점 (미흡)</option><option value="5">5점 (노력요함)</option></select></div>
+            <div>교과 정합성: <select id="tScore4" style="font-weight:700;"><option value="15">15점 (우수)</option><option value="12">12점 (보통)</option><option value="9">9점 (미흡)</option><option value="5">5점 (노력요함)</option></select></div>
+            <div>제안서 논리성: <select id="tScore5" style="font-weight:700;"><option value="20">20점 (우수)</option><option value="17">17점 (보통)</option><option value="14">14점 (미흡)</option><option value="10">10점 (노력요함)</option></select></div>
+            <div>실현 가능성: <select id="tScore6" style="font-weight:700;"><option value="15">15점 (우수)</option><option value="12">12점 (보통)</option><option value="9">9점 (미흡)</option><option value="5">5점 (노력요함)</option></select></div>
+          </div>
+          <label style="display:block; font-weight:800; font-size:0.84rem; margin-bottom:4px;">💬 교사 종합 정성 피드백 서술:</label>
+          <textarea id="tFeedbackText" rows="3" placeholder="학생에게 전달할 따뜻하고 세밀한 루브릭 정성 피드백을 서술해 주세요..." style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border-glass); font-size:0.83rem; line-height:1.5;">${teacherFeedback}</textarea>
+          <button type="button" onclick="saveTeacherRubricScore('c10103')" style="margin-top:10px; width:100%; background:var(--color-purple); color:white; border:none; padding:10px; border-radius:12px; font-weight:800; cursor:pointer;">
+            💾 수행평가 루브릭 채점 및 피드백 저장 🌸
+          </button>
+        </div>
+      ` : `
+        <div style="background: rgba(184, 150, 219, 0.1); border-left: 4px solid var(--color-purple); padding: 14px 16px; border-radius: 14px; margin-top: 14px;">
+          <strong style="color: var(--color-purple); font-size: 0.88rem;">💬 박병준 선생님의 수행평가 6대 루브릭 총평 피드백:</strong>
+          <p style="margin: 6px 0 0 0; font-size: 0.84rem; color: var(--text-primary); line-height: 1.5;">${teacherFeedback}</p>
+        </div>
+      `}
     `;
   }
 
@@ -5356,5 +5406,24 @@ window.retakeStudentActivity = function(activityId, url, evt) {
   // 3. 해당 활동 URL로 이동
   const targetUrl = url || getActivityUrl(activityId);
   window.location.href = targetUrl;
+};
+
+window.saveTeacherRubricScore = function(activityId) {
+  const s1 = parseInt(document.getElementById("tScore1") ? document.getElementById("tScore1").value : "15");
+  const s2 = parseInt(document.getElementById("tScore2") ? document.getElementById("tScore2").value : "20");
+  const s3 = parseInt(document.getElementById("tScore3") ? document.getElementById("tScore3").value : "15");
+  const s4 = parseInt(document.getElementById("tScore4") ? document.getElementById("tScore4").value : "15");
+  const s5 = parseInt(document.getElementById("tScore5") ? document.getElementById("tScore5").value : "20");
+  const s6 = parseInt(document.getElementById("tScore6") ? document.getElementById("tScore6").value : "15");
+  const feedback = document.getElementById("tFeedbackText") ? document.getElementById("tFeedbackText").value.trim() : "";
+
+  const totalScore = s1 + s2 + s3 + s4 + s5 + s6;
+
+  const rubricObj = { s1, s2, s3, s4, s5, s6, totalScore, feedback };
+  localStorage.setItem(`sociallms_teacher_rubric_${activityId}`, JSON.stringify(rubricObj));
+  localStorage.setItem(`sociallms_score_${activityId}`, `${totalScore}점`);
+
+  alert(`✅ [수행평가 채점 완료]\n\n총점 ${totalScore}점 / 100점 만점 및 교사 정성 피드백이 성공적으로 저장되었습니다! 🌸`);
+  closeTeacherCustomModal();
 };
 

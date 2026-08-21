@@ -14,83 +14,65 @@
     
     .session-stepper {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 24px;
       background: var(--bg-card);
-      padding: 10px 14px;
-      border-radius: 20px;
+      padding: 12px 16px;
+      border-radius: 22px;
       border: 1px solid var(--border-glass);
+      box-shadow: var(--shadow-primary);
     }
     .session-tab {
       flex: 1;
       text-align: center;
-      padding: 14px 18px;
-      border-radius: 14px;
+      padding: 16px 20px;
+      border-radius: 16px;
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 1.02rem;
       color: var(--text-secondary);
       background: rgba(0,0,0,0.02);
-      border: 1.5px solid transparent;
+      border: 2px solid transparent;
       cursor: pointer;
       transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
     .session-tab.active {
-      background: linear-gradient(135deg, rgba(184,150,219,0.2) 0%, rgba(102,217,232,0.2) 100%);
+      background: linear-gradient(135deg, rgba(184,150,219,0.2) 0%, rgba(102,217,232,0.25) 100%);
       color: var(--color-purple);
       border-color: var(--color-purple);
-      box-shadow: 0 4px 14px rgba(184,150,219,0.2);
+      box-shadow: 0 6px 18px rgba(184,150,219,0.25);
     }
 
     .step-card {
       background: var(--bg-card);
       border: 1px solid var(--border-glass);
-      border-radius: 24px;
-      padding: 28px;
-      margin-bottom: 24px;
+      border-radius: 26px;
+      padding: 30px;
+      margin-bottom: 26px;
       box-shadow: var(--shadow-primary);
-    }
-
-    .topic-chip-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .topic-chip {
-      background: rgba(255,255,255,0.7);
-      border: 1.5px solid var(--border-glass);
-      padding: 14px 16px;
-      border-radius: 16px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.88rem;
-      transition: all 0.2s;
-    }
-    .topic-chip:hover, .topic-chip.selected {
-      border-color: var(--color-purple);
-      background: rgba(184,150,219,0.15);
-      color: var(--color-purple);
-      transform: translateY(-2px);
     }
 
     .chat-box {
       background: rgba(0,0,0,0.02);
       border: 1px solid var(--border-glass);
       border-radius: 20px;
-      padding: 18px;
-      height: 320px;
+      padding: 20px;
+      height: 340px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
     .chat-msg {
-      max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 18px;
-      font-size: 0.88rem;
-      line-height: 1.5;
+      max-width: 82%;
+      padding: 14px 18px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      line-height: 1.55;
       white-space: pre-wrap;
     }
     .chat-msg.persona {
@@ -99,6 +81,7 @@
       border: 1px solid rgba(0,0,0,0.08);
       color: var(--text-primary);
       border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .chat-msg.opponent {
       align-self: flex-start;
@@ -118,310 +101,346 @@
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
       border: 1px solid var(--border-glass);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .acceptance-table th {
-      background: rgba(184,150,219,0.15);
+      background: rgba(184,150,219,0.18);
       color: var(--color-purple);
       font-weight: 800;
-      padding: 12px 16px;
-      font-size: 0.88rem;
+      padding: 14px 18px;
+      font-size: 0.9rem;
       text-align: left;
     }
     .acceptance-table td {
-      padding: 14px 16px;
+      padding: 16px 18px;
       border-top: 1px solid var(--border-glass);
       background: var(--bg-card);
-      font-size: 0.85rem;
+      font-size: 0.88rem;
     }
 
     .no-ai-banner {
       background: linear-gradient(135deg, #fff0f6 0%, #ffe3e3 100%);
       border: 2px solid var(--color-pink);
-      border-radius: 18px;
-      padding: 16px 20px;
-      margin-bottom: 20px;
+      border-radius: 20px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
+    }
+
+    .prompt-modify-box {
+      background: rgba(102, 217, 232, 0.08);
+      border: 1.5px dashed var(--color-mint);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-top: 16px;
     }
   </style>
 </head>
 <body>
   <div class="performance-container">
     <!-- 헤더 영역 -->
-    <header style="margin-bottom: 20px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <span id="studentBadge" style="background: rgba(184,150,219,0.15); color: var(--color-purple); font-weight: 800; font-size: 0.88rem; padding: 6px 16px; border-radius: 12px;">
-          👧 1학년 7반 박병순 학생 (가상 실험 전용)
+    <header style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span id="studentBadge" style="background: rgba(184,150,219,0.15); color: var(--color-purple); font-weight: 800; font-size: 0.9rem; padding: 6px 18px; border-radius: 14px;">
+          👧 1학년 7반 박병순 학생 (수행평가 전용 모듈)
         </span>
-        <button type="button" class="gen-btn" onclick="window.location.href='../index.html'" style="background: rgba(0,0,0,0.05); font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 10px;">
-          🏠 통합사회 대시보드로 돌아가기
+        <button type="button" class="gen-btn" onclick="window.location.href='../index.html'" style="background: rgba(0,0,0,0.05); font-size: 0.82rem; font-weight: 700; padding: 8px 16px; border-radius: 12px;">
+          🏠 대시보드로 이동
         </button>
       </div>
-      <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--color-purple); margin: 0 0 6px 0;">
+      <h1 style="font-size: 1.95rem; font-weight: 800; color: var(--color-purple); margin: 0 0 6px 0;">
         🏛️ [수행평가] AI 챗봇 다각적 대화 기반 인권 개선 제안서 프로젝트
       </h1>
-      <p style="margin: 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
-        실생활 인권 문제 선정 ➔ 인권 침해 당사자 AI 대화 ➔ AI 협력 제안서 초안 ➔ 반대자 AI 비판 대화 ➔ (2차시) 피드백 수용성 결정 및 <strong>AI 도움 없는 최종 제안서 산출 (100점 만점 6대 루브릭)</strong>
+      <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55;">
+        사전 인권 침해 서술 ➔ 당사자 AI 대화 ➔ AI 제안서 초안 산출 & 프롬프트 수정 ➔ 반대자 AI 비판 대화 ➔ <strong>(2차시) 피드백 수용 여부 결정 및 AI 도움 없는 최종 제안서 작성 (교사 정밀 루브릭 평가)</strong>
       </p>
     </header>
 
-    <!-- 차시 네비게이션 탭 -->
+    <!-- 차시 개별 분리 버튼 (1차시 50분 / 2차시 50분) -->
     <div class="session-stepper">
       <button id="tabBtn_session1" class="session-tab active" onclick="switchSession(1)">
-        1차시: AI 협력 탐구 및 초안 깎기 🤖
+        <span>1차시 [50분]:</span> AI 협력 탐구 & 제안서 초안 깎기 🤖
       </button>
       <button id="tabBtn_session2" class="session-tab" onclick="switchSession(2)">
-        2차시: 비판적 수용 및 최종 제안서 (AI 도움 X) ✍️
+        <span>2차시 [50분]:</span> 피드백 비판적 수용 & 최종 제안서 (AI 도움 X) ✍️
       </button>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- [1차시 영역] -->
+    <!-- [1차시 영역 (50분)] -->
     <!-- ========================================================================= -->
     <div id="session1Content">
-      <!-- 1단계: 실생활 인권 주제 선정 & 당사자 AI 대화 -->
+      <!-- Step 0: 사전 인권 침해 문제 심층 서술 -->
       <div class="step-card">
-        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-          <span>1️⃣</span> 실생활 인권 문제 주제 선정 & 인권 침해 당사자 AI 챗봇 대화
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+          <span>0️⃣</span> [사전 준비] 심층 탐구할 지역 및 실생활 인권 침해 문제 심층 서술
         </h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-          우리 삶 속 인권 침해 구체적 주제를 선택한 후, 당사자 AI 챗봇과 대화하여 기본권 침해 맥락을 명확히 분석하세요.
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 18px;">
+          AI 인권 피해 챗봇과 대화하기 전, 어떤 지역의 어떤 인권 문제가 어떻게 침해되고 있는지 구체적으로 서술해 주세요. 입력하신 서술에 맞춰 엔비디아 / Upstage API 기반 가상 피해 당사자 AI 페르소나가 생성됩니다.
         </p>
 
-        <div class="topic-chip-grid">
-          <div class="topic-chip selected" onclick="selectTopic(this, '청소년 알바 노동권 및 야간 안전보장 침해')">
-            🚚 청소년 배달/알바 노동권 & 야간 안전
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div>
+            <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">📍 1. 관심 대상 지역 / 위치:</label>
+            <input type="text" id="prepLocation" placeholder="예: 경상남도 창원시 마산회원구 / 학교 인근 이면도로" style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem;">
           </div>
-          <div class="topic-chip" onclick="selectTopic(this, '휠체어/교통약자 이동권 및 공공시설 인프라 미비')">
-            ♿ 휠체어/교통약자 이동권 및 엘리베이터 미비
-          </div>
-          <div class="topic-chip" onclick="selectTopic(this, '공동주택 야간 층간소음/숙면권 및 건강권 침해')">
-            🌙 공동주택 층간소음 & 국민 건강권/휴식권
-          </div>
-          <div class="topic-chip" onclick="selectTopic(this, '디지털 개인정보 및 알권리/잊힐권리 오남용')">
-            📱 디지털 개인정보 무단 유출 & 잊힐 권리
+          <div>
+            <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">⚖️ 2. 침해 관련 인권 분야:</label>
+            <select id="prepCategory" style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border-glass); font-weight: 700; font-size: 0.88rem;">
+              <option value="청소년 노동권 및 야간 안전권">🚚 청소년 노동권 & 야간 안전보장 침해</option>
+              <option value="휠체어/교통약자 이동권 및 엘리베이터 미비">♿ 휠체어/교통약자 이동권 및 공공시설 인프라 미비</option>
+              <option value="공동주택 야간 층간소음/숙면권 및 건강권">🌙 공동주택 층간소음 & 숙면권/건강권 침해</option>
+              <option value="디지털 개인정보 및 알권리/잊힐권리">📱 디지털 개인정보 무단 유출 & 잊힐 권리 오남용</option>
+              <option value="사회적 소수자 주거권 및 차별금지">🏠 사회적 소수자 주거권 소외 및 평등권 침해</option>
+            </select>
           </div>
         </div>
 
-        <div style="background: rgba(184,150,219,0.08); border-radius: 16px; padding: 16px; margin-bottom: 14px;">
-          <div style="font-weight: 800; color: var(--color-purple); font-size: 0.9rem; margin-bottom: 6px;">
-            👤 매칭된 인권 침해 당사자 AI 페르소나: <span id="personaTitle" style="color: var(--color-pink);">김아름 (18세 / 고교 알바생)</span>
-          </div>
-          <p id="personaGrievanceText" style="margin: 0; font-size: 0.83rem; color: var(--text-primary); line-height: 1.5;">
-            "최저임금 미달 시급과 근로계약서 미작성, 주휴수당 미지급으로 인해 청소년 노동권과 인간다운 생활을 할 권리를 침해당하고 있어요..."
-          </p>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">📝 3. 구체적인 인권 침해 현황 및 문제 상황 심층 서술 (최소 20자 이상):</label>
+          <textarea id="prepDescription" rows="3" placeholder="예: 야간 배달 알바 시 최저임금 미달 시급 수령, 사고 시 치료비 미지원으로 인해 청소년 노동권과 인간다운 생활을 할 권리를 침해받고 있는 실태를 탐구하고 싶습니다." style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.5;"></textarea>
         </div>
 
-        <!-- 1:1 대화창 -->
-        <div id="chatBoxPersona" class="chat-box">
-          <div class="chat-msg persona">
-            안녕하세요... 바쁘신 중에 제 이야기 들어주셔서 감사해요. 요즘 알바를 하면서 너무 속상하고 막막한 일을 겪고 있어요. 🥺
+        <button type="button" class="gen-btn" onclick="initPersonaChat()" style="background: var(--color-purple); color: white; border: none; font-weight: 800; padding: 12px 22px; border-radius: 14px; cursor: pointer; font-size: 0.9rem;">
+          🤖 엔비디아 / Upstage API 가상 인권 침해 당사자 AI 페르소나 호출하기 🚀
+        </button>
+      </div>
+
+      <!-- Step 1: 당사자 AI 챗봇 1:1 대화 -->
+      <div id="step1Box" class="step-card" style="display: none;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+          <span>1️⃣</span> 가상의 인권 침해 당사자 AI 챗봇과의 1:1 심층 경청 대화
+        </h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px;">
+          호출된 당사자 AI 챗봇과 대화하여 침해 상황의 고충과 헌법적 기본권 침해 맥락을 심층 분석하세요. 대화가 충분히 진행되면 아래 [대화 종결 및 제안서 초안 산출] 버튼을 누르세요.
+        </p>
+
+        <div style="background: rgba(184,150,219,0.1); border-radius: 16px; padding: 16px; margin-bottom: 16px; border-left: 4px solid var(--color-purple);">
+          <div style="font-weight: 800; color: var(--color-purple); font-size: 0.92rem; margin-bottom: 4px;">
+            👤 생성된 당사자 AI 페르소나: <span id="personaNameTag" style="color: var(--color-pink);">김아름 (18세 / 마산 지역 알바 청소년)</span>
           </div>
+          <div id="personaGrievanceSummary" style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.5;"></div>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="chatInputPersona" placeholder="당사자 AI에게 공감 및 고충 맥락 질문을 입력하세요..." style="flex:1; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem;">
-          <button type="button" class="gen-btn" onclick="sendPersonaChat()" style="background: var(--color-purple); color: white; border: none; font-weight: 800; padding: 12px 20px; border-radius: 14px; cursor: pointer;">
+
+        <div id="chatBoxPersona" class="chat-box"></div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <input type="text" id="chatInputPersona" placeholder="당사자 AI에게 공감 질문 또는 침해 맥락 질문을 입력하세요..." style="flex:1; padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.9rem;">
+          <button type="button" class="gen-btn" onclick="sendPersonaChat()" style="background: var(--color-purple); color: white; border: none; font-weight: 800; padding: 14px 24px; border-radius: 14px; cursor: pointer;">
             대화 전송 💬
           </button>
         </div>
-      </div>
 
-      <!-- 2단계: AI 협력 인권 개선 제안서 초안 산출 -->
-      <div class="step-card">
-        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-          <span>2️⃣</span> 대화 내용 기반 인권 문제 해결 제안서 초안 산출 (AI 협력)
-        </h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
-          당사자와 나눈 대화 내용을 바탕으로 생성형 AI의 도움을 받아 제안서 초안을 산출하고 깎아보세요.
-        </p>
-
-        <button type="button" class="gen-btn" onclick="generateDraftWithAi()" style="width: 100%; background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-purple) 100%); color: white; border: none; font-weight: 800; padding: 14px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 6px 18px rgba(184,150,219,0.35); cursor: pointer; font-size: 0.95rem;">
-          🤖 Upstage Solar AI와 함께 인권 개선 제안서 초안 산출하기 🚀
+        <button type="button" class="gen-btn" onclick="finishPersonaChatAndGenerateDraft()" style="width: 100%; background: linear-gradient(135deg, #20c997 0%, #099268 100%); color: white; border: none; font-weight: 800; padding: 14px; border-radius: 16px; font-size: 0.95rem; box-shadow: 0 6px 18px rgba(9,146,104,0.25); cursor: pointer;">
+          🏁 당사자 대화 종결 및 6대 항목 인권 개선 제안서 초안 산출하기 📜
         </button>
-
-        <div style="margin-bottom: 12px;">
-          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">📜 제안서 초안 제목:</label>
-          <input type="text" id="draftTitle" placeholder="예: 청소년 근로권 보장 및 지자체 알바 안심 인증제 제안서" style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-glass); outline: none; font-size: 0.88rem;">
-        </div>
-
-        <div>
-          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">📝 제안서 초안 본문 (AI 생성 후 학생 자유 수정 가능):</label>
-          <textarea id="draftContent" rows="7" placeholder="위 AI 생성 버튼을 누르시면 당사자 대화 내용을 바탕으로 헌법적 기본권 분석 및 제안서 초안이 생성됩니다." style="width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.6;"></textarea>
-        </div>
       </div>
 
-      <!-- 3단계: 제안서 초안 비판/지적 반대자 AI 챗봇과의 다각적 대화 -->
-      <div class="step-card">
-        <h3 style="font-size: 1.15rem; font-weight: 800; color: #d63384; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-          <span>3️⃣</span> 제안서 초안 내용을 비판/지적하는 반대자 AI 챗봇과의 설득 대화
+      <!-- Step 2: AI 제안서 초안 생성 & 6대 풍성한 항목 & 프롬프트 수정 란 -->
+      <div id="step2Box" class="step-card" style="display: none;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+          <span>2️⃣</span> 당사자 대화 기반 AI 제안서 초안 산출 & 대화형 프롬프트 수정
         </h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
-          예산 부족, 소상공인 부담, 법적 제약 등을 이유로 제안서에 강력 반대하는 반대자 AI(지자체 재정과장/업주 대표)의 지적을 듣고, 교과 지식과 논리로 설득해 보세요!
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px;">
+          당사자와의 대화 내용이 종합 반영된 6대 항목의 제안서 초안입니다. 하단 프롬프트 수정 란을 활용해 내용을 더욱 다듬고 보완하세요.
         </p>
 
-        <div style="background: #fff0f6; border: 1.5px solid #ffdeeb; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; font-size: 0.85rem;">
-          <strong style="color: #d63384;">😈 매칭된 반대자 AI 페르소나: 박재정 (지자체 예산재정과장)</strong><br>
-          "학생의 취지는 이해하지만, 예산 수십 억 원이 투입되어 시 재정이 파탄 나고 소상공인 점주들의 반발이 극심할 것입니다! 제안서를 철회하십시오."
-        </div>
+        <div style="background: rgba(255,255,255,0.7); border: 1.5px solid var(--border-glass); border-radius: 20px; padding: 22px; margin-bottom: 16px;">
+          <h4 id="draftTitle" style="font-size: 1.1rem; font-weight: 800; color: var(--color-purple); margin: 0 0 14px 0; border-bottom: 2px solid var(--color-pink-soft); padding-bottom: 8px;">
+            📜 [제안서 초안] 실생활 인권 개선 및 침해 방지 제안서
+          </h4>
 
-        <div id="chatBoxOpponent" class="chat-box">
-          <div class="chat-msg opponent">
-            제안서 초안 잘 읽었습니다. 하지만 현실성이 너무 떨어지는군요! 예산과 법적 제약 문제는 어떻게 해결할 건가요?
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; line-height: 1.6;">
+            <div><strong>1. 대상 지역 및 실생활 인권 침해 현황:</strong><div id="draftSec1" style="color: var(--text-primary); background: rgba(0,0,0,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 4px;"></div></div>
+            <div><strong>2. 헌법 상 관련 기본권 침해 맥락 및 법적 근거:</strong><div id="draftSec2" style="color: var(--text-primary); background: rgba(0,0,0,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 4px;"></div></div>
+            <div><strong>3. 인권 개선 목표 및 기대 효과:</strong><div id="draftSec3" style="color: var(--text-primary); background: rgba(0,0,0,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 4px;"></div></div>
+            <div><strong>4. 1차 인권 개선 대안 (행정/조례/시민 참여 수단):</strong><div id="draftSec4" style="color: var(--text-primary); background: rgba(0,0,0,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 4px;"></div></div>
+            <div><strong>5. 필요 예산 및 추진 일정 개요:</strong><div id="draftSec5" style="color: var(--text-primary); background: rgba(0,0,0,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 4px;"></div></div>
           </div>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="chatInputOpponent" placeholder="반대자 AI의 비판 논리에 대해 교과 지식을 들어 설득해 보세요..." style="flex:1; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem;">
-          <button type="button" class="gen-btn" onclick="sendOpponentChat()" style="background: #d63384; color: white; border: none; font-weight: 800; padding: 12px 20px; border-radius: 14px; cursor: pointer;">
+
+        <!-- 프롬프트 수정 란 -->
+        <div class="prompt-modify-box">
+          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--color-purple); margin-bottom: 6px;">
+            💬 AI 제안서 초안 프롬프트 수정 란 (추가 요구사항 입력):
+          </label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="promptInput" placeholder="예: 헌법 제10조 및 노동권 조항을 더 강조해줘, 예산을 자치구 시범사업으로 줄여줘" style="flex:1; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-glass); outline: none; font-size: 0.88rem;">
+            <button type="button" class="gen-btn" onclick="modifyDraftWithPrompt()" style="background: var(--color-mint); color: #099268; border: 1.5px solid #099268; font-weight: 800; padding: 12px 20px; border-radius: 12px; cursor: pointer;">
+              프롬프트로 초안 수정 🪄
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: 비판적 반대자 AI 챗봇과의 다각적 대화 -->
+      <div id="step3Box" class="step-card" style="display: none;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: #d63384; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+          <span>3️⃣</span> 제안서 초안 내용을 비판/지적하는 반대자 AI 챗봇과의 설득 대화
+        </h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px;">
+          예산 과다, 현실성 부족, 소상공인 부담 등을 이유로 제안서에 강력 반대하는 반대자 AI(지자체 재정과장)의 비판을 경청하고 교과 지식으로 설득하세요! (반대자 피드백은 2차시에 자동 연동됩니다)
+        </p>
+
+        <div style="background: #fff0f6; border: 1.5px solid #ffdeeb; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 0.88rem;">
+          <strong style="color: #d63384;">😈 매칭된 반대자 AI: 박재정 (지자체 예산재정과장)</strong><br>
+          "학생의 취지는 이해하지만, 수십 억 예산 수반 및 업주 반발로 시 재정이 파탄 납니다! 당장 철회하십시오."
+        </div>
+
+        <div id="chatBoxOpponent" class="chat-box"></div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 18px;">
+          <input type="text" id="chatInputOpponent" placeholder="반대자 AI의 비판 논리에 대해 교과 지식을 들어 설득해 보세요..." style="flex:1; padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.9rem;">
+          <button type="button" class="gen-btn" onclick="sendOpponentChat()" style="background: #d63384; color: white; border: none; font-weight: 800; padding: 14px 24px; border-radius: 14px; cursor: pointer;">
             설득 대화 전송 💥
           </button>
         </div>
+
+        <button type="button" class="gen-btn" onclick="saveSession1AndMoveToSession2()" style="width: 100%; background: linear-gradient(135deg, var(--color-purple) 0%, #4c6ef5 100%); color: white; border: none; font-weight: 800; padding: 16px; border-radius: 18px; font-size: 1rem; box-shadow: 0 8px 22px rgba(121,82,179,0.35); cursor: pointer;">
+          💾 [1차시 50분 완수] 1차시 제출 저장 및 2차시(피드백 수용 결정)로 이동 🚀
+        </button>
       </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- [2차시 영역] -->
+    <!-- [2차시 영역 (50분)] -->
     <!-- ========================================================================= -->
     <div id="session2Content" style="display: none;">
-      <!-- 4단계: 반대자 AI 피드백 수용 여부 결정표 -->
+      <!-- Step 4: 1차시 반대자 AI 피드백 연동 & 주도적 수용 결정표 -->
       <div class="step-card">
-        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-          <span>4️⃣</span> 반대자 AI 지적/피드백 수용 여부 결정 및 판단 근거 작성
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+          <span>4️⃣</span> 1차시 반대자 AI 피드백 수용 여부 주도적 결정 및 판단 근거 작성
         </h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-          지난 차시 반대자 AI로부터 받은 핵심 지적 사항에 대해 [100% 수용 / 부분 수용 / 거부] 여부를 결정하고 그 근거를 명확히 작성하세요. (15점 피드백 수용성)
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 18px;">
+          지난 1차시에 반대자 AI 챗봇으로부터 받은 실제 피드백 지적 내용이 아래 연동되었습니다. 각 항목별 [100% 수용 / 부분 수용 / 거부 및 반박] 여부를 결정하고 명확한 논리적 근거를 작성하세요.
         </p>
+
+        <div style="background: rgba(214, 51, 132, 0.08); border-left: 4px solid #d63384; padding: 14px 18px; border-radius: 14px; margin-bottom: 18px; font-size: 0.88rem;">
+          <strong style="color: #d63384;">📥 1차시 반대자 AI(박재정 과장) 실제 피드백 연동 요약:</strong>
+          <div id="linkedOpponentFeedback" style="margin-top: 6px; color: var(--text-primary); line-height: 1.5; font-weight: 600;">
+            (1차시 반대자 AI 대화 후 자동 연동됩니다)
+          </div>
+        </div>
 
         <table class="acceptance-table">
           <thead>
             <tr>
-              <th style="width: 30%;">반대자 AI 주요 지적 사항</th>
+              <th style="width: 32%;">1차시 반대자 AI 주요 피드백 지적 내용</th>
               <th style="width: 25%;">수용 여부 결정</th>
-              <th style="width: 45%;">수용/거부의 합당한 근거 서술</th>
+              <th style="width: 43%;">수용/거부 판단의 명확한 논리적 근거 서술</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>1. 예산 과다 투입 및 시 재정적 부담 지적</strong></td>
+              <td><strong>1. 예산 과다 투입 및 지자체 재정적 부담 지적</strong></td>
               <td>
-                <select id="accSelect1" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-glass); font-weight: 700;">
+                <select id="accSelect1" style="width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-glass); font-weight: 700;">
                   <option value="부분 수용">부분 수용 (Recommended)</option>
                   <option value="100% 수용">100% 수용</option>
-                  <option value="거부">거부 (반박)</option>
+                  <option value="거부 및 반박">거부 및 반박</option>
                 </select>
               </td>
               <td>
-                <input type="text" id="accReason1" placeholder="예: 시 전역 즉시 시행 대신 1년 간 시범 구역 운영으로 예산 70% 절감 수용" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-glass);">
+                <input type="text" id="accReason1" placeholder="예: 시 전역 즉시 시행 대신 1년 간 시범 구역 운영으로 예산 70% 절감 수용" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-glass);">
               </td>
             </tr>
             <tr>
               <td><strong>2. 소상공인/자영업자 규제 반발 및 실현가능성 지적</strong></td>
               <td>
-                <select id="accSelect2" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-glass); font-weight: 700;">
+                <select id="accSelect2" style="width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-glass); font-weight: 700;">
                   <option value="부분 수용">부분 수용 (Recommended)</option>
                   <option value="100% 수용">100% 수용</option>
-                  <option value="거부">거부 (반박)</option>
+                  <option value="거부 및 반박">거부 및 반박</option>
                 </select>
               </td>
               <td>
-                <input type="text" id="accReason2" placeholder="예: 단속 일변도 대신 착한 사업장 세제 혜택 부여 인센티브 방식으로 보완 수용" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-glass);">
+                <input type="text" id="accReason2" placeholder="예: 단속 일변도 대신 착한 사업장 세제 혜택 부여 인센티브 방식으로 보완 수용" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-glass);">
+              </td>
+            </tr>
+            <tr>
+              <td><strong>3. 법적 근거 및 시민 참여 수단 현실성 지적</strong></td>
+              <td>
+                <select id="accSelect3" style="width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-glass); font-weight: 700;">
+                  <option value="부분 수용">부분 수용 (Recommended)</option>
+                  <option value="100% 수용">100% 수용</option>
+                  <option value="거부 및 반박">거부 및 반박</option>
+                </select>
+              </td>
+              <td>
+                <input type="text" id="accReason3" placeholder="예: 지자체 주민조례발안제 및 헌법 제32조 노동권 근거로 법적 정합성 보완" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-glass);">
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- 5단계: AI 도움 없는 최종 제안서 작성 -->
+      <!-- Step 5: AI 도움 없는 최종 제안서 작성 (6대 항목 전문) -->
       <div class="step-card">
         <div class="no-ai-banner">
-          <div style="font-size: 2rem;">🚨</div>
+          <div style="font-size: 2.2rem;">🚨</div>
           <div>
-            <strong style="color: #c92a2a; font-size: 0.95rem;">[2차시 최종 제안서 작성 규칙 - AI 도움 금지]</strong>
-            <p style="margin: 2px 0 0 0; font-size: 0.83rem; color: var(--text-secondary);">
-              본 최종 제안서 작성 단계에서는 생성형 AI의 도움(버튼) 없이, <strong>학습자 본인의 교과 지식과 비판적 사고력만으로 최종 제안서를 완성</strong>합니다!
+            <strong style="color: #c92a2a; font-size: 0.98rem;">[2차시 최종 제안서 작성 규칙 - AI 도움 금지]</strong>
+            <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">
+              본 최종 제안서 단계에서는 생성형 AI의 도움(버튼) 없이, <strong>학습자 본인의 교과 지식과 주도적 사고만으로 6대 항목 전문을 완성</strong>합니다!
             </p>
           </div>
         </div>
 
-        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-purple); margin: 0 0 14px 0;">
-          ✍️ [최종안] 인권 문제 해결 제안서 (100점 만점 6대 평가 루브릭 연동)
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0 0 16px 0;">
+          ✍️ [최종안] 인권 문제 해결 제안서 전문 (교사 100점 만점 정밀 루브릭 평가 연동)
         </h3>
 
         <div style="margin-bottom: 14px;">
           <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">1. 최종 제안서 제목:</label>
-          <input type="text" id="finalTitle" placeholder="제목을 입력하세요..." style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.9rem;">
+          <input type="text" id="finalTitle" placeholder="최종 제안서 제목을 입력하세요..." style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.9rem;">
         </div>
 
         <div style="margin-bottom: 14px;">
-          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">2. 헌법 상 기본권 맥락 도출 타당성 (15점 만점):</label>
-          <textarea id="finalSection1" rows="3" placeholder="당사자 AI 대화를 바탕으로 실생활 인권 침해 사례와 헌법상 보장되는 기본권(자유권, 사회권, 노동권 등)의 연결 맥락을 명확히 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.5;"></textarea>
+          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">2. 대상 지역 및 실생활 인권 침해 현황 분석:</label>
+          <textarea id="finalSec1" rows="3" placeholder="대상 지역과 당사자가 겪는 구체적인 침해 사례를 성실하게 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
         </div>
 
         <div style="margin-bottom: 14px;">
-          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">3. 교과 지식 기반 설득 및 반대자 피드백 수용성 내역 (35점 만점):</label>
-          <textarea id="finalSection2" rows="4" placeholder="반대자 AI 챗봇과의 논쟁에서 교과 지식을 어떻게 활용해 설득했으며, 반대자의 지적(예산/현실성)을 어떻게 합리적으로 수용하여 최종안에 반영했는지 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.5;"></textarea>
+          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">3. 헌법 상 기본권 맥락 도출 타당성 (교사 루브릭 15점):</label>
+          <textarea id="finalSec2" rows="3" placeholder="헌법 제10조(인간의 존엄성) 및 관련 기본권(자유권, 사회권, 노동권 등) 침해 맥락을 교과 개념에 맞게 연계해 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">4. 교과 지식 기반 반대자 설득 및 피드백 수용 반영 내역 (교사 루브릭 35점):</label>
+          <textarea id="finalSec3" rows="4" placeholder="반대자 AI의 비판 논리를 어떻게 교과 지식으로 설득했으며, 예산/현실성 지적을 어떻게 합리적으로 수용 및 보완했는지 작성하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
         </div>
 
         <div style="margin-bottom: 20px;">
-          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">4. 제안서의 교과 정합성, 논리성 및 실현 가능 인권 대안 (50점 만점):</label>
-          <textarea id="finalSection3" rows="5" placeholder="오류 없는 교과 내용 정합성, 비약 없는 논리성, 그리고 실제 구현 가능한 시민 참여 대안 및 행정/법적 수단을 구체적으로 제시하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.5;"></textarea>
+          <label style="display: block; font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">5. 최종 인권 개선 대안, 시민 참여 수단 및 실현 가능성 (교사 루브릭 50점):</label>
+          <textarea id="finalSec4" rows="4" placeholder="주민조례 발안, 청원, 지자체 정책 제안 등 실현 가능한 대안과 구체적 행정/재정적 실행 방안을 제시하세요." style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border-glass); outline: none; font-size: 0.88rem; line-height: 1.55;"></textarea>
         </div>
 
-        <button type="button" class="gen-btn" onclick="submitPerformanceTask()" style="width: 100%; background: linear-gradient(135deg, #7952b3 0%, #4c6ef5 100%); color: white; border: none; font-weight: 800; padding: 16px; border-radius: 18px; font-size: 1.05rem; box-shadow: 0 8px 24px rgba(121,82,179,0.4); cursor: pointer;">
-          🚀 수행평가 최종 제출 및 100점 만점 6대 루브릭 정밀 평가 받기 🌸
+        <button type="button" class="gen-btn" onclick="submitFinalPerformanceTask()" style="width: 100%; background: linear-gradient(135deg, #7952b3 0%, #4c6ef5 100%); color: white; border: none; font-weight: 800; padding: 16px; border-radius: 18px; font-size: 1.05rem; box-shadow: 0 8px 24px rgba(121,82,179,0.4); cursor: pointer;">
+          🚀 [2차시 수행평가 최종 제출] 박병준 선생님께 제출하고 평가 대기하기 🌸
         </button>
       </div>
-    </div>
-  </div>
-
-  <!-- 결과 뱃지 & 성적표 모달 -->
-  <div id="perfModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 620px;">
-      <button type="button" class="modal-close-btn" onclick="closePerfModal()">&times;</button>
-      <div id="perfModalBody"></div>
     </div>
   </div>
 
   <script>
     const state = {
       student: { studentId: "", name: "", gradeClass: "" },
-      topic: "청소년 알바 노동권 및 야간 안전보장 침해",
+      prepData: {},
+      personaInfo: {},
       personaChatHistory: [],
+      draftData: {},
       opponentChatHistory: [],
       currentSession: 1
     };
 
     document.addEventListener("DOMContentLoaded", () => {
-      // 🔒 1학년 7반 (17) 가상 실험 학급 보안 가드
-      const role = localStorage.getItem("sociallms_role");
-      if (role !== "teacher") {
-        const savedProfile = localStorage.getItem("sociallms_profile");
-        const savedStudentId = localStorage.getItem("sociallms_student_id");
-        if (!savedProfile || !savedStudentId) {
-          alert("🔒 회원 로그인 후 이용 가능합니다.");
-          window.location.href = "../index.html";
-          return;
-        }
-
-        let studentClass = "11";
-        try {
-          const p = JSON.parse(savedProfile);
-          const sId = String(p["학번 (StudentID)"] || p.studentId || "");
-          if (sId.length >= 4) studentClass = sId.substring(0, 2);
-        } catch(e) {}
-
-        if (studentClass !== "17") {
-          alert(`🔒 본 수행평가는 박병준 선생님의 가상 실험 학급(1학년 7반) 전용 프로젝트입니다. 대시보드로 이동합니다. 🌸`);
-          window.location.href = "../index.html";
-          return;
-        }
-      }
-
       loadProfile();
+      restoreSavedSessionData();
     });
 
     function loadProfile() {
@@ -430,7 +449,7 @@
       if (savedProfile && badge) {
         const p = JSON.parse(savedProfile);
         state.student = {
-          studentId: p["학번 (StudentID)"] || p.studentId || "",
+          studentId: p["학번 (StudentID)"] || p.studentId || "1701",
           name: p["이름 (StudentName)"] || p.name || "학생",
           gradeClass: p.gradeClass || "1학년 7반"
         };
@@ -444,33 +463,47 @@
       document.getElementById("tabBtn_session2").classList.toggle("active", sessionNum === 2);
       document.getElementById("session1Content").style.display = sessionNum === 1 ? "block" : "none";
       document.getElementById("session2Content").style.display = sessionNum === 2 ? "block" : "none";
+
+      if (sessionNum === 2) {
+        loadSession1DataIntoSession2();
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function selectTopic(el, topicName) {
-      document.querySelectorAll(".topic-chip").forEach(c => c.classList.remove("selected"));
-      el.classList.add("selected");
-      state.topic = topicName;
-      
-      const pTitle = document.getElementById("personaTitle");
-      const pGrievance = document.getElementById("personaGrievanceText");
-      
-      if (topicName.includes("이동권")) {
-        pTitle.textContent = "박성진 (34세 / 휠체어 이용 장애인 시민)";
-        pGrievance.textContent = `"지하철 리프트 위험과 버스 승차 거부로 인해 이동권과 평등권, 사회적 참여의 권리를 심각하게 침해받고 있습니다..."`;
-      } else if (topicName.includes("층간소음")) {
-        pTitle.textContent = "최영희 (42세 / 심야 근무 직장인)";
-        pGrievance.textContent = `"상습적 야간 층간소음 방치로 수면 장애를 겪으며 인간다운 생활과 건강권을 침해당하고 있어요..."`;
-      } else if (topicName.includes("개인정보")) {
-        pTitle.textContent = "정우진 (19세 / 대학생)";
-        pGrievance.textContent = `"앱 무단 정보 유출로 사생활의 자유와 잊힐 권리를 침해당했습니다..."`;
-      } else {
-        pTitle.textContent = "김아름 (18세 / 고교 알바생)";
-        pGrievance.textContent = `"최저임금 미달과 근로계약서 미작성으로 인해 청소년 노동권과 인간다운 생활을 할 권리를 침해당하고 있어요..."`;
+    // Step 0: 당사자 AI 페르소나 호출
+    async function initPersonaChat() {
+      const loc = document.getElementById("prepLocation").value.trim();
+      const cat = document.getElementById("prepCategory").value;
+      const desc = document.getElementById("prepDescription").value.trim();
+
+      if (!loc || desc.length < 15) {
+        alert("관심 대상 지역과 구체적인 인권 침해 현황을 최소 15자 이상 작성해 주세요! ✍️");
+        return;
       }
+
+      state.prepData = { loc, cat, desc };
+
+      document.getElementById("step1Box").style.display = "block";
+
+      const pTag = document.getElementById("personaNameTag");
+      const pSum = document.getElementById("personaGrievanceSummary");
+
+      let pName = "김아름 (18세 / 청소년 알바생)";
+      if (cat.includes("이동권")) pName = "박성진 (34세 / 휠체어 이용 장애인)";
+      else if (cat.includes("층간소음")) pName = "최영희 (42세 / 심야 야근 직장인)";
+      else if (cat.includes("개인정보")) pName = "정우진 (19세 / 디지털 서비스 이용자)";
+
+      pTag.textContent = pName;
+      pSum.innerHTML = `📍 <strong>대상 위치:</strong> ${loc}<br>📝 <strong>침해 사례 고충:</strong> "${desc}"`;
+
+      const chatBox = document.getElementById("chatBoxPersona");
+      chatBox.innerHTML = `<div class="chat-msg persona">안녕하세요... ${loc}에서 일하는 ${pName.split(' ')[0]}입니다. 제가 겪은 "${desc}" 문제 때문에 너무 힘들어요. 제 이야기 들어주실 수 있나요? 🥺</div>`;
+      
+      document.getElementById("step1Box").scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 1단계 당사자 AI 대화
+    // Step 1: 당사자 챗봇 대화
     async function sendPersonaChat() {
       const input = document.getElementById("chatInputPersona");
       const text = input.value.trim();
@@ -491,29 +524,32 @@
             messages: [
               {
                 role: "system",
-                content: `당신은 인권 침해 당사자 AI 페르소나입니다. 주제: ${state.topic}. 학생에게 자신의 고충을 구어체로 감정을 담아 이야기하고, 헌법상 기본권 맥락을 질문하도록 유도하세요. 2문장 이내.`
+                content: `당신은 인권 침해 당사자 AI 페르소나입니다. 위치: ${state.prepData.loc}, 유형: ${state.prepData.cat}, 침해고충: ${state.prepData.desc}. 학생에게 감정을 담아 공감 대화를 나누고, 헌법적 기본권 침해 맥락을 질문하도록 유도하세요. 2문장 이내.`
               },
               ...state.personaChatHistory
             ]
           })
         });
         const data = await response.json();
-        const aiReply = data.success ? data.message.content : "제 이야기를 들어주셔서 감사해요... 헌법적으로 제 권리가 지켜졌으면 좋겠어요.";
+        const reply = data.success ? data.message.content : "제 슬픈 이야기를 들어주셔서 감사해요... 헌법상 기본권으로 제 권리가 지켜졌으면 좋겠어요.";
         
-        chatBox.innerHTML += `<div class="chat-msg persona">${aiReply}</div>`;
+        chatBox.innerHTML += `<div class="chat-msg persona">${reply}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
-        state.personaChatHistory.push({ role: "assistant", content: aiReply });
-      } catch (err) {
-        console.warn("Persona chat err:", err);
-      }
+        state.personaChatHistory.push({ role: "assistant", content: reply });
+      } catch (e) {}
     }
 
-    // 2단계 AI 협력 제안서 초안 산출
-    async function generateDraftWithAi() {
-      const draftBox = document.getElementById("draftContent");
-      const draftTitleInput = document.getElementById("draftTitle");
+    // Step 1 -> Step 2: 당사자 대화 종결 및 6대 항목 초안 산출
+    async function finishPersonaChatAndGenerateDraft() {
+      document.getElementById("step2Box").style.display = "block";
+      
+      const sec1 = document.getElementById("draftSec1");
+      const sec2 = document.getElementById("draftSec2");
+      const sec3 = document.getElementById("draftSec3");
+      const sec4 = document.getElementById("draftSec4");
+      const sec5 = document.getElementById("draftSec5");
 
-      draftBox.value = "🤖 Upstage Solar AI가 당사자 대화 내용을 분석하여 제안서 초안을 조립 중입니다...";
+      sec1.textContent = "🤖 Upstage Solar AI가 초안 생성 중...";
 
       try {
         const response = await fetch("/api/chat", {
@@ -523,29 +559,73 @@
             messages: [
               {
                 role: "system",
-                content: "당신은 고등학교 통합사회 인권 정책 제안서 작성 도우미 AI입니다. 학생이 당사자와 나눈 대화를 바탕으로 [제안서 제목], [1. 실생활 인권 문제 진단], [2. 헌법상 기본권 맥락], [3. 1차 인권 개선 대안] 구조의 개요 초안을 산출해 주세요."
+                content: "당신은 고교 통합사회 인권 정책 도우미 AI입니다. 당사자 대화에 기초하여 JSON 형태로 [sec1: 침해현황], [sec2: 헌법상 기본권 맥락], [sec3: 개선목표], [sec4: 1차 개선대안], [sec5: 예산/일정] 5개 필드를 작성해 주세요."
               },
               {
                 role: "user",
-                content: `선정 주제: ${state.topic}\n당사자 대화 기록 요약: ${JSON.stringify(state.personaChatHistory)}`
+                content: `지역: ${state.prepData.loc}\n침해사례: ${state.prepData.desc}\n대화내역: ${JSON.stringify(state.personaChatHistory)}`
               }
             ]
           })
         });
         const data = await response.json();
         if (data.success) {
-          draftTitleInput.value = `[제안서 초안] ${state.topic} 해결을 위한 인권 개선 제안`;
-          draftBox.value = data.message.content;
-        } else {
-          throw new Error();
+          try {
+            const parsed = JSON.parse(data.message.content.replace(/```json/g, "").replace(/```/g, ""));
+            sec1.textContent = parsed.sec1 || `${state.prepData.loc} 지역의 ${state.prepData.cat} 관련 실생활 침해 고충 파악.`;
+            sec2.textContent = parsed.sec2 || `헌법 제10조(인간존엄) 및 헌법상 보장되는 기본권 침해 맥락 연계.`;
+            sec3.textContent = parsed.sec3 || `침해 구역 피해 원상회복 및 시민 기본권 실질적 보장.`;
+            sec4.textContent = parsed.sec4 || `지자체 조례 제정, 안심 사업장 인증제 및 주민 청원 추진.`;
+            sec5.textContent = parsed.sec5 || `소관 지자체 예산 편성 및 1년 간 시범운영 추진.`;
+          } catch(e) {
+            sec1.textContent = `${state.prepData.loc} 지역의 ${state.prepData.cat} 실생활 침해 고충 파악.`;
+            sec2.textContent = `헌법 제10조 및 관련 기본권 침해 맥락 분석.`;
+            sec3.textContent = `실질적 인권 보장 및 침해 재발 방지.`;
+            sec4.textContent = `지자체 조례 제정 및 행정/시민참여 수단 도입.`;
+            sec5.textContent = `지자체 시범 예산 편성 및 실태조사.`;
+          }
         }
-      } catch (e) {
-        draftTitleInput.value = `[제안서 초안] ${state.topic} 개선 방안`;
-        draftBox.value = `[1. 실생활 인권 문제 진단]\n${state.topic}와 관련하여 당사자가 겪는 현실적 고충을 파악함.\n\n[2. 헌법 상 기본권 맥락]\n헌법 제10조(인간의 존엄성) 및 헌법상 보장되는 기본권 침해 맥락 분석.\n\n[3. 1차 인권 개선 대안]\n지방자치단체 조례 제정 및 정기적 실태 조사를 통한 해결 방안 제안.`;
-      }
+      } catch(e) {}
+
+      document.getElementById("step3Box").style.display = "block";
+      initOpponentChat();
+      document.getElementById("step2Box").scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 3단계 반대자 AI 대화
+    // Step 2: 프롬프트 수정 란
+    async function modifyDraftWithPrompt() {
+      const pInput = document.getElementById("promptInput");
+      const userPrompt = pInput.value.trim();
+      if (!userPrompt) return;
+
+      const sec4 = document.getElementById("draftSec4");
+      sec4.textContent = `🤖 [프롬프트 반영 중] ${userPrompt}...`;
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              { role: "system", content: "학생의 프롬프트 수정 요청에 따라 1차 인권 개선 대안을 보완해 주세요." },
+              { role: "user", content: `기존대안: ${sec4.textContent}\n학생 수정요청: ${userPrompt}` }
+            ]
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          sec4.textContent = data.message.content;
+          alert("✨ 프롬프트 수정 내용이 제안서 초안에 반영되었습니다!");
+        }
+      } catch(e) {}
+    }
+
+    // Step 3: 반대자 AI 대화 초기화
+    function initOpponentChat() {
+      const chatBox = document.getElementById("chatBoxOpponent");
+      chatBox.innerHTML = `<div class="chat-msg opponent">제안서 초안 잘 읽었습니다. 하지만 수십 억 예산 수반 및 업주/자영업자 반발 문제는 어떻게 해결할 것입니까? 당장 철회하십시오!</div>`;
+    }
+
     async function sendOpponentChat() {
       const input = document.getElementById("chatInputOpponent");
       const text = input.value.trim();
@@ -566,74 +646,116 @@
             messages: [
               {
                 role: "system",
-                content: "당신은 학생의 인권 제안서에 예산 과다, 현실성 부족, 소상공인 부담 등을 이유로 날카롭게 반대하고 비판하는 지자체 재정과장 반대자 AI입니다. 학생의 설명에 단호하지만 논리적으로 반박하세요. 2문장 이내."
+                content: "당신은 학생의 인권 제안서에 예산과 현실성을 이유로 강하게 반대하는 지자체 재정과장 AI입니다. 단호하게 비판하세요. 2문장 이내."
               },
               ...state.opponentChatHistory
             ]
           })
         });
         const data = await response.json();
-        const aiReply = data.success ? data.message.content : "예산과 규제 부담 문제는 여전히 해결되지 않았습니다. 조금 더 현실적인 타개책을 가져오세요!";
+        const reply = data.success ? data.message.content : "예산 과다와 현실적 법적 제약 문제는 여전히 설득되지 않는군요!";
         
-        chatBox.innerHTML += `<div class="chat-msg opponent">${aiReply}</div>`;
+        chatBox.innerHTML += `<div class="chat-msg opponent">${reply}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
-        state.opponentChatHistory.push({ role: "assistant", content: aiReply });
-      } catch (err) {
-        console.warn("Opponent chat err:", err);
-      }
+        state.opponentChatHistory.push({ role: "assistant", content: reply });
+      } catch(e) {}
     }
 
-    // 수행평가 최종 제출 (6대 루브릭 100점 평가)
-    async function submitPerformanceTask() {
-      const finalTitle = document.getElementById("finalTitle").value.trim();
-      const sec1 = document.getElementById("finalSection1").value.trim();
-      const sec2 = document.getElementById("finalSection2").value.trim();
-      const sec3 = document.getElementById("finalSection3").value.trim();
+    // 1차시 제출 저장 및 2차시 이동
+    function saveSession1AndMoveToSession2() {
+      state.draftData = {
+        sec1: document.getElementById("draftSec1").textContent,
+        sec2: document.getElementById("draftSec2").textContent,
+        sec3: document.getElementById("draftSec3").textContent,
+        sec4: document.getElementById("draftSec4").textContent,
+        sec5: document.getElementById("draftSec5").textContent
+      };
 
-      if (!finalTitle || sec1.length < 20 || sec2.length < 20 || sec3.length < 20) {
-        alert("최종 제안서의 각 항목을 최소 20자 이상 성실하게 완성해 주세요! ✍️");
+      const session1Data = {
+        prepData: state.prepData,
+        personaChatHistory: state.personaChatHistory,
+        draftData: state.draftData,
+        opponentChatHistory: state.opponentChatHistory
+      };
+
+      localStorage.setItem("c10103_session1_data", JSON.stringify(session1Data));
+      alert("💾 1차시(50분) 학습 내역이 안전하게 저장되었습니다! 2차시(피드백 수용 결정)로 이동합니다. 🌸");
+      switchSession(2);
+    }
+
+    // 2차시 진입 시 1차시 반대자 AI 피드백 연동
+    function loadSession1DataIntoSession2() {
+      const raw = localStorage.getItem("c10103_session1_data");
+      const box = document.getElementById("linkedOpponentFeedback");
+      if (!raw) {
+        box.textContent = "⚠️ 1차시 수행 내역이 없습니다. 1차시를 먼저 진행해 주세요.";
         return;
       }
 
-      // 6대 영역 루브릭 점수 산출
-      const s1 = sec1.length > 50 ? 15 : (sec1.length > 30 ? 12 : 9);
-      const s2 = sec2.length > 60 ? 20 : (sec2.length > 40 ? 17 : 14);
-      const accSelect1 = document.getElementById("accSelect1").value;
-      const s3 = accSelect1.includes("수용") ? 15 : 12;
-      const s4 = sec3.length > 80 ? 15 : (sec3.length > 50 ? 12 : 9);
-      const s5 = (s1 + s2 + s3 + s4) >= 55 ? 20 : 17;
-      const s6 = sec3.includes("조례") || sec3.includes("예산") || sec3.includes("청원") || sec3.includes("인센티브") ? 15 : 12;
+      try {
+        const s1 = JSON.parse(raw);
+        const opponentMsgs = (s1.opponentChatHistory || []).filter(m => m.role === "assistant").map(m => m.content);
+        if (opponentMsgs.length > 0) {
+          box.innerHTML = opponentMsgs.map((m, idx) => `<div>• 피드백 ${idx+1}: "${m}"</div>`).join("");
+        } else {
+          box.innerHTML = `<div>• 피드백 1: "예산 과다 투입 및 지자체 시 재정적 부담 우려"</div><div>• 피드백 2: "소상공인/자영업자 규제 반발 및 실현가능성 부족 우려"</div>`;
+        }
 
-      const totalScore = s1 + s2 + s3 + s4 + s5 + s6;
+        // 1차시 초안 데이터 자동 채우기 힌트
+        if (s1.prepData) {
+          document.getElementById("finalSec1").value = `[대상 위치]: ${s1.prepData.loc || ""}\n[침해 현황]: ${s1.prepData.desc || ""}`;
+        }
+        if (s1.draftData && s1.draftData.sec2) {
+          document.getElementById("finalSec2").value = s1.draftData.sec2;
+        }
+      } catch(e) {}
+    }
 
-      // 제출 페이로드 저장
-      const submissionDetails = {
+    // 2차시 최종 제출 (교사 대시보드 정밀 채점 대기)
+    async function submitFinalPerformanceTask() {
+      const title = document.getElementById("finalTitle").value.trim();
+      const s1 = document.getElementById("finalSec1").value.trim();
+      const s2 = document.getElementById("finalSec2").value.trim();
+      const s3 = document.getElementById("finalSec3").value.trim();
+      const s4 = document.getElementById("finalSec4").value.trim();
+
+      if (!title || s1.length < 15 || s2.length < 15 || s3.length < 15 || s4.length < 15) {
+        alert("최종 제안서의 모든 영역을 성실하게 최소 15자 이상 작성해 주세요! ✍️");
+        return;
+      }
+
+      const acc1 = document.getElementById("accSelect1").value;
+      const r1 = document.getElementById("accReason1").value;
+      const acc2 = document.getElementById("accSelect2").value;
+      const r2 = document.getElementById("accReason2").value;
+      const acc3 = document.getElementById("accSelect3").value;
+      const r3 = document.getElementById("accReason3").value;
+
+      const submissionPayload = {
         activityId: "c10103_performance",
         activityTitle: "🏛️ [수행평가] AI 챗봇 다각적 대화 기반 인권 개선 제안서",
-        score: `${totalScore}점`,
+        score: "교사 채점 대기 ⏳",
         timestamp: new Date().toISOString(),
+        status: "submitted",
         details: {
-          "최종제목": finalTitle,
-          "헌법상기본권맥락_15점": `${s1}점 (${sec1})`,
-          "교과지식설득_20점": `${s2}점 (${sec2})`,
-          "피드백수용성_15점": `${s3}점 (선택: ${accSelect1})`,
-          "교과정합성_15점": `${s4}점`,
-          "논리성_20점": `${s5}점`,
-          "실현가능성_15점": `${s6}점 (${sec3})`,
-          "총점_100점": `${totalScore}점`
+          "최종제목": title,
+          "1_침해현황분석": s1,
+          "2_헌법상기본권맥락": s2,
+          "3_피드백수용및설득내역": `[피드백1:${acc1}] ${r1}\n[피드백2:${acc2}] ${r2}\n[피드백3:${acc3}] ${r3}\n\n[설득내력]: ${s3}`,
+          "4_최종대안및실현가능성": s4,
+          "피드백결정표": `1-${acc1}(${r1}), 2-${acc2}(${r2}), 3-${acc3}(${r3})`
         }
       };
 
-      localStorage.setItem("sociallms_submission_details_c10103", JSON.stringify(submissionDetails));
+      localStorage.setItem("sociallms_submission_details_c10103", JSON.stringify(submissionPayload));
       localStorage.setItem("sociallms_progress_c10103", "completed");
-      localStorage.setItem("sociallms_score_c10103", `${totalScore}점`);
 
-      const localProgress = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
-      localProgress["c10103_performance"] = "completed";
-      localProgress["c10103"] = "completed";
-      localStorage.setItem("sociallms_progress", JSON.stringify(localProgress));
+      const localProg = JSON.parse(localStorage.getItem("sociallms_progress") || "{}");
+      localProg["c10103_performance"] = "completed";
+      localProg["c10103"] = "completed";
+      localStorage.setItem("sociallms_progress", JSON.stringify(localProg));
 
-      // 시트 전송
+      // 시트 백엔드 전송
       try {
         await fetch("/api/submit", {
           method: "POST",
@@ -643,54 +765,27 @@
             studentId: state.student.studentId || "1701",
             studentName: state.student.name || "박병순",
             activityTitle: "과업 4: 수행평가 인권 제안서",
-            score: `${totalScore}점`,
-            result: JSON.stringify(submissionDetails.details)
+            score: "교사 채점 대기 ⏳",
+            result: JSON.stringify(submissionPayload.details)
           })
         });
       } catch(e) {}
 
-      showPerfModal(totalScore, { s1, s2, s3, s4, s5, s6 });
-    }
-
-    function showPerfModal(totalScore, r) {
-      const modal = document.getElementById("perfModal");
-      const body = document.getElementById("perfModalBody");
-      
-      body.innerHTML = `
-        <div style="text-align: center; margin-bottom: 18px;">
-          <div style="font-size: 3.5rem; margin-bottom: 6px;">🏆</div>
-          <span style="background: rgba(184,150,219,0.18); color: var(--color-purple); font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 8px;">
-            1학년 7반 수행평가 최종 이수 완료
-          </span>
-          <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin: 6px 0 2px 0;">🎉 수행평가 프로젝트 완료!</h3>
-          <span style="font-size: 1.2rem; font-weight: 900; color: var(--color-purple);">최종 평가 점수: ${totalScore}점 / 100점 만점</span>
-        </div>
-
-        <div style="background: rgba(255,255,255,0.7); border: 1.5px solid var(--color-purple); border-radius: 18px; padding: 18px; margin-bottom: 18px; font-size: 0.85rem; line-height: 1.6;">
-          <h5 style="margin: 0 0 10px 0; color: var(--color-purple); font-weight: 800; font-size: 0.95rem; border-bottom: 1px dashed rgba(0,0,0,0.08); padding-bottom: 4px;">
-            📊 100점 만점 6대 세부 평가 루브릭 성적표
-          </h5>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div>• <strong>기본권 맥락 도출:</strong> ${r.s1}점 / 15점</div>
-            <div>• <strong>교과 지식 기반 설득:</strong> ${r.s2}점 / 20점</div>
-            <div>• <strong>피드백 수용성:</strong> ${r.s3}점 / 15점</div>
-            <div>• <strong>교과 내용 정합성:</strong> ${r.s4}점 / 15점</div>
-            <div>• <strong>제안서 논리성:</strong> ${r.s5}점 / 20점</div>
-            <div>• <strong>제안서 실현 가능성:</strong> ${r.s6}점 / 15점</div>
-          </div>
-        </div>
-
-        <button type="button" class="gen-btn" onclick="closePerfModal()" style="width: 100%; background: var(--color-purple); color: white; border: none; font-weight: 800; padding: 14px; border-radius: 14px; cursor: pointer;">
-          🏅 성적표 수령 및 대시보드로 돌아가기 🌸
-        </button>
-      `;
-
-      modal.style.display = "flex";
-    }
-
-    function closePerfModal() {
-      document.getElementById("perfModal").style.display = "none";
+      alert("🎉 수행평가 프로젝트가 박병준 선생님께 성공적으로 최종 제출되었습니다!\n\n선생님이 교사 대시보드에서 100점 만점 6대 루브릭 채점 및 피드백을 완료하시면, 대시보드에서 성적표와 선생님의 피드백을 확인하실 수 있습니다. 🌸");
       window.location.href = "../index.html";
+    }
+
+    function restoreSavedSessionData() {
+      const rawS1 = localStorage.getItem("c10103_session1_data");
+      if (rawS1) {
+        try {
+          const s1 = JSON.parse(rawS1);
+          if (s1.prepData) {
+            document.getElementById("prepLocation").value = s1.prepData.loc || "";
+            document.getElementById("prepDescription").value = s1.prepData.desc || "";
+          }
+        } catch(e) {}
+      }
     }
   </script>
 </body>
