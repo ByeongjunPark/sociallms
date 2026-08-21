@@ -4450,6 +4450,192 @@ function switchTeacherSubTask(taskVal) {
   renderTasksSection();
 }
 
+// 📋 학생 사전 진단평가(1·3단원 Q10~Q21) 점수 리포트 및 오답노트 모달
+function openDiagnosticReportModal() {
+  try {
+    let modal = document.getElementById("diagnosticReportModal");
+    let modalBody = document.getElementById("diagnosticReportModalBody");
+
+    // 🛡️ 모달 DOM 요소가 없으면 동적으로 자동 생성
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "diagnosticReportModal";
+      modal.className = "modal-overlay";
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 720px; width: 92%;">
+          <button type="button" class="modal-close-btn" onclick="closeDiagnosticReportModal()">&times;</button>
+          <div id="diagnosticReportModalBody" class="modal-feedback-body" style="max-height: 540px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6;"></div>
+          <div class="modal-actions">
+            <button type="button" class="modal-btn primary" onclick="closeDiagnosticReportModal()" style="background: var(--color-purple);">오답노트 확인 완료 🌸</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modalBody = document.getElementById("diagnosticReportModalBody");
+    }
+
+    const savedProfile = localStorage.getItem("sociallms_profile");
+    let studentData = {};
+    if (savedProfile) {
+      try { studentData = JSON.parse(savedProfile); } catch(e){}
+    }
+
+    const sName = (state && state.student && state.student.name) || studentData.name || studentData.StudentName || "학생";
+
+    const questions = [
+      {
+        id: "Q10",
+        title: "Q10. 일상생활의 기본권 보장 사례와 기본권 종류 매칭",
+        correct: "①",
+        key: "Q10_기본권매칭",
+        type: "choice",
+        options: {
+          "①": "① 참정권 - 만 18세 이상이면 선거에 참여할 수 있는 권리",
+          "②": "② 자유권 - 복지나 교육 시설 제공을 요구하는 권리",
+          "③": "③ 평등권 - 재판을 신청해 청구하는 권리",
+          "④": "④ 사회권 - 내 의지에 따라 행동하고 표현할 수 있는 권리"
+        },
+        explanation: "참정권은 국민이 선거 등을 통해 국가 정치 과정에 직접 또는 간접적으로 참여할 수 있는 권리입니다."
+      },
+      {
+        id: "Q11",
+        title: "Q11. 헌법상 기본권을 제한할 수 있는 정당한 목적이 아닌 것",
+        correct: "④",
+        key: "Q11_기본권제한목적",
+        type: "choice",
+        options: {
+          "①": "① 국가 안전 보장",
+          "②": "② 사회 질서 유지",
+          "③": "③ 공공복리 증진",
+          "④": "④ 특정 종교와 사상의 강제 전파"
+        },
+        explanation: "헌법 제37조 제2항에 따라 기본권은 국가안전보장, 질서유지, 공공복리를 위해서만 법률로 제한할 수 있습니다."
+      },
+      {
+        id: "Q12",
+        title: "Q12. 알바 청소년의 법적 노동 권리와 근로 기준",
+        correct: "④",
+        key: "Q12_청소년근로권",
+        type: "choice",
+        options: {
+          "①": "① 최저임금보다 적어도 합의하면 유효하다",
+          "②": "② 부모 동의 없으면 독자적 임금 청구 불가하다",
+          "③": "③ 근로계약서는 사업주만 보관한다",
+          "④": "④ 주 15시간 이상 일하는 근로자는 유급 휴일(주휴 수당)을 청구할 권리가 생긴다"
+        },
+        explanation: "주 15시간 이상 근무 시 청소년 근로자도 유급휴일(주휴수당)을 지급받을 정당한 법적 권리가 있습니다."
+      },
+      {
+        id: "Q13",
+        title: "Q13. 인권 침해 시 도움을 받을 수 있는 국가 기관과 구제 방법",
+        correct: "①",
+        key: "Q13_인권구제기관",
+        type: "choice",
+        options: {
+          "①": "① 국가인권위원회 - 침해당한 인권 사례를 조사하여 시정 권고를 내린다",
+          "②": "② 법원 - 직접 현장 수사",
+          "③": "③ 경찰서 - 헌법 합치 심판",
+          "④": "④ 헌법재판소 - 개인 간 돈 관계 대행"
+        },
+        explanation: "국가인권위원회는 인권 침해 및 차별 행위를 조사하여 구제 조치 및 시정 권고를 내리는 독립 국가기관입니다."
+      },
+      {
+        id: "Q14",
+        title: "💬 Q14. [생각 토론] 인권 보편주의와 문화 상대주의에 대한 내 생각",
+        key: "Q14_인권보편성토론",
+        type: "essay"
+      },
+      {
+        id: "Q15",
+        title: "💬 Q15. [생각 토론] 모두의 위생/안전과 개인의 기본권 충돌 시 내 의견",
+        key: "Q15_자유vs안전토론",
+        type: "essay"
+      },
+      {
+        id: "Q16",
+        title: "Q16. 경제생활에서 자원을 포기하고 선택하는 '합리적 선택'의 기준",
+        correct: "②",
+        key: "Q16_합리적선택",
+        type: "choice",
+        options: {
+          "①": "① 기회비용을 계산하지 않고 구매",
+          "②": "② 선택을 통해 얻는 편익(이익)이 포기해야 하는 가치(기회비용)보다 클 때 선택한다",
+          "③": "③ 오로지 가장 저렴한 물품만 구매",
+          "④": "④ 소비 활동 중단"
+        },
+        explanation: "합리적 선택이란 순편익(편익 - 기회비용)이 0보다 큰(편익 > 기회비용) 선택을 의미합니다."
+      },
+      {
+        id: "Q17",
+        title: "Q17. 시장에서 상품 가격이 결정되고 변동하는 기본 원리",
+        correct: "①",
+        key: "Q17_시장가격결정",
+        type: "choice",
+        options: {
+          "①": "① 공급량에 비해 구매하려는 수요량이 많아지면 시장 가격이 상승한다",
+          "②": "② 공급 과잉 시 가격 폭등",
+          "③": "③ 담합이나 관보 고시로만 유지",
+          "④": "④ 가격 상승 시 수요량 증가"
+        },
+        explanation: "수요가 공급을 초월하면 초과 수요(희소성 증가)가 발생하여 시장 가격이 상승합니다."
+      },
+      {
+        id: "Q18",
+        title: "Q18. 자산 관리를 위한 은행 예적금과 주식의 특성 비교",
+        correct: "③",
+        key: "Q18_예적금vs주식",
+        type: "choice",
+        options: {
+          "①": "① 예적금이 위험 크고 기대수익 높음",
+          "②": "② 주식은 예금자보호법 전액 보호",
+          "③": "③ 예적금은 원금이 안전하게 지켜지는 편이지만 기대 수익(이자)이 주식 대비 상대적으로 낮다",
+          "④": "④ 매일 원금 전액 소멸"
+        },
+        explanation: "예적금은 저위험·저수익 자산이며, 주식은 고위험·고수익 자산입니다."
+      },
+      {
+        id: "Q19",
+        title: "Q19. '환율' 상승 시(원화 가치 하락) 우리 일상에 미치는 영향",
+        correct: "①",
+        key: "Q19_환율상승영향",
+        type: "choice",
+        options: {
+          "①": "① 해외 유학생 자녀에게 달러 송금 시 학부모의 환전비 부담이 늘어난다",
+          "②": "② 원화 수입 기업 단가 부담 완화",
+          "③": "③ 외국인 관광객 부담 가중",
+          "④": "④ 한국인 여행객 경비 절감"
+        },
+        explanation: "환율이 상승하면 1달러를 구매하는 데 더 많은 원화가 필요하므로 달러 송금 부담이 늘어납니다."
+      },
+      {
+        id: "Q20",
+        title: "💬 Q20. [생각 토론] 시장의 '자율'성과 정부의 '개입' 규제 중 지지 입장",
+        key: "Q20_자율vs개입규제토론",
+        type: "essay"
+      },
+      {
+        id: "Q21",
+        title: "💬 Q21. [생각 토론] 자산 관리 시 최우선 고려 가치",
+        key: "Q21_자산관리우선가치토론",
+        type: "essay"
+      }
+    ];
+
+    const getStudentDiagnosticAns = (qKey, qId) => {
+      if (studentData[qKey] !== undefined && studentData[qKey] !== null && String(studentData[qKey]).trim() !== "") {
+        return String(studentData[qKey]).trim();
+      }
+      for (let k in studentData) {
+        const cleanK = String(k).trim();
+        if (cleanK === qKey || cleanK.startsWith(qId + "_") || cleanK === qId) {
+          if (studentData[k] !== undefined && studentData[k] !== null && String(studentData[k]).trim() !== "") {
+            return String(studentData[k]).trim();
+          }
+        }
+      }
+      return "";
+    };
+
     let correctCount = 0;
     let totalChoice = 0;
     let htmlCards = "";
