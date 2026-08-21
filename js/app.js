@@ -4229,6 +4229,51 @@ function renderTasksSection() {
             <td style="padding: 14px 8px; font-size: 0.75rem; color: var(--text-secondary);">${submitTime}</td>
           </tr>
         `;
+      } else if (currentTask === "c10103_p1") {
+        const prep = details.prepData || {};
+        const loc = prep.loc || details["1_관심지역"] || "지역 미입력";
+        const cat = prep.cat || details["2_인권분야"] || "분야 미입력";
+        const desc = prep.desc || details["3_침해현황"] || "사전서술 미입력";
+        return `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText}</td>
+            <td style="padding: 14px 8px; font-weight: 700; cursor: pointer;" onclick="showStudentPasswordModal('${sId}', '${safeName}', '${safePassword}')">
+              <span style="color: var(--color-purple); text-decoration: underline;">${sName}</span>
+            </td>
+            <td style="padding: 14px 8px;"><span style="background: rgba(43, 138, 62, 0.08); color: #2b8a3e; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.75rem;">1차시 완료 🌿</span></td>
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--color-purple);">${loc}</td>
+            <td style="padding: 14px 8px; font-weight: 700; color: #d63384;">${cat}</td>
+            <td style="padding: 14px 8px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${desc}">${desc}</td>
+            <td style="padding: 14px 8px; font-size: 0.75rem; color: var(--text-secondary);">${submitTime}</td>
+            <td style="padding: 14px 8px;">
+              <button type="button" onclick="openStudentSubmissionModal('c10103_p1', event)" style="background: var(--color-purple); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer;">🔍 1차시 상세조회</button>
+            </td>
+          </tr>
+        `;
+      } else if (currentTask === "c10103_p2" || currentTask === "c10103") {
+        const finalTitle = details["최종제목"] || "실생활 인권 개선 제안서";
+        const rubricScore = localStorage.getItem(`sociallms_score_c10103_p2`) || details["교사채점_총점"] || "채점 대기 ⏳";
+        const dec1 = details["3_피드백수용및설득내역"] || details["피드백결정표"] || "결정 내역 있음";
+        const finalAlt = details["4_최종대안및실현가능성"] || "최종 대안 작성됨";
+        return `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 14px 8px; font-weight: 700; color: var(--text-primary);">${gradeText}</td>
+            <td style="padding: 14px 8px; font-weight: 700; cursor: pointer;" onclick="showStudentPasswordModal('${sId}', '${safeName}', '${safePassword}')">
+              <span style="color: var(--color-purple); text-decoration: underline;">${sName}</span>
+            </td>
+            <td style="padding: 14px 8px;"><span style="background: rgba(121, 82, 179, 0.1); color: var(--color-purple); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.75rem;">최종제출 🚀</span></td>
+            <td style="padding: 14px 8px; font-weight: 900; color: var(--color-purple); font-size: 0.92rem;">${rubricScore}</td>
+            <td style="padding: 14px 8px; font-weight: 800; color: var(--text-primary); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${finalTitle}">${finalTitle}</td>
+            <td style="padding: 14px 8px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${dec1}">${dec1}</td>
+            <td style="padding: 14px 8px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${finalAlt}">${finalAlt}</td>
+            <td style="padding: 14px 8px; font-size: 0.75rem; color: var(--text-secondary);">${submitTime}</td>
+            <td style="padding: 14px 8px;">
+              <button type="button" onclick="openStudentSubmissionModal('c10103_p2', event)" style="background: linear-gradient(135deg, #7952b3 0%, #4c6ef5 100%); color: white; border: none; padding: 7px 14px; border-radius: 10px; font-weight: 800; font-size: 0.78rem; cursor: pointer; box-shadow: 0 4px 12px rgba(121,82,179,0.3);">
+                ✍️ 6대 루브릭 채점 & 코멘트
+              </button>
+            </td>
+          </tr>
+        `;
       } else {
         const quizRes = details["형성평가퀴즈"] || "미기입";
         const pinCnt = details["등록한핀개수"] || "0개";
@@ -4260,6 +4305,8 @@ function renderTasksSection() {
   let taskTitle = "📜 과업 1: 인권 역사 연표 & 3세대 변화";
   if (currentTask === "c10201") taskTitle = "🗺️ 과업 2: 현대 인권 커뮤니티 맵핑 및 성찰";
   else if (currentTask === "c10102") taskTitle = "💬 과업 3: 헌법의 역할과 시민참여 (AI 챗봇)";
+  else if (currentTask === "c10103_p1") taskTitle = "🏛️ 과업 4: [수행평가 1차시] AI 협력 탐구 & 제안서 초안 깎기";
+  else if (currentTask === "c10103_p2" || currentTask === "c10103") taskTitle = "🏛️ 과업 4: [수행평가 2차시] 비판적 피드백 수용 & 최종 제안서 (교사 루브릭 채점)";
 
   let headerCols = `
     <th style="padding: 12px 8px; width: 12%;">학번</th>
@@ -4297,6 +4344,29 @@ function renderTasksSection() {
       <th style="padding: 12px 8px; width: 12%;">시민성찰</th>
       <th style="padding: 12px 8px; width: 8%;">제출시간</th>
     `;
+  } else if (currentTask === "c10103_p1") {
+    headerCols = `
+      <th style="padding: 12px 8px; width: 12%;">학번</th>
+      <th style="padding: 12px 8px; width: 10%;">이름</th>
+      <th style="padding: 12px 8px; width: 10%;">상태</th>
+      <th style="padding: 12px 8px; width: 14%;">관심 위치</th>
+      <th style="padding: 12px 8px; width: 14%;">인권 분야</th>
+      <th style="padding: 12px 8px; width: 22%;">사전 침해 현황 서술</th>
+      <th style="padding: 12px 8px; width: 10%;">제출시간</th>
+      <th style="padding: 12px 8px; width: 8%;">상세</th>
+    `;
+  } else if (currentTask === "c10103_p2" || currentTask === "c10103") {
+    headerCols = `
+      <th style="padding: 12px 8px; width: 10%;">학번</th>
+      <th style="padding: 12px 8px; width: 8%;">이름</th>
+      <th style="padding: 12px 8px; width: 10%;">상태</th>
+      <th style="padding: 12px 8px; width: 12%;">루브릭 총점</th>
+      <th style="padding: 12px 8px; width: 16%;">제안서 제목</th>
+      <th style="padding: 12px 8px; width: 16%;">피드백 수용 결정</th>
+      <th style="padding: 12px 8px; width: 14%;">최종 대안</th>
+      <th style="padding: 12px 8px; width: 8%;">제출시간</th>
+      <th style="padding: 12px 8px; width: 12%;">채점 / 코멘트 ✍️</th>
+    `;
   }
   
   section.innerHTML = `
@@ -4311,6 +4381,8 @@ function renderTasksSection() {
               <option value="c10101" ${currentTask === "c10101" ? "selected" : ""}>📜 과업 1: 인권 역사 연표 & 3세대 변화</option>
               <option value="c10201" ${currentTask === "c10201" ? "selected" : ""}>🗺️ 과업 2: 현대 인권 커뮤니티 맵핑 및 성찰</option>
               <option value="c10102" ${currentTask === "c10102" ? "selected" : ""}>💬 과업 3: 헌법의 역할과 시민참여 (AI 챗봇)</option>
+              <option value="c10103_p1" ${currentTask === "c10103_p1" ? "selected" : ""}>🏛️ 과업 4: [수행평가 1차시] AI 협력 탐구 & 제안서 초안 깎기</option>
+              <option value="c10103_p2" ${(currentTask === "c10103_p2" || currentTask === "c10103") ? "selected" : ""}>🏛️ 과업 4: [수행평가 2차시] 비판적 피드백 수용 & 최종 제안서 (교사 루브릭 채점)</option>
             </select>
           </div>
         </div>
@@ -5317,13 +5389,13 @@ window.openStudentSubmissionModal = function(activityId, evt) {
         <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; color: var(--color-purple); white-space: pre-wrap;">${refEssay}</p>
       </div>
     `;
-  } else if (baseId === "c10103") {
+  } else if (baseId.includes("c10103") || (activityId && activityId.includes("c10103"))) {
     actTitle = "🏛️ 과업 4: [수행평가] AI 챗봇 다각적 대화 인권 제안서 제출 내역";
     const d = (subData && subData.details) || {};
     const role = localStorage.getItem("sociallms_role");
     const isTeacher = role === "teacher";
 
-    const savedRubricScores = localStorage.getItem("sociallms_teacher_rubric_c10103") || "{}";
+    const savedRubricScores = localStorage.getItem(`sociallms_teacher_rubric_${activityId}`) || localStorage.getItem("sociallms_teacher_rubric_c10103_p2") || localStorage.getItem("sociallms_teacher_rubric_c10103") || "{}";
     let rubric = {};
     try { rubric = JSON.parse(savedRubricScores); } catch(e) {}
 
