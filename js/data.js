@@ -61,7 +61,17 @@ const CURRICULUM_DATA = [
     category: "인권 보장과 헌법",
     color: "var(--color-blue)",
     bgGradient: "linear-gradient(135deg, #eef7ff 0%, #d0ebff 100%)",
-    activities: []
+    activities: [
+      {
+        id: "c10103_performance",
+        title: "🏛️ [수행평가] AI 챗봇 다각적 대화 기반 인권 개선 제안서 프로젝트",
+        description: "1차시: 인권 문제 선정 ➔ 당사자 AI 대화 ➔ AI 협력 초안 산출 ➔ 반대자 AI 비판 대화 | 2차시: 피드백 수용성 평가 ➔ AI 도움 없는 최종 제안서 산출 (100점 만점 6대 루브릭)",
+        type: "performance",
+        timeRequired: "50분 (2차시)",
+        url: "activities/c10103_performance.html",
+        experimentalClassOnly: "17"
+      }
+    ]
   },
   {
     id: "10통사2-03-01",

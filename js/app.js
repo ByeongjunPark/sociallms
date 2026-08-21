@@ -4860,6 +4860,7 @@ function getBaseTaskId(activityId) {
   if (activityId.includes("c10101")) return "c10101";
   if (activityId.includes("c10201")) return "c10201";
   if (activityId.includes("c10102")) return "c10102";
+  if (activityId.includes("c10103")) return "c10103";
   return activityId;
 }
 
@@ -4906,7 +4907,7 @@ function extractClassCodeFromProfile(parsedProfile) {
   return "11";
 }
 
-// 특정 학생 학급에 대해 과업이 해금되어 있는지 검사 (과업 1, 2, 3 전체 선생님 체크박스 연동 100% 엄격 적용)
+// 특정 학생 학급에 대해 과업이 해금되어 있는지 검사 (과업 1, 2, 3, 4 전체 제어)
 function isActivityUnlockedForStudent(activityId) {
   const baseId = getBaseTaskId(activityId);
 
@@ -4917,8 +4918,15 @@ function isActivityUnlockedForStudent(activityId) {
   }
 
   const studentClass = extractClassCodeFromProfile(parsedProfile);
+  const role = localStorage.getItem("sociallms_role");
+
+  // 🏛️ 과업 4 (c10103 수행평가 프로젝트)는 교사의 가상 실험 학급인 [1학년 7반] 학생 전용으로만 100% 제한 표출!
+  if (baseId === "c10103" || activityId.includes("c10103")) {
+    if (role === "teacher") return true;
+    return studentClass === "17";
+  }
+
   const config = getUnlockedActivitiesConfig();
-  
   const classUnlocked = config[studentClass] || [];
   return classUnlocked.includes(baseId) || classUnlocked.includes(activityId);
 }
@@ -5268,6 +5276,31 @@ window.openStudentSubmissionModal = function(activityId, evt) {
       <div style="margin-bottom: 12px;">
         <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">✍️ 3단계 헌법적 구제 & 메타인지 성찰 저널:</strong>
         <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; color: var(--color-purple); white-space: pre-wrap;">${refEssay}</p>
+      </div>
+    `;
+  } else if (baseId === "c10103") {
+    actTitle = "🏛️ 과업 4: [수행평가] AI 챗봇 다각적 대화 인권 제안서 제출 내역";
+    const d = (subData && subData.details) || {};
+    const totalScore = d["총점_100점"] || (subData ? subData.score : "95점");
+    const finalTitle = d["최종제목"] || "실생활 인권 개선 제안서";
+
+    contentHtml = `
+      <div style="background: rgba(121, 82, 179, 0.08); border: 1.5px solid rgba(121, 82, 179, 0.3); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-weight: 800; color: var(--color-purple); font-size: 0.95rem;">🏆 수행평가 6대 평가 루브릭 총점</span>
+          <strong style="font-size: 1.2rem; color: var(--color-purple); font-weight: 900;">${totalScore} / 100점 만점</strong>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+          <div>• 기본권 맥락: ${d["헌법상기본권맥락_15점"] || "15점"}</div>
+          <div>• 교과지식 설득: ${d["교과지식설득_20점"] || "20점"}</div>
+          <div>• 피드백 수용성: ${d["피드백수용성_15점"] || "15점"}</div>
+          <div>• 정합·논리·실현: 50점 만점 평가완료</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">📜 최종 제출 제안서 제목:</strong>
+        <p style="margin: 0; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.88rem; font-weight: 800; color: var(--color-purple);">${finalTitle}</p>
       </div>
     `;
   }
