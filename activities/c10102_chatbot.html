@@ -1065,16 +1065,26 @@
     }
 
     function loadSubmittedChatbotAnswers() {
+      restoreDraft();
+      
       const rawSub = localStorage.getItem("sociallms_submission_details_c10102");
       if (rawSub) {
         try {
           const sub = JSON.parse(rawSub);
-          if (sub.details && sub.details["시민참여성찰저널"]) {
-            const reflElem = document.getElementById("reflectionContent");
-            if (reflElem) reflElem.value = sub.details["시민참여성찰저널"];
+          if (sub.details) {
+            if (sub.details["시민참여성찰저널"]) {
+              const reflElem = document.getElementById("reflectionContent");
+              if (reflElem) reflElem.value = sub.details["시민참여성찰저널"];
+            }
+            if (sub.details["Q7_국민투표서술답안"]) {
+              const q7Elem = document.getElementById("q7Essay");
+              if (q7Elem) q7Elem.value = sub.details["Q7_국민투표서술답안"];
+            }
           }
         } catch(e) {}
       }
+
+      gradeStep1Quiz(false);
     }
 
     // 프로필 세션 로드 및 학생 희망진로 파악
@@ -2009,21 +2019,72 @@
     }
 
     function saveDraft() {
+      const m1 = document.getElementById("q4_match_1") ? document.getElementById("q4_match_1").value : "";
+      const m2 = document.getElementById("q4_match_2") ? document.getElementById("q4_match_2").value : "";
+      const m3 = document.getElementById("q4_match_3") ? document.getElementById("q4_match_3").value : "";
+      const m4 = document.getElementById("q4_match_4") ? document.getElementById("q4_match_4").value : "";
+      const q7Ans = document.getElementById("q7Essay") ? document.getElementById("q7Essay").value : "";
+
       const draft = {
         quizAnswers: taskState.quizAnswers,
         quizGraded: taskState.quizGraded,
         currentStep: taskState.currentStep,
-        reflectionContent: document.getElementById("reflectionContent").value
+        m1, m2, m3, m4, q7Ans,
+        connections: q6State.connections,
+        chatHistory: taskState.chatHistory,
+        currentPersona: taskState.currentPersona,
+        reflectionContent: document.getElementById("reflectionContent") ? document.getElementById("reflectionContent").value : ""
       };
+      localStorage.setItem("c10102_draft", JSON.stringify(draft));
       localStorage.setItem("sociallms_draft_c10102", JSON.stringify(draft));
     }
 
     function restoreDraft() {
-      const raw = localStorage.getItem("sociallms_draft_c10102");
+      const raw = localStorage.getItem("c10102_draft") || localStorage.getItem("sociallms_draft_c10102");
       if (!raw) return;
       try {
         const draft = JSON.parse(raw);
-        if (draft.reflectionContent) document.getElementById("reflectionContent").value = draft.reflectionContent;
+        if (draft.quizAnswers) {
+          taskState.quizAnswers = draft.quizAnswers;
+          Object.keys(draft.quizAnswers).forEach(q => {
+            const val = draft.quizAnswers[q];
+            if (q === "q1" || q === "q2" || q === "q3") {
+              const qNum = q.substring(1);
+              const card = document.getElementById(`quizCard_q${qNum}`);
+              if (card) {
+                const radios = card.querySelectorAll(".quiz-option-input");
+                radios.forEach(r => {
+                  if (r.value === val) {
+                    r.checked = true;
+                    r.closest(".quiz-option-label").classList.add("selected");
+                  }
+                });
+              }
+            } else if (q === "q5") {
+              const hl = document.querySelector(`.q5-highlight-btn[data-value="${val}"]`);
+              if (hl) hl.classList.add("selected");
+            }
+          });
+        }
+        if (draft.m1 && document.getElementById("q4_match_1")) document.getElementById("q4_match_1").value = draft.m1;
+        if (draft.m2 && document.getElementById("q4_match_2")) document.getElementById("q4_match_2").value = draft.m2;
+        if (draft.m3 && document.getElementById("q4_match_3")) document.getElementById("q4_match_3").value = draft.m3;
+        if (draft.m4 && document.getElementById("q4_match_4")) document.getElementById("q4_match_4").value = draft.m4;
+        if (draft.q7Ans && document.getElementById("q7Essay")) document.getElementById("q7Essay").value = draft.q7Ans;
+        if (draft.connections) {
+          q6State.connections = draft.connections;
+          renderQ6SvgLines();
+        }
+        if (draft.chatHistory && draft.chatHistory.length > 0) {
+          taskState.chatHistory = draft.chatHistory;
+          renderChatMessages();
+        }
+        if (draft.currentPersona) {
+          taskState.currentPersona = draft.currentPersona;
+        }
+        if (draft.reflectionContent && document.getElementById("reflectionContent")) {
+          document.getElementById("reflectionContent").value = draft.reflectionContent;
+        }
       } catch (e) {}
     }
   </script>
