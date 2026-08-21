@@ -1808,6 +1808,17 @@
             ref4th: ref4th,
             refSelf: refSelf
           }));
+          localStorage.setItem("sociallms_submission_details_c10101", JSON.stringify({
+            activityId: "c10101",
+            activityTitle: "🏛️ 과업 1: 인권의 역사적 발달과 3세대 인권 연표 탐구",
+            score: `${finalScore}점`,
+            timestamp: new Date().toISOString(),
+            details: {
+              "Q1_4세대인권상상": ref4th,
+              "Q2_학습과정성찰": refSelf,
+              "형성평가점수": `${finalScore}점`
+            }
+          }));
           localStorage.setItem("sociallms_score_c10101", finalScore);
         }
       } catch (e) {

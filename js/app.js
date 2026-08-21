@@ -1139,12 +1139,16 @@ function renderStandards() {
           </div>
           <div class="activity-list">
             ${item.activities.map(act => {
-              const status = state.progress[act.id] || "not_started";
+              const baseId = getBaseTaskId(act.id);
+              const status = state.progress[act.id] || state.progress[baseId] || "not_started";
               const isComingSoon = act.type === "coming_soon";
+              const isUnlocked = isActivityUnlockedForStudent(act.id);
+              const isCompleted = (status === "completed") || (localStorage.getItem(`sociallms_progress_${baseId}`) === "completed");
+
               let statusText = "시작하기";
               let statusClass = "";
 
-              if (status === "completed") {
+              if (isCompleted) {
                 statusText = "완료됨 🌿";
                 statusClass = "completed";
               } else if (status === "in_progress") {
@@ -1157,20 +1161,39 @@ function renderStandards() {
                 statusClass = "disabled";
               }
 
+              let actionControlHtml = "";
+              if (!isUnlocked) {
+                actionControlHtml = `<button type="button" class="activity-action-btn" style="background: rgba(0,0,0,0.05); color: var(--text-secondary); cursor: not-allowed;">🔒 진도 대기 중</button>`;
+              } else if (isCompleted) {
+                actionControlHtml = `
+                  <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation();">
+                    <button type="button" onclick="openStudentSubmissionModal('${act.id}', event)" class="gen-btn" style="background: rgba(184, 150, 219, 0.18); color: var(--color-purple); font-weight: 800; font-size: 0.76rem; padding: 6px 12px; border-radius: 10px; border: 1.5px solid rgba(184, 150, 219, 0.35); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                      📋 제출 내역 보기
+                    </button>
+                    <button type="button" onclick="retakeStudentActivity('${act.id}', '${act.url}', event)" class="gen-btn" style="background: rgba(255, 133, 162, 0.18); color: var(--color-pink); font-weight: 800; font-size: 0.76rem; padding: 6px 12px; border-radius: 10px; border: 1.5px solid rgba(255, 133, 162, 0.35); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                      🔄 다시 풀어보기
+                    </button>
+                  </div>
+                `;
+              } else {
+                actionControlHtml = `<button type="button" class="activity-action-btn">${statusText}</button>`;
+              }
+
               return `
-                <a href="${act.url}" class="activity-item ${isComingSoon || !isActivityUnlockedForStudent(act.id) ? 'disabled' : ''}" data-act-id="${act.id}" onclick="onActivityClick('${act.id}', '${act.type}', event)">
+                <a href="${act.url}" class="activity-item ${isComingSoon || !isUnlocked ? 'disabled' : ''} ${isCompleted ? 'completed-item' : ''}" data-act-id="${act.id}" onclick="onActivityClick('${act.id}', '${act.type}', event)">
                   <div class="activity-info">
                     <div class="activity-title-wrapper">
                       <span class="activity-name">${act.title}</span>
                       <span class="activity-type-badge ${act.type}">${getKoreanActivityType(act.type)}</span>
-                      ${!isActivityUnlockedForStudent(act.id) ? '<span style="font-size:0.7rem; font-weight:800; color:#e03131; background:rgba(224,49,49,0.1); padding:2px 6px; border-radius:4px; margin-left:6px;">🔒 해금 대기 중</span>' : ''}
+                      ${!isUnlocked ? '<span style="font-size:0.7rem; font-weight:800; color:#e03131; background:rgba(224,49,49,0.1); padding:2px 6px; border-radius:4px; margin-left:6px;">🔒 해금 대기 중</span>' : ''}
+                      ${isCompleted ? '<span style="font-size:0.7rem; font-weight:800; color:#2b8a3e; background:rgba(43,138,62,0.1); padding:2px 6px; border-radius:4px; margin-left:6px;">🌿 최근 제출 완료</span>' : ''}
                     </div>
                     <p class="activity-desc">${act.description}</p>
                   </div>
                   <div class="activity-meta">
                     <span class="activity-time">⏳ ${act.timeRequired}</span>
                     <span class="status-indicator ${statusClass}"></span>
-                    <button class="activity-action-btn">${!isActivityUnlockedForStudent(act.id) ? '🔒 진도 대기 중' : statusText}</button>
+                    ${actionControlHtml}
                   </div>
                 </a>
               `;
@@ -5076,7 +5099,6 @@ function masterUnlockAllTasks() {
 
 function masterResetTasksUnlock() {
   const config = {
-    "all": ["c10101"],
     "11": ["c10101"], "12": ["c10101"], "13": ["c10101"], "14": ["c10101"], "15": ["c10101"],
     "16": ["c10101"], "17": ["c10101"]
   };
@@ -5085,4 +5107,200 @@ function masterResetTasksUnlock() {
   renderStandards();
   alert("🔒 전체 학급(1~7반)의 전이과제를 초기화하고 [과업 1]만 해금 상태로 변경했습니다! 🌸");
 }
+
+// =========================================================================
+// 📋 [학생 전용] 제출 내역 보기 팝업 모달 & 🔄 과업 다시 풀어보기 엔진
+// =========================================================================
+function getActivityUrl(activityId) {
+  if (!activityId) return "index.html";
+  if (activityId.includes("c10101")) return "activities/c10101_worksheet.html";
+  if (activityId.includes("c10201")) return "activities/c10201_mapping.html";
+  if (activityId.includes("c10102")) return "activities/c10102_chatbot.html";
+  if (activityId.includes("c10303")) return "activities/c10303_simulation.html";
+  return "index.html";
+}
+
+window.openStudentSubmissionModal = function(activityId, evt) {
+  if (evt) evt.stopPropagation();
+  
+  const modal = ensureTeacherCustomModal();
+  const body = document.getElementById("teacherCustomModalBody");
+  const actions = document.getElementById("teacherCustomModalActions");
+
+  const baseId = getBaseTaskId(activityId);
+
+  // 1. 제출 데이터 로드 (우선순위: sociallms_submission_details_XX > sociallms_profile > 백엔드)
+  let subData = null;
+  const rawSub = localStorage.getItem(`sociallms_submission_details_${baseId}`);
+  if (rawSub) {
+    try { subData = JSON.parse(rawSub); } catch(e) {}
+  }
+
+  if (!subData) {
+    const savedProfile = localStorage.getItem("sociallms_profile");
+    if (savedProfile) {
+      try {
+        const p = JSON.parse(savedProfile);
+        if (p.activities) {
+          const det = p.activities[`${baseId}_details`] || 
+                      p.activities[`과업 1: 인권 역사 연표_details`] || 
+                      p.activities[`과업 2: 커뮤니티 맵핑_details`] || 
+                      p.activities[`과업 3: 헌법과 시민참여_details`];
+          if (det) {
+            subData = {
+              activityId: baseId,
+              score: p.activities[baseId] || det["형성평가점수"] || "100점",
+              timestamp: det["제출시간 (Timestamp)"] || new Date().toISOString(),
+              details: det
+            };
+          }
+        }
+      } catch(e) {}
+    }
+  }
+
+  // 2. 제출 내역 HTML 포맷팅
+  let actTitle = "과업 수행 제출 기록";
+  let contentHtml = "";
+
+  if (baseId === "c10101") {
+    actTitle = "📜 과업 1: 인권 역사 & 3세대 연표 탐구 제출 내역";
+    const d = (subData && subData.details) || {};
+    const ref4th = d["Q1_4세대인권상상"] || d["새로운권리서술"] || "4세대 인권 상상 제안 기록";
+    const refSelf = d["Q2_학습과정성찰"] || d["성찰답변"] || "학습 과정 성찰 기록";
+    const scoreVal = subData ? subData.score : (localStorage.getItem("sociallms_score_c10101") || "100점");
+
+    contentHtml = `
+      <div style="background: rgba(121, 82, 179, 0.06); border: 1.5px solid rgba(121, 82, 179, 0.2); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-weight: 800; color: var(--color-purple); font-size: 0.9rem;">💯 1단계 형성평가 및 연표 정렬 평가 점수</span>
+          <strong style="font-size: 1.1rem; color: var(--color-purple); font-weight: 900;">${scoreVal}</strong>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary);">
+          • 1단계 역사적 사건 짝맞추기 완수<br>
+          • 2단계 3대 세대별 연대기 정렬 완수
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">✍️ 내가 상상하는 4세대 인권 제안:</strong>
+        <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; color: var(--text-primary); white-space: pre-wrap;">${ref4th}</p>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">🧠 학습 과정 메타인지 성찰 저널:</strong>
+        <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; color: var(--color-purple); white-space: pre-wrap;">${refSelf}</p>
+      </div>
+    `;
+  } else if (baseId === "c10201" || baseId === "c10303") {
+    actTitle = "🗺️ 과업 2: 현대 인권 커뮤니티 맵핑 제출 내역";
+    const d = (subData && subData.details) || {};
+    const quizRes = d["형성평가퀴즈"] || "형성평가 완료";
+    const pinCnt = d["등록한핀개수"] || "3개";
+    const refEssay = d["시민참여성찰답변"] || d["시민참여성찰저널"] || "시민 참여 성찰 기록";
+
+    contentHtml = `
+      <div style="background: rgba(43, 138, 62, 0.06); border: 1.5px solid rgba(43, 138, 62, 0.2); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-weight: 800; color: #2b8a3e; font-size: 0.9rem;">📍 우리 지역 인권 소외 구역 맵핑</span>
+          <strong style="font-size: 1rem; color: #2b8a3e; font-weight: 800;">등록한 핀: ${pinCnt}</strong>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary);">
+          • 1단계 형성평가 퀴즈: ${quizRes}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">✍️ 주거·안전·환경/소외 구역 시민 참여 성찰 저널:</strong>
+        <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; color: var(--text-primary); white-space: pre-wrap;">${refEssay}</p>
+      </div>
+    `;
+  } else if (baseId === "c10102") {
+    actTitle = "💬 과업 3: 헌법과 시민참여 (AI 챗봇) 제출 내역";
+    const d = (subData && subData.details) || {};
+    const scoreVal = subData ? subData.score : (d["형성평가점수"] || "100점");
+    const personaName = d["매칭페르소나"] || "가상시민";
+    const chatTurns = d["대화진행턴"] || "3턴";
+    const chatLog = d["챗봇대화내역"] || "대화 기록 있음";
+    const refEssay = d["시민참여성찰저널"] || d["메타성찰답변"] || "성찰 기록 있음";
+    const q6Match = d["Q6_선잇기정답수"] || "6/6개";
+
+    contentHtml = `
+      <div style="background: rgba(25, 113, 194, 0.06); border: 1.5px solid rgba(25, 113, 194, 0.2); padding: 16px; border-radius: 16px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-weight: 800; color: #1971c2; font-size: 0.9rem;">💯 1단계 형성평가(Q1~Q7) 점수</span>
+          <strong style="font-size: 1.1rem; color: #1971c2; font-weight: 900;">${scoreVal}</strong>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+          <div>• Q6 선 잇기: ${q6Match}</div>
+          <div>• Q7 AI 국민투표 채점: 정답 통과</div>
+          <div>• 대화 상대: ${personaName}</div>
+          <div>• 대화 진행: ${chatTurns}</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">💬 1:1 가상 시민과의 AI 챗봇 대화 기록:</strong>
+        <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.8rem; line-height: 1.5; color: var(--text-primary); white-space: pre-wrap; max-height: 160px; overflow-y: auto;">${chatLog}</p>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 0.86rem; color: var(--text-primary); display: block; margin-bottom: 4px;">✍️ 3단계 헌법적 구제 & 메타인지 성찰 저널:</strong>
+        <p style="margin: 0; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.83rem; line-height: 1.5; color: var(--color-purple); white-space: pre-wrap;">${refEssay}</p>
+      </div>
+    `;
+  }
+
+  body.innerHTML = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="width: 60px; height: 60px; margin: 0 auto 10px auto; background: rgba(184,150,219,0.15); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">📋</div>
+      <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0;">${actTitle}</h3>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">가장 최근에 박병준 선생님께 제출한 소중한 답안 기록입니다.</p>
+    </div>
+
+    ${contentHtml}
+  `;
+
+  actions.innerHTML = `
+    <button type="button" onclick="retakeStudentActivity('${activityId}', '${getActivityUrl(activityId)}', event); closeTeacherCustomModal();" style="background: rgba(255,133,162,0.15); color: var(--color-pink); border: 1.5px solid rgba(255,133,162,0.3); padding: 12px 20px; font-size: 0.88rem; font-weight: 800; border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+      🔄 다시 풀어보기
+    </button>
+    <button type="button" onclick="closeTeacherCustomModal()" style="background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); color: white; border: none; padding: 12px 28px; font-size: 0.92rem; font-weight: 800; border-radius: 16px; cursor: pointer; box-shadow: 0 8px 20px -4px rgba(168,85,247,0.4); transition: all 0.2s;">
+      확인 닫기 🌸
+    </button>
+  `;
+
+  modal.style.display = "flex";
+};
+
+window.retakeStudentActivity = function(activityId, url, evt) {
+  if (evt) evt.stopPropagation();
+
+  const baseId = getBaseTaskId(activityId);
+  const taskNames = {
+    "c10101": "과업 1: 인권 역사 & 3세대 연표",
+    "c10201": "과업 2: 현대 인권 커뮤니티 맵핑",
+    "c10102": "과업 3: 헌법과 시민참여 (AI 챗봇)"
+  };
+  const taskName = taskNames[baseId] || "해당 과업";
+
+  const confirmMsg = `🔄 [과업 다시 풀어보기]\n\n'${taskName}'을(를) 다시 풀어보시겠습니까?\n\n(기존 구글 시트에 작성된 선생님 제출 기록은 안전하게 보존되며, 깨끗한 새 화면에서 처음부터 다시 도전하실 수 있습니다!)`;
+  
+  if (!confirm(confirmMsg)) return;
+
+  // 1. 임시 보관 드래프트 삭제
+  localStorage.removeItem(`sociallms_draft_${baseId}`);
+  localStorage.removeItem(`c10101_draft`);
+  localStorage.removeItem(`c10201_draft`);
+  localStorage.removeItem(`c10102_draft`);
+
+  // 2. 진행 상태를 in_progress로 변경하여 바로 탐구 가능하도록 처리
+  state.progress[baseId] = "in_progress";
+  state.progress[activityId] = "in_progress";
+  localStorage.setItem("sociallms_progress", JSON.stringify(state.progress));
+
+  // 3. 해당 활동 URL로 이동
+  const targetUrl = url || getActivityUrl(activityId);
+  window.location.href = targetUrl;
+};
 

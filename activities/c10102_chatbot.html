@@ -1794,6 +1794,22 @@
       localStorage.setItem("sociallms_progress_c10102", "completed");
       localStorage.setItem("sociallms_score_c10102", score);
       localStorage.setItem("sociallms_badge_c10102", tierName);
+      localStorage.setItem("sociallms_submission_details_c10102", JSON.stringify({
+        activityId: "c10102",
+        activityTitle: "💬 과업 3: 헌법과 시민참여 (가상 시민 AI 대화)",
+        score: `${score}점`,
+        timestamp: new Date().toISOString(),
+        details: {
+          "매칭페르소나": taskState.currentPersona ? taskState.currentPersona.name : "최민준",
+          "형성평가점수": `${score}점`,
+          "대화진행턴": `${taskState.chatTurn}턴`,
+          "챗봇대화내역": taskState.chatHistory.map(m => (m.sender === "student" ? `[학생]: ${m.text}` : `[${taskState.currentPersona ? taskState.currentPersona.name : "가상시민"}]: ${m.text}`)).join("\n"),
+          "시민참여성찰저널": document.getElementById("reflectionContent") ? document.getElementById("reflectionContent").value.trim() : "",
+          "루브릭_공감성": rubricEmpathy,
+          "루브릭_기본권진단": rubricDiagnosis,
+          "루브릭_솔루션제안": rubricSolution
+        }
+      }));
       
       try {
         const rawProg = localStorage.getItem("sociallms_progress");
